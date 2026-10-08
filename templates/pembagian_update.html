@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Divisi - APBI/title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+          body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .sidebar {
+            background-color: white;
+            color: black;
+            padding: 20px;
+            max-width: 200px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #ddd;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar img {
+            display: block;
+            margin: -15px auto 20px auto;
+            height: 60px;
+        }
+        .sidebar .nav-link {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .sidebar .nav-link span {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #007aff;
+            color: white;
+        }
+        .navbar-custom {
+            background-color: #007aff;
+            padding: 10px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-weight: bold;
+            position: fixed;
+            top: 0;
+            left: 200px;
+            right: 0;
+            z-index: 1000;
+            height: 58px;
+        }
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+            margin-left: 200px;
+            margin-top: 60px;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #343a40;
+        }
+        .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        background-color: white;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 20px;
+        background-color: white;
+        font-family: "Roboto", sans-serif;
+    }
+
+    th, td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #007aff;
+        color: white;
+        font-weight: 600;
+        font-size: 15px;
+        text-transform: uppercase;
+        border-top: 1px solid #ddd;
+    }
+
+    td {
+        font-size: 14px;
+        color: #555;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f7f7f7;
+    }
+
+    tr:hover {
+        background-color: #e9f3ff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+        .btn-primary {
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            background-color: #007aff;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .table-container {
+            margin: 0 auto;
+            max-width: auto;
+        }
+
+        .action-buttons a {
+            text-decoration: none;
+            font-size: 14px;
+            color: #007aff;
+            margin-right: 10px;
+            transition: color 0.3s;
+        }
+
+        .action-buttons form {
+            display: inline;
+        }
+
+        .action-buttons button {
+            border: none;
+            background: none;
+            color: #ff6b6b;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .action-buttons a:hover {
+            color: #0056b3;
+        }
+
+        .action-buttons button:hover {
+            color: #ff3333;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+      
+        <div class="sidebar">
+            <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Lintasarta Logo">
+            <div class="menu">
+                <a class="nav-link" href="/"><i class="fas fa-home"></i> <span>Beranda</span></a>
+                <a class="nav-link" href="/upload_excel"><i class="fas fa-calendar-alt"></i> <span>Upload Jadwal Shift</span></a>
+                <a class="nav-link" href="/upload"><i class="fas fa-database"></i> <span>Load Data Absen (Mesin Lama)</span></a>
+                <a class="nav-link" href="/att_log"><i class="fas fa-fingerprint"></i> <span>Load Data Absen Fingerspot</span></a>
+                <a class="nav-link" href="/scrape-form"><i class="fas fa-server"></i> <span>Load Data Absen DCAP</span></a>
+                <a class="nav-link" href="/pegawai"><i class="fas fa-users"></i> <span>Data Pegawai</span></a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cogs"></i> <span>Pengaturan</span>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="/edit_shift_mappings">Mapping Jadwal Shift</a></li>
+                        <li><a class="dropdown-item" href="/edit-nip-mapping">Mapping NIP (Old)</a></li>
+                        <li><a class="dropdown-item" href="/edit_connection">Pengaturan Database</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+ 
+
+
+        <div class="flex-grow-1">
+         
+            <nav class="navbar navbar-expand-lg navbar-custom">
+                <div class="container-fluid">
+                    <span>Sistem Absen</span>
+                </div>
+            </nav>
+         
+
+
+<div class="content">
+    
+
+    <div class="card p-4" style="max-width: 600px; margin: auto; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 10px;">
+        <h2 class="mb-4" style="font-weight: 700;">Edit Fungsi</h2>
+        <form action="{{ url_for('update_pembagian2', id=pembagian2['pembagian2_id']) }}" method="POST">
+            <div class="mb-3">
+                <label for="pembagian2_nama" class="form-label" style="font-weight: 500;">Nama:</label>
+                <input type="text" id="pembagian2_nama" name="pembagian2_nama" class="form-control" value="{{ pembagian2['pembagian2_nama'] }}" required placeholder="Masukkan Nama Pembagian 2">
+            </div>
+
+            <div class="mb-3">
+                <label for="pembagian2_ket" class="form-label" style="font-weight: 500;">Keterangan:</label>
+                <input type="text" id="pembagian2_ket" name="pembagian2_ket" class="form-control" value="{{ pembagian2['pembagian2_ket'] }}" placeholder="Masukkan Keterangan (Opsional)">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" style="border-radius: 8px; font-size: 16px;">Simpan</button>
+        </form>
+
+        <div class="text-center">
+            <a href="{{ url_for('index_pembagian2') }}" class="btn btn-secondary w-100" style="border-radius: 8px; font-size: 14px; padding: 8px 20px;">Kembali</a>
+        </div>
+    </div>
+</div>
+            
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

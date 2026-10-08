@@ -1,0 +1,8 @@
+{
+  "user": "fingerspot",
+  "password": "replace-with-your-local-password",
+  "host": "localhost",
+  "database": "fin_pro",
+  "port": 3306,
+  "charset": "utf8"
+}

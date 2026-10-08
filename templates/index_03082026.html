@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Data Absen - APBI</title>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('hidden');
+            if (sidebar.classList.contains('hidden')) {
+                content.classList.remove('lg:ml-56');
+            } else {
+                content.classList.add('lg:ml-56');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleModal(show, modalId) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const scrollableElement = document.querySelector('.relative.overflow-y-auto'); 
+    const editButtons = document.querySelectorAll('.edit-button'); 
+
+    const savedScrollPosition = sessionStorage.getItem('scrollableElementScrollPosition');
+    const highlightedRowIds = JSON.parse(sessionStorage.getItem('highlightedRowIds')) || [];
+
+    if (savedScrollPosition) {
+        scrollableElement.scrollTop = parseInt(savedScrollPosition, 10);
+    }
+
+    highlightedRowIds.forEach(rowId => {
+        const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+        if (row) {
+            row.style.backgroundColor = '#f0f4ff'; 
+        }
+    });
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault(); 
+
+            const row = button.closest('tr'); 
+            row.style.backgroundColor = '#f0f4ff'; 
+
+            const rowId = row.getAttribute('data-row-id');
+            if (!highlightedRowIds.includes(rowId)) {
+                highlightedRowIds.push(rowId); 
+                sessionStorage.setItem('highlightedRowIds', JSON.stringify(highlightedRowIds)); 
+            }
+
+            sessionStorage.setItem('scrollableElementScrollPosition', scrollableElement.scrollTop); 
+
+            setTimeout(() => {
+                window.location.href = button.href;
+            }, 200);
+        });
+    });
+
+    sessionStorage.removeItem('highlightedRowIds');
+    sessionStorage.removeItem('scrollableElementScrollPosition');
+});
+
+    </script>
+    <style>
+                                .scrollbar-hidden {
+                            scrollbar-width: none;
+                            -ms-overflow-style: none;
+                        }
+                        .scrollbar-hidden::-webkit-scrollbar {
+                            display: none;
+                        }
+
+              .avatar-widget {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            z-index: 1001;
+            display: none; 
+        }
+
+        .popup-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #999;
+        }
+
+        .popup-close:hover {
+            color: #333;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="relative flex min-h-screen">
+
+        <div id="sidebar" class="w-56 bg-white text-gray-800 flex flex-col p-4 fixed h-full z-40 shadow-lg border-r border-gray-200">
+
+            <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-gray-800 text-xl lg:hidden">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center justify-center mb-8">
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo" class="h-auto object-contain max-w-[150px]">
+            </div>
+
+            <nav class="space-y-6">
+                <ul class="space-y-2">
+                
+                    <li>
+                        <a href="/" class="group flex items-center p-3 rounded-xl hover:bg-blue-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Absen</span>
+                        </a>
+                    </li>
+            
+                  
+                    <li>
+                        <a href="/upload_excel" class="group flex items-center p-3 rounded-xl hover:bg-green-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-alt mr-4 text-green-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Upload Jadwal Shift</span>
+                        </a>
+                    </li>
+            
+                   
+                    <li>
+                        <a href="/upload" class="group flex items-center p-3 rounded-xl hover:bg-yellow-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-history mr-4 text-yellow-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen (Mesin Lama)</span>
+                        </a>
+                    </li>
+            
+              
+                    <li>
+                        <a href="/att_log" class="group flex items-center p-3 rounded-xl hover:bg-purple-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-fingerprint mr-4 text-purple-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen Fingerspot</span>
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <a href="/daftar-cuti" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-clipboard-list mr-4 text-pink-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Cuti Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/cek_jadwal"  class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Cek Jadwal Pegawai</span>
+                        </a>
+                    </li>
+            
+                 
+                    <li>
+                        <div>
+                            <button onclick="toggleDropdown()" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300 w-full text-left">
+                                <i class="fas fa-ellipsis-h mr-4 text-pink-500 text-lg"></i>
+                                <span class="font-semibold text-sm">Lainnya</span>
+                                <i class="fas fa-chevron-down ml-auto text-gray-400 group-hover:text-pink-500"></i>
+                            </button>
+                            <ul id="settings-dropdown" class="pl-8 mt-3 space-y-2 hidden">
+                                <li>
+                                    <a href="/pegawai" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-users mr-2 text-blue-500"></i> Pegawai
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/upload-lembur" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-business-time mr-2 text-green-600"></i> Lemburan
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/ito_load" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>&nbsp;&nbsp; Absen ITO
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+            
+
+            <div class="mt-auto text-center text-sm text-gray-500 border-t border-gray-300 pt-4">
+                <a href="/logout">
+                    <i class="fas fa-sign-out text-lg"></i>
+                    <span class="hidden md:inline font-medium text-sm">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="content" class="flex-1 flex flex-col lg:ml-56">
+
+            <div class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
+
+                <button onclick="toggleSidebar()" class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2">
+                    <i class="fas fa-bars text-lg"></i>
+                    <span class="hidden md:inline font-medium text-sm">Menu</span>
+                </button>
+            
+             
+                <div class="flex items-center space-x-2 overflow-x-auto">
+                   
+                    <div class="bg-gray-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-gray-700 font-bold text-sm">{{ records|length }}</div>
+                        <div class="text-gray-600 text-xs">Total</div>
+                    </div>
+                    
+                  
+                    <div class="bg-green-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-green-700 font-bold text-sm">{{ stats.get('H', 0) }}</div>
+                        <div class="text-green-600 text-xs">H</div>
+                    </div>
+                    
+                   
+                    <div class="bg-orange-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-orange-700 font-bold text-sm">{{ stats.get('TP', 0) }}</div>
+                        <div class="text-orange-600 text-xs">TP</div>
+                    </div>
+                    
+                
+                    <div class="bg-yellow-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-yellow-700 font-bold text-sm">{{ stats.get('TL', 0) }}</div>
+                        <div class="text-yellow-600 text-xs">TL</div>
+                    </div>
+                    
+                   
+                    <div class="bg-blue-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-blue-700 font-bold text-sm">{{ stats.get('D', 0) }}</div>
+                        <div class="text-blue-600 text-xs">D</div>
+                    </div>
+                    
+              
+                    <div class="bg-indigo-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-indigo-700 font-bold text-sm">{{ stats.get('CT', 0) }}</div>
+                        <div class="text-indigo-600 text-xs">CT</div>
+                    </div>
+                    
+            
+                    <div class="bg-purple-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-purple-700 font-bold text-sm">{{ stats.get('S', 0) }}</div>
+                        <div class="text-purple-600 text-xs">S</div>
+                    </div>
+                    
+                  
+                    <div class="bg-red-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-red-700 font-bold text-sm">{{ stats.get('A', 0) }}</div>
+                        <div class="text-red-600 text-xs">A</div>
+                    </div>
+                    
+                   
+                    <div class="bg-gray-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-gray-700 font-bold text-sm">{{ stats.get('Libur', 0) }}</div>
+                        <div class="text-gray-600 text-xs">Libur</div>
+                    </div>
+                    
+               
+                    <div class="bg-slate-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-slate-700 font-bold text-sm">{{ stats.get('LDL', 0) }}</div>
+                        <div class="text-slate-600 text-xs">LDL</div>
+                    </div>
+                    
+               
+                    <div class="bg-teal-100 rounded-lg px-3 py-1 text-center min-w-fit">
+                        <div class="text-teal-700 font-bold text-sm">{{ stats.get('OT', 0) }}</div>
+                        <div class="text-teal-600 text-xs">OT</div>
+                    </div>
+                </div>
+            
+                <div class="flex items-center space-x-3">
+<!-- Toggle PM Button -->
+<div class="flex items-center space-x-2">
+    <span class="text-sm text-gray-600">PM:</span>
+    <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="pmToggle" class="sr-only peer"
+            {% if request.args.get('show_pm', 'off') == 'on' %}checked{% endif %}>
+        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer 
+                    peer-checked:after:translate-x-full peer-checked:after:border-white 
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                    after:bg-white after:border-gray-300 after:border after:rounded-full 
+                    after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+        </div>
+    </label>
+</div>
+
+                    <button class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2" onclick="toggleModal(true, 'filterModal')">
+                        <i class="fas fa-filter text-lg"></i>
+                        <span class="hidden md:inline font-medium text-sm">Filter Data</span>
+                    </button>
+                    <button class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2" onclick="toggleModal(true, 'exportModal')">
+                        <i class="fas fa-file-export text-lg"></i>
+                        <span class="hidden md:inline font-medium text-sm">Export Data</span>
+                    </button>
+                    <button class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2" onclick="toggleModal(true, 'reloadModal')">
+                        <i class="fas fa-sync-alt text-lg"></i>
+                        <span class="hidden md:inline font-medium text-sm">Reload Shift</span>
+                    </button>
+                
+                <i class="fas fa-person-running text-gray-800 text-2xl cursor-pointer hover:text-gray-600 transition-all"
+                onclick="toggleModal(true, 'jamKhususModal')"></i>
+                                </div>
+            </div>
+
+<div class="container mx-auto p-2">
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <!-- Table for Desktop -->
+        <div class="hidden lg:block">
+            <div class="relative overflow-y-auto scrollbar-hidden" style="max-height: calc(100vh - 100px);">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-white uppercase bg-gradient-to-r from-blue-600 to-blue-500 sticky top-0 z-10 shadow-md">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-center">ID</th>
+                            <th scope="col" class="px-4 py-3 text-center">NIP</th>
+                            <th scope="col" class="px-4 py-3 text-left">Nama</th>
+                            <th scope="col" class="px-4 py-3 text-center">Divisi</th>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                Tanggal
+                            </th>
+                            <th scope="col" class="px-4 py-3 text-center">Shift</th>
+                            <th scope="col" class="px-4 py-3 text-center">Masuk</th>
+                            <th scope="col" class="px-4 py-3 text-center">Pulang</th>
+                            <th scope="col" class="px-4 py-3 text-center">Masuk Real</th>
+                            <th scope="col" class="px-4 py-3 text-center">Pulang Real</th>
+                            <th scope="col" class="px-4 py-3 text-center">Keterangan</th>
+                            <th scope="col" class="px-4 py-3 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for record in records %}
+                        <tr class="bg-white border-b hover:bg-blue-50 font-medium" data-row-id="{{ record['pegawai_id'] }}">
+                            <td class="px-4 py-3 text-center text-gray-800">{{ record['pegawai_id'] }}</td>
+                            <td class="px-4 py-3 text-center text-gray-600">{{ record['pegawai_nip'] }}</td>
+                            <td class="px-4 py-3 text-left text-gray-900">{{ record['pegawai_nama'] }}</td>
+                            <td class="px-4 py-3 text-center text-gray-600">{{ record['pembagian1_nama'] }}</td>
+                            <td class="px-4 py-3 text-center text-gray-800 flex items-center justify-center tgl-shift font-semibold">
+                            {{ record['tgl_shift'] }}
+                        </td>
+                        
+                            
+                            <td class="px-4 py-3 text-center text-gray-700">{{ record['jk_name'] }}</td>
+                            <td class="px-4 py-3 text-center text-gray-500">{{ record['jk_bcin'] }}</td>
+                            <td class="px-4 py-3 text-center text-gray-500">{{ record['jk_ecout'] }}</td>
+                            <td class="px-4 py-3 text-center font-bold 
+                                {% if record['scan_in'] == '-' %}
+                                    text-gray-400
+                                {% elif not record['scan_in'] %}
+                                    text-red-300
+                                {% else %}
+                                    text-blue-700
+                                {% endif %}">{{ record['scan_in'] or 'None' }}</td>
+                            <td class="px-4 py-3 text-center font-bold 
+                                {% if record['scan_out'] == '-' %}
+                                    text-gray-400
+                                {% elif not record['scan_out'] %}
+                                    text-red-300
+                                {% else %}
+                                    text-purple-700
+                                {% endif %}">{{ record['scan_out'] or 'None' }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="
+                                    {% if record['keterangan'] == 'H' %}
+                                        bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% elif record['keterangan'] == 'TL' %}
+                                        bg-yellow-100 text-yellow-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% elif record['keterangan'] == 'TP' %}
+                                        bg-orange-100 text-orange-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% elif record['keterangan'] in ['LB', 'LDL', 'LD', 'CT'] %}
+                                        bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% elif record['keterangan'] == 'S' %}
+                                        bg-purple-100 text-purple-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% elif record['keterangan'] == 'D' %}
+                                        bg-indigo-100 text-indigo-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% elif record['keterangan'] == 'A' %}
+                                        bg-red-100 text-red-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% elif record['keterangan'] == 'OT' %}
+                                        bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1 rounded-full
+                                    {% endif %}
+                                ">
+                                    {{ record['keterangan'] }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <a href="{{ url_for('update_schedule', pegawai_id=record['pegawai_id'], tgl_shift=record['tgl_shift']) }}" 
+                                   class="text-blue-500 hover:text-blue-600 transition-all edit-button">
+                                    <i class="fas fa-edit text-lg"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden" id="filterModal">
+    <div class="bg-white rounded-xl shadow-2xl w-96 max-h-[90vh] overflow-y-auto">
+
+        <div class="border-b px-4 py-3 flex justify-between items-center bg-gray-50">
+            <h5 class="text-lg font-semibold text-gray-800">Filter Data</h5>
+            <button class="text-gray-500 hover:text-gray-700 text-xl" onclick="toggleModal(false, 'filterModal')">&times;</button>
+        </div>
+
+        <div class="p-4">
+            <form action="{{ url_for('index') }}" method="get">
+
+                <div class="mb-4">
+                    <label for="start_date" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-calendar-alt mr-2"></i> Tanggal Awal
+                    </label>
+                    <input type="date" id="start_date" name="start_date" 
+                        class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                        value="{{ request.args.get('start_date', '') }}">
+                </div>
+
+                <div class="mb-4">
+                    <label for="end_date" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-calendar-alt mr-2"></i> Tanggal Akhir
+                    </label>
+                    <input type="date" id="end_date" name="end_date" 
+                        class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                        value="{{ request.args.get('end_date', '') }}">
+                </div>
+
+                <div class="mb-4">
+                    <label for="keterangan" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-info-circle mr-2"></i> Keterangan
+                    </label>
+                    <select id="keterangan" name="keterangan" 
+                        class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua</option>
+                        <option value="H" {% if request.args.get('keterangan') == 'H' %}selected{% endif %}>H</option>
+                        <option value="TL" {% if request.args.get('keterangan') == 'TL' %}selected{% endif %}>TL</option>
+                        <option value="TP" {% if request.args.get('keterangan') == 'TP' %}selected{% endif %}>TP</option>
+                        <option value="LB" {% if request.args.get('keterangan') == 'LB' %}selected{% endif %}>LB</option>
+                        <option value="CT" {% if request.args.get('keterangan') == 'CT' %}selected{% endif %}>CT</option>
+                        <option value="D" {% if request.args.get('keterangan') == 'D' %}selected{% endif %}>D</option>
+                        <option value="A" {% if request.args.get('keterangan') == 'A' %}selected{% endif %}>A</option>
+                        <option value="OT" {% if request.args.get('keterangan') == 'OT' %}selected{% endif %}>OT</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="pembagian1_nama" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-building mr-2"></i> Divisi
+                    </label>
+                    <select id="pembagian1_nama" name="pembagian1_nama"
+                    class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                
+                    <option value=""
+                        {% if not request.args.get('pembagian1_nama') %}selected{% endif %}>
+                        Semua Divisi
+                    </option>
+                
+                    <option value="HDTI"
+                        {% if request.args.get('pembagian1_nama') == 'HDTI' %}selected{% endif %}>
+                        HDTI
+                    </option>
+                
+                    <option value="HDBS"
+                        {% if request.args.get('pembagian1_nama') == 'HDBS' %}selected{% endif %}>
+                        HDBS
+                    </option>
+                
+                    <option value="HDTI-HDBS"
+                        {% if request.args.get('pembagian1_nama') == 'HDTI-HDBS' %}selected{% endif %}>
+                        HDTI - HDBS
+                    </option>
+                
+                    <option value="QAQC"
+                        {% if request.args.get('pembagian1_nama') == 'QAQC' %}selected{% endif %}>
+                        QAQC
+                    </option>
+                
+                    <option value="TA"
+                        {% if request.args.get('pembagian1_nama') == 'TA' %}selected{% endif %}>
+                        TA
+                    </option>
+                
+                    <option value="QAQC-TA"
+                        {% if request.args.get('pembagian1_nama') == 'QAQC-TA' %}selected{% endif %}>
+                        QAQC - TA
+                    </option>
+                
+                </select>
+                
+                </div>
+
+                <div class="mb-4">
+                    <label for="search_name" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-user mr-2"></i> Cari Nama Personil
+                    </label>
+                    <input type="text" id="search_name" name="search_name" 
+                        class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                        value="{{ request.args.get('search_name', '') }}">
+                    <input type="hidden" name="show_pm" value="{{ request.args.get('show_pm', 'off') }}">
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">
+                        Oke
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Tambah Jam Kerja Khusus -->
+<div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden" id="jamKhususModal">
+    <div class="bg-white rounded-xl shadow-2xl w-96 max-h-[90vh] overflow-y-auto">
+
+        <!-- Header -->
+        <div class="border-b px-4 py-3 flex justify-between items-center bg-gray-50">
+            <h5 class="text-lg font-semibold text-gray-800">Tambah Jam Kerja Khusus</h5>
+            <button type="button" class="text-gray-500 hover:text-gray-700 text-xl"
+                    onclick="toggleModal(false, 'jamKhususModal')">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-4">
+            <form action="{{ url_for('jam_kerja_khusus') }}" method="post">
+
+                <!-- Tanggal -->
+                <div class="mb-4">
+                    <label for="tanggal_khusus" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-calendar-day mr-2"></i> Tanggal
+                    </label>
+                    <input type="date" id="tanggal_khusus" name="tanggal"
+                           class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm 
+                                  focus:ring-green-500 focus:border-green-500" required>
+                </div>
+
+                <!-- Pilih Shift -->
+                <div class="mb-4">
+                    <label for="jk_id" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-clock mr-2"></i> Pilih Shift
+                    </label>
+                    <select id="jk_id" name="jk_id"
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm 
+                                   focus:ring-green-500 focus:border-green-500" required>
+                        <option value="">-- Pilih Shift --</option>
+                        {% for jk in jam_kerja_list %}
+                            <option value="{{ jk.jk_id }}">
+                                {{ jk.jk_name }} 
+                                (Masuk: {{ jk.jk_bcin }} | Pulang: {{ jk.jk_ecout }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Jam Masuk Khusus -->
+                <div class="mb-4">
+                    <label for="jam_masuk_khusus" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Jam Masuk Khusus (opsional)
+                    </label>
+                    <input type="time" id="jam_masuk_khusus" name="jam_masuk_khusus"
+                           class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm 
+                                  focus:ring-green-500 focus:border-green-500">
+                </div>
+
+                <!-- Jam Pulang Khusus -->
+                <div class="mb-4">
+                    <label for="jam_pulang_khusus" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Jam Pulang Khusus (opsional)
+                    </label>
+                    <input type="time" id="jam_pulang_khusus" name="jam_pulang_khusus"
+                           class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm 
+                                  focus:ring-green-500 focus:border-green-500">
+                </div>
+
+<!-- Keterangan -->
+<div class="mb-4">
+    <label for="keterangan_khusus" class="block text-sm font-semibold text-gray-700">
+        <i class="fas fa-info-circle mr-2"></i> Keterangan
+    </label>
+    <textarea id="keterangan_khusus" name="keterangan" rows="3"
+    placeholder="Tulis keterangan khusus, contoh: Pulang lebih awal/Datang lebih awal/Bencana/Demonstrasi atau lainnya."
+              class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm 
+                     focus:ring-green-500 focus:border-green-500"></textarea>
+</div>
+
+
+                <!-- Tombol Aksi -->
+                <div class="flex justify-end gap-3">
+                    <button type="button"
+                            onclick="toggleModal(false, 'jamKhususModal')"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 shadow">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden" id="exportModal">
+    <div class="bg-white rounded-xl shadow-2xl w-96 max-h-[75vh] overflow-y-auto">
+
+        <div class="border-b px-4 py-3 flex justify-between items-center bg-gray-50">
+            <h5 class="text-base font-semibold text-gray-800">Export Data</h5>
+            <button class="text-gray-500 hover:text-gray-700 text-lg" onclick="toggleModal(false, 'exportModal')">&times;</button>
+        </div>
+
+        <div class="p-4">
+
+            <form action="{{ url_for('export_excel') }}" method="get" class="mb-5">
+                <input type="hidden" name="start_date" value="{{ request.args.get('start_date', '') }}">
+                <input type="hidden" name="end_date" value="{{ request.args.get('end_date', '') }}">
+                <input type="hidden" name="keterangan" value="{{ request.args.get('keterangan', '') }}">
+                <input type="hidden" name="search_name" value="{{ request.args.get('search_name', '') }}">
+                
+                <div class="mb-3">
+                    <label for="division_ext" class="block text-sm font-medium text-gray-700">
+                        <i class="fas fa-calendar-alt mr-2"></i> Export Data Harian
+                    </label>
+                    
+                    <select id="division_ext" name="division_ext" 
+                        class="w-full mt-1 h-9 px-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        
+                        <option value="" {% if not request.args.get('division_ext') %}selected{% endif %}>Semua Divisi</option>
+                        
+                        <option value="HDTI" {% if request.args.get('division_ext') == 'HDTI' %}selected{% endif %}>HDTI</option>
+                        
+                        <option value="HDBS" {% if request.args.get('division_ext') == 'HDBS' %}selected{% endif %}>HDBS</option>
+                        
+                        <option value="QAQC" {% if request.args.get('division_ext') == 'QAQC' %}selected{% endif %}>QAQC</option>
+                        
+                        <option value="TA" {% if request.args.get('division_ext') == 'TA' %}selected{% endif %}>TA</option>
+                        
+                        <option value="HDTI-HDBS" {% if request.args.get('division_ext') == 'HDTI-HDBS' %}selected{% endif %}>HDTI-HDBS</option>
+                        
+                        <option value="QAQC-TA" {% if request.args.get('division_ext') == 'QAQC-TA' %}selected{% endif %}>QAQC-TA</option>
+                        
+                    </select>
+                    
+                    <input type="hidden" name="show_pm" value="{{ request.args.get('show_pm', 'off') }}">
+                </div>
+                
+                <button type="submit" class="bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 text-sm shadow">
+                    Download Datanya
+                </button>
+            </form>
+            <!--
+            <form action="/export_excel_month" method="get" class="mb-5">
+                <div class="mb-3">
+                    <label for="month" class="block text-sm font-medium text-gray-700">
+                        <i class="fas fa-calendar-alt mr-2"></i> Export Data Bulanan (Cut-off)
+                    </label>
+                    <input type="month" id="month" name="month" 
+                        class="w-full mt-1 h-9 px-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    <select id="division" name="division" 
+                        class="w-full mt-1 h-9 px-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Pilih Divisi</option>
+                        <option value="HDTI">HDTI</option>
+                        <option value="HDBS">HDBS</option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-gray-600 text-white w-full py-2 rounded-lg hover:bg-gray-700 text-sm shadow">
+                    Export Data Bulanan (Cut-off)
+                </button>
+            </form>
+
+            <form action="/export_excel_month_reg" method="get">
+                <div class="mb-3">
+                    <label for="month_reg" class="block text-sm font-medium text-gray-700">
+                        <i class="fas fa-calendar-alt mr-2"></i> Export Data Bulanan (Regular)
+                    </label>
+                    <input type="month" id="month_reg" name="month_reg" 
+                        class="w-full mt-1 h-9 px-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    <select id="division_reg" name="division_reg" 
+                        class="w-full mt-1 h-9 px-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Pilih Divisi</option>
+                        <option value="HDTI">HDTI</option>
+                        <option value="HDBS">HDBS</option>
+                    </select>
+                </div>
+                <button type="submit" class="bg-gray-600 text-white w-full py-2 rounded-lg hover:bg-gray-700 text-sm shadow">
+                    Export Data Bulanan (Regular)
+                </button>
+            </form>
+            -->
+        </div>
+    </div>
+</div>
+
+<div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden" id="reloadModal">
+    <div class="bg-white rounded-xl shadow-2xl w-96 max-h-[75vh] overflow-y-auto">
+
+        <div class="border-b px-5 py-4 flex justify-between items-center bg-gray-50">
+            <h5 class="text-base font-semibold text-gray-800">Samakan Shift</h5>
+            <button class="text-gray-500 hover:text-gray-700 text-lg" onclick="toggleModal(false, 'reloadModal')">&times;</button>
+        </div>
+
+        <div class="p-5">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Update Shift</h2>
+            <form action="{{ url_for('update_shift') }}" method="POST">
+
+                <div class="mb-4">
+                    <label for="target_date" class="block text-sm font-medium text-gray-700">
+                        <i class="fas fa-calendar-check mr-2"></i> Tanggal Target
+                    </label>
+                    <input type="date" id="target_date" name="target_date" required 
+                        class="w-full mt-2 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div class="mb-4">
+                    <label for="reference_date" class="block text-sm font-medium text-gray-700">
+                        <i class="fas fa-calendar-day mr-2"></i> Tanggal Referensinya
+                    </label>
+                    <input type="date" id="reference_date" name="reference_date" required 
+                        class="w-full mt-2 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <div class="mb-4">
+                    <label for="division_reload" class="block text-sm font-medium text-gray-700">
+                        <i class="fas fa-building mr-2"></i> Divisi (Opsional)
+                    </label>
+                    <select id="division_reload" name="division"
+                        class="w-full mt-2 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Divisi</option>
+                        <option value="HDTI">HDTI</option>
+                        <option value="HDBS">HDBS</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Kalau enggak diisi, semua divisi akan diupdate.</p>
+                </div>
+
+                
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="update_bifast_shifts" name="update_bifast_shifts" value="true" checked 
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="update_bifast_shifts" class="ml-2 text-sm font-medium text-gray-700">
+                        Ubah juga shift BI-FAST?
+                    </label>
+                </div>
+
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="cuti" name="cuti" value="true" 
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="cuti" class="ml-2 text-sm font-medium text-gray-700">
+                         Ikutin <b>Cuti</b>
+                    </label>
+                </div>
+
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="dinas" name="dinas" value="true" 
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="dinas" class="ml-2 text-sm font-medium text-gray-700">
+                         Ikutin <b>Dinas</b>
+                    </label>
+                </div>
+
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="sakit" name="sakit" value="true" 
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="sakit" class="ml-2 text-sm font-medium text-gray-700">
+                         Ikutin <b>Sakit</b>
+                    </label>
+                </div>
+
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="izin" name="izin" value="true" 
+                        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="izin" class="ml-2 text-sm font-medium text-gray-700">
+                         Ikutin <b>Izin</b>
+                    </label>
+                </div>
+                
+
+                <div class="flex justify-end gap-3">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">
+                        Oke, Sesuaikan Shiftnya
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+    
+    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const avatarWidget = document.getElementById('avatar-widget');
+            const popup = document.getElementById('popup');
+            const overlay = document.getElementById('overlay');
+            const popupClose = document.getElementById('popup-close');
+
+            avatarWidget.addEventListener('click', () => {
+                popup.style.display = 'block';
+                overlay.style.display = 'block';
+            });
+
+            popupClose.addEventListener('click', () => {
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+
+            overlay.addEventListener('click', () => {
+                popup.style.display = 'none';
+                overlay.style.display = 'none';
+            });
+        });
+    </script>
+
+<script>
+    document.getElementById('pmToggle').addEventListener('change', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (this.checked) {
+            urlParams.set('show_pm', 'on');
+        } else {
+            urlParams.set('show_pm', 'off');
+        }
+        window.location.search = urlParams.toString();
+    });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Status Kehadiran - APBI</title>
+    <style>
+        input[type="date"]:disabled {
+            background-color: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl w-full space-y-8">
+            <div class="text-center">
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Form Status Kehadiran</h2>
+                <p class="mt-2 text-sm text-gray-600">Silakan isi form status kehadiran di bawah ini</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="bg-white shadow-xl rounded-lg p-8">
+                <form method="POST" class="space-y-6">
+                    <div>
+                        <label for="nomor_surat" class="block text-sm font-medium text-gray-700">Nomor Surat</label>
+                        <input type="text" name="nomor_surat" id="nomor_surat" readonly value="{{ nomor_surat_preview }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500">
+                        <p class="text-xs text-gray-500 mt-1">Nomor surat akan dibuat otomatis</p>
+                    </div>
+
+                    <div>
+                        <label for="nomor_id_bi" class="block text-sm font-medium text-gray-700">Nomor ID BI</label>
+                        <input type="text" name="nomor_id_bi" id="nomor_id_bi" required maxlength="6" pattern="[0-9]{1,6}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Masukkan maksimal 6 digit angka">
+                        <p class="text-xs text-gray-500 mt-1">Maksimal 6 digit angka</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="kategori_alasan" class="block text-sm font-medium text-gray-700">Kategori Alasan</label>
+                            <select name="kategori_alasan" id="kategori_alasan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Kategori Alasan</option>
+                                <option value="Sakit">Sakit</option>
+                                <option value="Dinas">Dinas</option>
+                                <option value="Bekerja Tidak Penuh (TP)">Bekerja Tidak Penuh (TP)</option>
+                                <option value="Telambat (TL)">Telambat (TL)</option>
+                                <option value="Lain - Lain">Lain - Lain</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="tim" class="block text-sm font-medium text-gray-700">Tim</label>
+                            <select name="tim" id="tim" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Tim ({{ divisi_user }})</option>
+                                {% for tim in tim_list %}
+                                    <option value="{{ tim.tim_nama }}">{{ tim.tim_nama }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="alasan_detail" class="block text-sm font-medium text-gray-700">Detail Alasan <span class="text-xs text-gray-500">(maksimal 100 karakter)</span></label>
+                        <textarea name="alasan_detail" id="alasan_detail" rows="3" maxlength="100" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Jelaskan detail alasan ketidakhadiran"></textarea>
+                        <div class="text-xs text-gray-500 mt-1"><span id="char_count">0</span>/100 karakter</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="nama_mengetahui" class="block text-sm font-medium text-gray-700">Nama yang Mengetahui (SPV/Pimpinan BI)</label>
+                            <select name="nama_mengetahui" id="nama_mengetahui" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Nama yang Mengetahui</option>
+                                {% for nama in nama_mengetahui_list %}
+                                    <option value="{{ nama.nama }}">{{ nama.nama }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="nama_menyetujui" class="block text-sm font-medium text-gray-700">Nama yang Menyetujui (PM)</label>
+                            <select name="nama_menyetujui" id="nama_menyetujui" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Nama yang Menyetujui</option>
+                                {% for nama in nama_menyetujui_list %}
+                                    <option value="{{ nama.nama }}">{{ nama.nama }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="tanggal_ketidakhadiran" class="block text-sm font-medium text-gray-700">Tanggal Ketidakhadiran</label>
+                        <input type="date" name="tanggal_ketidakhadiran" id="tanggal_ketidakhadiran" required max="2026-07-06" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Pilih tanggal ketidakhadiran</p>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-6">
+                        <a href="/kalender-cuti" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Kembali</a>
+                        <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center">
+                <p class="text-sm text-gray-500">Pastikan semua data sudah benar sebelum submit</p>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal Popup untuk Email setelah Submit Pengajuan -->
+<div id="emailModalPengajuan" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="text-center mb-4">
+            <div class="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                <i class="fas fa-check text-green-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Pengajuan Berhasil</h3>
+            <p class="text-sm text-gray-600 mt-2">Mau kirim file form status kehadiran PDF ini ke email? (biasanya untuk print di kantor)</p>
+        </div>
+        
+        <div class="mb-4">
+            <label for="emailPengajuanInput" class="block text-sm font-medium text-gray-700 mb-2">Email Tujuan :</label>
+            <input type="email" id="emailPengajuanInput" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="demo@example.com">
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+            <button onclick="skipEmailPengajuan()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
+                Enggak Usah
+            </button>
+            <button onclick="kirimEmailPengajuan()" id="kirimEmailPengajuanBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                <span id="kirimEmailPengajuanText">Kirim Email</span>
+                <i id="kirimEmailPengajuanLoadingIcon" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+{% if pengajuan_berhasil %}
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        Pengajuan status kehadiran berhasil dibuat
+    </div>
+{% endif %}
+
+    <script>
+        const alasanInput = document.getElementById('alasan_detail');
+        const charCount = document.getElementById('char_count');
+        const nomorIdBiInput = document.getElementById('nomor_id_bi');
+        
+        alasanInput.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+
+        nomorIdBiInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value.length > 6) {
+                this.value = this.value.slice(0, 6);
+            }
+        });
+
+        let idStatusTerbaru = null;
+
+        function showEmailModalPengajuan(idStatus) {
+            idStatusTerbaru = idStatus;
+            document.getElementById('emailModalPengajuan').classList.remove('hidden');
+            document.getElementById('emailPengajuanInput').focus();
+        }
+
+        function skipEmailPengajuan() {
+            document.getElementById('emailModalPengajuan').classList.add('hidden');
+            document.getElementById('emailPengajuanInput').value = '';
+            idStatusTerbaru = null;
+        }
+
+        function kirimEmailPengajuan() {
+            const email = document.getElementById('emailPengajuanInput').value.trim();
+            
+            if (!email) {
+                alert('Email tujuan harus diisi!');
+                return;
+            }
+            
+            if (!idStatusTerbaru) {
+                alert('ID status tidak ditemukan!');
+                return;
+            }
+            
+            const kirimBtn = document.getElementById('kirimEmailPengajuanBtn');
+            const kirimText = document.getElementById('kirimEmailPengajuanText');
+            const loadingIcon = document.getElementById('kirimEmailPengajuanLoadingIcon');
+            
+            kirimBtn.disabled = true;
+            kirimText.textContent = 'Mengirim...';
+            loadingIcon.classList.remove('hidden');
+            
+            fetch(`/kirim-email-status-kehadiran/${idStatusTerbaru}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    skipEmailPengajuan();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim email');
+            })
+            .finally(() => {
+                kirimBtn.disabled = false;
+                kirimText.textContent = 'Kirim Email';
+                loadingIcon.classList.add('hidden');
+            });
+        }
+
+        // Auto show modal jika pengajuan berhasil
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if pengajuan_berhasil and id_status_baru %}
+                setTimeout(function() {
+                    showEmailModalPengajuan({{ id_status_baru }});
+                }, 500);
+            {% endif %}
+        });
+
+    </script>
+</body>
+</html>

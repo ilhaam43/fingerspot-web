@@ -1,0 +1,534 @@
+<!-- Form placeholder when no date selected -->
+{% if not tanggal_lembur %}
+<div class="mb-6 p-6 bg-blue-50 border border-blue-200 rounded-lg text-center">
+    <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+        <i class="fas fa-calendar-check text-blue-600 text-2xl"></i>
+    </div>
+    <h3 class="text-lg font-semibold text-blue-900 mb-2">Pilih Tanggal Terlebih Dahulu</h3>
+    <p class="text-blue-700 text-sm mb-4">
+        Untuk melanjutkan pengajuan lembur, silakan pilih tanggal dan cek data absensi Anda terlebih dahulu.
+    </p>
+    <p class="text-blue-600 text-xs">
+        Form pengajuan akan muncul setelah Anda memilih tanggal dan mengklik tombol "Cek Absensi"
+    </p>
+</div>
+{% endif %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<title>Pengajuan Lembur - APBI</title>
+</head>
+<body class="bg-gray-100">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<div class="max-w-4xl w-full space-y-8">
+<div class="text-center">
+<h2 class="mt-6 text-3xl font-extrabold text-gray-900">Form Pengajuan Lembur</h2>
+<p class="mt-2 text-sm text-gray-600">Silakan isi form pengajuan lembur di bawah ini</p>
+</div>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
+<!-- Success Message with Email Option -->
+{% if pengajuan_berhasil %}
+<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+    Pengajuan lembur berhasil dibuat!
+</div>
+{% endif %}
+
+<div class="bg-white shadow-xl rounded-lg p-8">
+<!-- Employee Info -->
+{% if pegawai %}
+<div class="mb-6 p-4 bg-blue-50 rounded-lg">
+    <h3 class="text-lg font-semibold text-gray-900 mb-2">Informasi Pegawai</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div>
+            <span class="font-medium">Nama:</span> {{ pegawai.pegawai_nama }}
+        </div>
+        <div>
+            <span class="font-medium">NIP:</span> {{ session.get('nip') }}
+        </div>
+        <div>
+            <span class="font-medium">Bagian:</span> {{ pegawai.bagian or '-' }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Date Selection -->
+<div class="mb-6">
+    <label for="tanggal_check" class="block text-sm font-medium text-gray-700 mb-2">
+        Pilih Tanggal untuk Cek Data Absensi
+    </label>
+    <div class="flex space-x-3">
+        <input type="date" id="tanggal_check" 
+               max="{{ today }}"
+               value="{{ tanggal_lembur or '' }}"
+               class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        <button type="button" onclick="checkAbsensi()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+            <i class="fas fa-search mr-2"></i>Cek Absensi
+        </button>
+    </div>
+    {% if not tanggal_lembur %}
+    <p class="text-sm text-gray-500 mt-2">Pilih tanggal untuk melihat data absensi dan status kehadiran Anda</p>
+    {% endif %}
+</div>
+
+<!-- Attendance Info -->
+{% if absensi %}
+<div class="mb-6 p-4 bg-gray-50 rounded-lg border">
+    <h3 class="text-lg font-semibold text-gray-900 mb-3">
+        <i class="fas fa-clock mr-2"></i>Data Absensi Tanggal {{ tanggal_lembur }}
+    </h3>
+    
+    <!-- Status Badge -->
+    <div class="mb-4">
+        <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium
+            {% if absensi.keterangan == 'H' %}
+                bg-green-100 text-green-800 border border-green-200
+            {% elif absensi.keterangan in ['TL', 'TP'] %}
+                bg-yellow-100 text-yellow-800 border border-yellow-200
+            {% elif absensi.keterangan in ['LB', 'LDL', 'LD', 'CT'] %}
+                bg-blue-100 text-blue-800 border border-blue-200
+            {% elif absensi.keterangan == 'S' %}
+                bg-gray-100 text-gray-800 border border-gray-200
+            {% elif absensi.keterangan == 'A' %}
+                bg-red-100 text-red-800 border border-red-200
+            {% else %}
+                bg-purple-100 text-purple-800 border border-purple-200
+            {% endif %}">
+            <i class="fas fa-info-circle mr-2"></i>
+            Status Kehadiran: {{ absensi.keterangan }}
+        </span>
+    </div>
+    
+    <!-- Attendance Details Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Shift Info -->
+        <div class="bg-white p-3 rounded-lg border">
+            <div class="text-xs text-gray-500 mb-1">Jenis Shift</div>
+            <div class="font-medium text-gray-900">{{ absensi.jk_name if absensi.jk_name != '-' else 'Tidak ada shift' }}</div>
+        </div>
+        
+        <!-- Scheduled Hours -->
+        <div class="bg-white p-3 rounded-lg border">
+            <div class="text-xs text-gray-500 mb-1">Jam Kerja Terjadwal</div>
+            <div class="font-medium text-gray-900">
+                {% if absensi.jk_bcin != '-' and absensi.jk_ecout != '-' %}
+                    {{ absensi.jk_bcin }} - {{ absensi.jk_ecout }}
+                {% else %}
+                    Tidak ada jadwal
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Actual Hours -->
+        <div class="bg-white p-3 rounded-lg border">
+            <div class="text-xs text-gray-500 mb-1">Jam Kerja Aktual</div>
+            <div class="font-medium text-gray-900">
+                {% if absensi.scan_in != '-' and absensi.scan_out != '-' %}
+                    {{ absensi.scan_in }} - {{ absensi.scan_out }}
+                {% elif absensi.scan_in != '-' and absensi.scan_out == '-' %}
+                    {{ absensi.scan_in }} - (belum scan keluar)
+                {% elif absensi.scan_in == '-' and absensi.scan_out != '-' %}
+                    (belum scan masuk) - {{ absensi.scan_out }}
+                {% else %}
+                    Belum ada scan
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Information -->
+    <div class="mt-4 p-3 rounded-lg
+        {% if absensi.keterangan == 'H' %}
+            bg-green-50 border border-green-200
+        {% elif absensi.keterangan in ['TL', 'TP'] %}
+            bg-yellow-50 border border-yellow-200
+        {% elif absensi.keterangan in ['LB', 'LDL', 'LD', 'CT'] %}
+            bg-blue-50 border border-blue-200
+        {% elif absensi.keterangan == 'S' %}
+            bg-gray-50 border border-gray-200
+        {% elif absensi.keterangan == 'A' %}
+            bg-red-50 border border-red-200
+        {% else %}
+            bg-purple-50 border border-purple-200
+        {% endif %}">
+        <div class="text-sm">
+            {% if absensi.keterangan == 'H' %}
+                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                <span class="text-green-800 font-medium">Hadir Normal</span> - Anda dapat mengajukan lembur di luar jam kerja
+            {% elif absensi.keterangan == 'TL' %}
+                <i class="fas fa-clock text-yellow-600 mr-2"></i>
+                <span class="text-yellow-800 font-medium">Terlambat</span> - Pengajuan lembur tidak diizinkan
+            {% elif absensi.keterangan == 'TP' %}
+                <i class="fas fa-clock text-yellow-600 mr-2"></i>
+                <span class="text-yellow-800 font-medium">Tidak Penuh</span> - Pengajuan lembur tidak diizinkan
+            {% elif absensi.keterangan == 'LB' %}
+                <i class="fas fa-calendar text-blue-600 mr-2"></i>
+                <span class="text-blue-800 font-medium">Libur Bersama</span> - Anda dapat mengajukan lembur
+            {% elif absensi.keterangan == 'LDL' %}
+                <i class="fas fa-calendar text-blue-600 mr-2"></i>
+                <span class="text-blue-800 font-medium">Libur Dalam Libur</span> - Anda dapat mengajukan lembur
+            {% elif absensi.keterangan == 'LD' %}
+                <i class="fas fa-calendar text-blue-600 mr-2"></i>
+                <span class="text-blue-800 font-medium">Libur Dinas</span> - Anda dapat mengajukan lembur
+            {% elif absensi.keterangan == 'CT' %}
+                <i class="fas fa-plane text-blue-600 mr-2"></i>
+                <span class="text-blue-800 font-medium">Cuti</span> - Pengajuan lembur tidak diizinkan
+            {% elif absensi.keterangan == 'S' %}
+                <i class="fas fa-user-md text-gray-600 mr-2"></i>
+                <span class="text-gray-800 font-medium">Sakit</span> - Pengajuan lembur tidak diizinkan
+            {% elif absensi.keterangan == 'D' %}
+                <i class="fas fa-briefcase text-gray-600 mr-2"></i>
+                <span class="text-gray-800 font-medium">Dinas</span> - Pengajuan lembur tidak diizinkan
+            {% elif absensi.keterangan == 'A' %}
+                <i class="fas fa-times-circle text-red-600 mr-2"></i>
+                <span class="text-red-800 font-medium">Tidak Hadir</span> - Anda dapat mengajukan lembur
+            {% elif absensi.keterangan == 'OT' %}
+                <i class="fas fa-clock text-purple-600 mr-2"></i>
+                <span class="text-purple-800 font-medium">Overtime</span> - Anda dapat mengajukan lembur tambahan
+            {% elif absensi.keterangan == 'Libur' %}
+                <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                <span class="text-blue-800 font-medium">Hari Libur</span> - Anda dapat mengajukan lembur
+            {% else %}
+                <i class="fas fa-question-circle text-purple-600 mr-2"></i>
+                <span class="text-purple-800 font-medium">{{ absensi.keterangan }}</span> - Status belum diketahui
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Warning for invalid status -->
+    {% if absensi.keterangan in ['TL', 'TP', 'S', 'D', 'CT'] %}
+    <div class="mt-3 p-3 bg-red-100 border border-red-400 rounded-lg">
+        <p class="text-red-700 text-sm font-medium">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            Pengajuan lembur tidak dapat diproses untuk status "{{ absensi.keterangan }}"
+        </p>
+        <p class="text-red-600 text-xs mt-1">
+            Silakan pilih tanggal lain dengan status kehadiran yang memungkinkan untuk lembur
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% elif tanggal_lembur %}
+<div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+    <h3 class="text-lg font-semibold text-yellow-800 mb-2">
+        <i class="fas fa-exclamation-triangle mr-2"></i>Data Absensi Tidak Ditemukan
+    </h3>
+    <p class="text-yellow-700 text-sm">
+        Tidak ada data absensi untuk tanggal {{ tanggal_lembur }}. 
+        Anda tetap dapat mengajukan lembur, namun pastikan tanggal yang dipilih sudah benar.
+    </p>
+</div>
+{% endif %}
+
+<!-- Overtime Form -->
+<form method="POST" class="space-y-6" id="lemburForm" {% if not tanggal_lembur %}style="display: none;"{% endif %}>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <label for="tanggal_lembur" class="block text-sm font-medium text-gray-700">Tanggal Lembur</label>
+            <input type="date" name="tanggal_lembur" id="tanggal_lembur" required 
+                   max="{{ today }}"
+                   value="{{ tanggal_lembur or '' }}"
+                   readonly
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed">
+            <p class="text-xs text-gray-500 mt-1">Tanggal otomatis terisi sesuai pilihan di atas</p>
+        </div>
+        
+        <div>
+            <label for="lokasi_kerja" class="block text-sm font-medium text-gray-700">Lokasi Kerja</label>
+            <select name="lokasi_kerja" id="lokasi_kerja" required 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Pilih Lokasi Kerja</option>
+                {% for lokasi in lokasi_options %}
+                    <option value="{{ lokasi }}">{{ lokasi }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <label for="jam_lembur_awal" class="block text-sm font-medium text-gray-700">Jam Mulai Lembur</label>
+            <input type="time" name="jam_lembur_awal" id="jam_lembur_awal" required 
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        
+        <div>
+            <label for="jam_lembur_akhir" class="block text-sm font-medium text-gray-700">Jam Selesai Lembur</label>
+            <input type="time" name="jam_lembur_akhir" id="jam_lembur_akhir" required 
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
+    </div>
+
+    <div>
+        <label for="keterangan_lembur" class="block text-sm font-medium text-gray-700">Keterangan Lembur <span class="text-xs text-gray-500">(maksimal 512 karakter)</span></label>
+        <textarea name="keterangan_lembur" id="keterangan_lembur" rows="4" maxlength="512" required 
+                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                  placeholder="Jelaskan detail pekerjaan yang akan dilakukan saat lembur"></textarea>
+        <div class="text-xs text-gray-500 mt-1"><span id="char_count">0</span>/512 karakter</div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+            <label for="nama_mengetahui" class="block text-sm font-medium text-gray-700">Nama yang Mengetahui</label>
+            <select name="nama_mengetahui" id="nama_mengetahui" required 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Pilih Nama yang Mengetahui</option>
+                {% for nama in nama_options %}
+                    <option value="{{ nama }}">{{ nama }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div>
+            <label for="nama_menyetujui" class="block text-sm font-medium text-gray-700">Nama yang Menyetujui</label>
+            <select name="nama_menyetujui" id="nama_menyetujui" required 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Pilih Nama yang Menyetujui</option>
+                {% for nama in nama_options %}
+                    <option value="{{ nama }}">{{ nama }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div>
+            <label for="pemberi_tugas" class="block text-sm font-medium text-gray-700">Pemberi Tugas</label>
+            <select name="pemberi_tugas" id="pemberi_tugas" required 
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Pilih Pemberi Tugas</option>
+                {% for nama in nama_options %}
+                    <option value="{{ nama }}">{{ nama }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="bg-yellow-50 border border-yellow-400 rounded-lg p-4">
+        <h4 class="font-medium text-yellow-800 mb-2">
+            <i class="fas fa-info-circle mr-2"></i>Ketentuan Pengajuan Lembur:
+        </h4>
+        <ul class="text-sm text-yellow-700 space-y-1">
+            <li>• Lembur harus di luar jam kerja normal (sebelum jam masuk atau setelah jam pulang)</li>
+            <li>• Tidak boleh overlap dengan jam kerja yang sudah di-scan</li>
+            <li>• Tidak dapat mengajukan lembur untuk status: TL, TP, S, D, CT</li>
+            <li>• Tanggal lembur tidak boleh di masa depan</li>
+        </ul>
+    </div>
+
+    <div class="flex items-center justify-between pt-6">
+        <a href="/beranda" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali
+        </a>
+        <button type="submit" 
+                {% if absensi and absensi.keterangan in ['TL', 'TP', 'S', 'D', 'CT'] %}disabled{% endif %}
+                class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed">
+            <i class="fas fa-paper-plane mr-2"></i>Submit Pengajuan
+        </button>
+    </div>
+</form>
+</div>
+
+<div class="text-center">
+<p class="text-sm text-gray-500">Pastikan semua data sudah benar sebelum submit</p>
+</div>
+</div>
+</div>
+
+<!-- Modal Popup untuk Email setelah Submit Pengajuan -->
+<div id="emailModalPengajuan" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+<div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+<div class="text-center mb-4">
+<div class="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+    <i class="fas fa-check text-green-600 text-xl"></i>
+</div>
+<h3 class="text-lg font-semibold text-gray-900">Pengajuan Berhasil</h3>
+<p class="text-sm text-gray-600 mt-2">Mau kirim file form lembur PDF ini ke email? (biasanya untuk print di kantor)</p>
+</div>
+
+<div class="mb-4">
+<label for="emailPengajuanInput" class="block text-sm font-medium text-gray-700 mb-2">Email Tujuan :</label>
+<input type="email" id="emailPengajuanInput" 
+       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+       placeholder="demo@example.com">
+</div>
+
+<div class="flex justify-end space-x-3">
+<button onclick="skipEmailPengajuan()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
+    Enggak Usah
+</button>
+<button onclick="kirimEmailPengajuan()" id="kirimEmailPengajuanBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+    <span id="kirimEmailPengajuanText">Kirim Email</span>
+    <i id="kirimEmailPengajuanLoadingIcon" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+</button>
+</div>
+</div>
+</div>
+
+<script>
+// Character counter
+const keteranganInput = document.getElementById('keterangan_lembur');
+const charCount = document.getElementById('char_count');
+
+keteranganInput.addEventListener('input', function() {
+charCount.textContent = this.value.length;
+});
+
+// Check attendance function
+function checkAbsensi() {
+const tanggal = document.getElementById('tanggal_check').value;
+if (tanggal) {
+window.location.href = `{{ url_for('pengajuan_lembur') }}?tanggal_lembur=${tanggal}`;
+} else {
+alert('Pilih tanggal terlebih dahulu');
+}
+}
+
+// Show/hide form based on date selection
+function toggleForm() {
+const tanggal = document.getElementById('tanggal_check').value;
+const form = document.getElementById('lemburForm');
+const placeholder = document.querySelector('.bg-blue-50');
+
+if (tanggal) {
+if (form) form.style.display = 'block';
+if (placeholder) placeholder.style.display = 'none';
+} else {
+if (form) form.style.display = 'none';
+if (placeholder) placeholder.style.display = 'block';
+}
+}
+
+// Sync date fields
+document.getElementById('tanggal_check').addEventListener('change', function() {
+document.getElementById('tanggal_lembur').value = this.value;
+toggleForm();
+});
+
+document.getElementById('tanggal_lembur').addEventListener('change', function() {
+document.getElementById('tanggal_check').value = this.value;
+});
+
+// Validate overtime hours
+function validateOvertimeHours() {
+const startTime = document.getElementById('jam_lembur_awal').value;
+const endTime = document.getElementById('jam_lembur_akhir').value;
+
+if (startTime && endTime) {
+if (endTime <= startTime) {
+    alert('Jam selesai lembur harus setelah jam mulai lembur');
+    document.getElementById('jam_lembur_akhir').value = '';
+}
+}
+}
+
+document.getElementById('jam_lembur_awal').addEventListener('change', validateOvertimeHours);
+document.getElementById('jam_lembur_akhir').addEventListener('change', validateOvertimeHours);
+
+// Form validation before submit
+document.querySelector('form').addEventListener('submit', function(e) {
+const startTime = document.getElementById('jam_lembur_awal').value;
+const endTime = document.getElementById('jam_lembur_akhir').value;
+
+if (endTime <= startTime) {
+e.preventDefault();
+alert('Jam selesai lembur harus setelah jam mulai lembur');
+return false;
+}
+
+{% if absensi and absensi.keterangan in ['TL', 'TP', 'S', 'D', 'CT'] %}
+e.preventDefault();
+alert('Pengajuan lembur tidak diizinkan untuk status: {{ absensi.keterangan }}');
+return false;
+{% endif %}
+});
+
+// Email modal functions
+let idLemburTerbaru = null;
+
+function showEmailModalPengajuan(idLembur) {
+idLemburTerbaru = idLembur;
+document.getElementById('emailModalPengajuan').classList.remove('hidden');
+document.getElementById('emailPengajuanInput').focus();
+}
+
+function skipEmailPengajuan() {
+document.getElementById('emailModalPengajuan').classList.add('hidden');
+document.getElementById('emailPengajuanInput').value = '';
+idLemburTerbaru = null;
+}
+
+function kirimEmailPengajuan() {
+const email = document.getElementById('emailPengajuanInput').value.trim();
+
+if (!email) {
+alert('Email tujuan harus diisi!');
+return;
+}
+
+if (!idLemburTerbaru) {
+alert('ID lembur tidak ditemukan!');
+return;
+}
+
+const kirimBtn = document.getElementById('kirimEmailPengajuanBtn');
+const kirimText = document.getElementById('kirimEmailPengajuanText');
+const loadingIcon = document.getElementById('kirimEmailPengajuanLoadingIcon');
+
+kirimBtn.disabled = true;
+kirimText.textContent = 'Mengirim...';
+loadingIcon.classList.remove('hidden');
+
+fetch(`/kirim-email-pengajuan-lembur/${idLemburTerbaru}`, {
+method: 'POST',
+headers: {
+    'Content-Type': 'application/json',
+},
+body: JSON.stringify({
+    email: email
+})
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+    alert(data.message);
+    skipEmailPengajuan();
+} else {
+    alert('Error: ' + data.message);
+}
+})
+.catch(error => {
+console.error('Error:', error);
+alert('Terjadi kesalahan saat mengirim email');
+})
+.finally(() => {
+kirimBtn.disabled = false;
+kirimText.textContent = 'Kirim Email';
+loadingIcon.classList.add('hidden');
+});
+}
+
+// Auto show modal jika pengajuan berhasil
+document.addEventListener('DOMContentLoaded', function() {
+{% if pengajuan_berhasil and id_lembur_baru %}
+setTimeout(function() {
+    showEmailModalPengajuan({{ id_lembur_baru }});
+}, 500);
+{% endif %}
+});
+</script>
+</body>
+</html>

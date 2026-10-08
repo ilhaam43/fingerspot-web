@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Lemburan - APBI</title>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('hidden');
+            if (sidebar.classList.contains('hidden')) {
+                content.classList.remove('lg:ml-56');
+            } else {
+                content.classList.add('lg:ml-56');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleModal(show, modalId) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+ document.addEventListener('DOMContentLoaded', () => {
+    const scrollableElement = document.querySelector('.relative.overflow-y-auto'); 
+    const editButtons = document.querySelectorAll('.edit-button');
+
+    
+    const savedScrollPosition = localStorage.getItem('scrollableElementScrollPosition');
+    const highlightedRowIds = JSON.parse(localStorage.getItem('highlightedRowIds')) || []; 
+    
+    if (savedScrollPosition) {
+        scrollableElement.scrollTop = parseInt(savedScrollPosition, 10);
+        localStorage.removeItem('scrollableElementScrollPosition'); 
+    }
+
+    highlightedRowIds.forEach(rowId => {
+        const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+        if (row) {
+            row.style.backgroundColor = '#f0f4ff'; 
+        }
+    });
+
+   
+    editButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const row = button.closest('tr'); 
+            row.style.backgroundColor = '#f0f4ff'; 
+
+            const rowId = row.getAttribute('data-row-id');
+            if (!highlightedRowIds.includes(rowId)) {
+                highlightedRowIds.push(rowId); 
+                localStorage.setItem('highlightedRowIds', JSON.stringify(highlightedRowIds)); 
+            }
+
+            localStorage.setItem('scrollableElementScrollPosition', scrollableElement.scrollTop); 
+            
+
+            setTimeout(() => {
+                window.location.href = button.href;
+            }, 200);
+        });
+    });
+});
+
+    </script>
+    <style>
+                                .scrollbar-hidden {
+                            scrollbar-width: none; 
+                            -ms-overflow-style: none; 
+                        }
+                        .scrollbar-hidden::-webkit-scrollbar {
+                            display: none; 
+                        }
+
+                        
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="relative flex min-h-screen">
+     
+        <div id="sidebar" class="w-56 bg-white text-gray-800 flex flex-col p-4 fixed h-full z-40 shadow-lg border-r border-gray-200">
+           
+            <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-gray-800 text-xl lg:hidden">
+                <i class="fas fa-times"></i>
+            </button>
+        
+          
+            <div class="flex items-center justify-center mb-8">
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo" class="h-auto object-contain max-w-[150px]">
+            </div>
+        
+
+           <nav class="space-y-6">
+                <ul class="space-y-2">
+                
+                    <li>
+                        <a href="/" class="group flex items-center p-3 rounded-xl hover:bg-blue-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Absen</span>
+                        </a>
+                    </li>
+            
+                  
+                    <li>
+                        <a href="/upload_excel" class="group flex items-center p-3 rounded-xl hover:bg-green-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-alt mr-4 text-green-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Upload Jadwal Shift</span>
+                        </a>
+                    </li>
+            
+                   
+                    <li>
+                        <a href="/upload" class="group flex items-center p-3 rounded-xl hover:bg-yellow-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-history mr-4 text-yellow-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen (Mesin Lama)</span>
+                        </a>
+                    </li>
+            
+              
+                    <li>
+                        <a href="/att_log" class="group flex items-center p-3 rounded-xl hover:bg-purple-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-fingerprint mr-4 text-purple-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen Fingerspot</span>
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <a href="/daftar-cuti" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-clipboard-list mr-4 text-pink-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Cuti Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/cek_jadwal"  class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Cek Jadwal Pegawai</span>
+                        </a>
+                    </li>
+            
+                 
+                    <li>
+                        <div>
+                            <button onclick="toggleDropdown()" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300 w-full text-left">
+                                <i class="fas fa-ellipsis-h mr-4 text-pink-500 text-lg"></i>
+                                <span class="font-semibold text-sm">Lainnya</span>
+                                <i class="fas fa-chevron-down ml-auto text-gray-400 group-hover:text-pink-500"></i>
+                            </button>
+                            <ul id="settings-dropdown" class="pl-8 mt-3 space-y-2 hidden">
+                                <li>
+                                    <a href="/pegawai" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-users mr-2 text-blue-500"></i> Pegawai
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/upload-lembur" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-business-time mr-2 text-green-600"></i> Lemburan
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/ito_load" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>&nbsp;&nbsp; Absen ITO
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        
+           
+            <div class="mt-auto text-center text-sm text-gray-500 border-t border-gray-300 pt-4">
+                <a href="/logout">
+                    <i class="fas fa-sign-out text-lg"></i>
+                    <span class="hidden md:inline font-medium text-sm">Logout</span>
+                </a>
+            </div>
+        </div>
+        
+
+       
+        <div id="content" class="flex-1 flex flex-col lg:ml-56">
+
+<div class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
+
+    <button onclick="toggleSidebar()" class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2">
+        <i class="fas fa-bars text-lg"></i>
+        <span class="hidden md:inline font-medium text-sm">Menu</span>
+    </button>
+
+  
+    <div class="flex items-center space-x-3">
+
+    </div>
+</div>
+
+
+<div class="container mx-auto p-6 max-w-screen-2xl">
+    <div class="bg-gradient-to-br from-white to-gray-50 shadow-lg rounded-lg overflow-hidden p-6">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Hitung Jam Lembur</h1>
+
+ 
+        <!-- Radio Buttons -->
+        <form method="POST" action="{{ url_for('lembur') }}" class="mb-4">
+            <div class="flex items-center space-x-4">
+                <label class="flex items-center">
+                    <input type="radio" name="display_mode" value="all" {% if display_mode == 'all' %}checked{% endif %} class="mr-2">
+                    Tampilkan Semua Data
+                </label>
+                <label class="flex items-center">
+                    <input type="radio" name="display_mode" value="highlighted" {% if display_mode == 'highlighted' %}checked{% endif %} class="mr-2">
+                    Tampilkan Hanya Data Yang Berbeda Hitungan Jam Lemburnya
+                </label>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tampilkan</button>
+            </div>
+        </form>
+
+       
+        <div class="overflow-x-auto max-h-[480px] overflow-y-auto">
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">NO</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">TIM</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Tanggal Lembur</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Pekerjaan</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Nama Personil</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Jumlah Jam Lembur</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Jam Mulai</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Jam Akhir</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Hitungan Aplikasi (berkoma)</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-600">Hitungan Aplikasi (dibulatkan)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr class="{% if record['Hitungan Aplikasi (dibulatkan)'] != record['Jumlah Jam Lembur'] %}bg-yellow-100{% else %}hover:bg-gray-50{% endif %}">
+                        <td class="px-6 py-4 border text-gray-700">{{ record['NO'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['TIM'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['Hari dan Tanggal'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['Pekerjaan'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['Nama Personil'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['Jumlah Jam Lembur'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['Jam Mulai'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['Jam Akhir'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ '%.2f' % record['Hitungan Aplikasi (berkoma)'] }}</td>
+                        <td class="px-6 py-4 border text-gray-700">{{ record['Hitungan Aplikasi (dibulatkan)'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+
+    </div>
+</div>
+
+
+</body>
+</html>

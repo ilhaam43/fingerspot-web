@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Daftar Tukar Shift - APBI</title>
+    <style>
+        .scrollbar-hidden {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .scrollbar-hidden::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen p-6">
+        <div class="max-w-full mx-auto">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Daftar Tukar Shift</h1>
+                    <p class="text-gray-600 mt-1">Kelola semua pengajuan tukar shift pegawai</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button onclick="toggleModal(true, 'filterModal')" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-filter mr-2"></i>
+                        Filter Data
+                    </button>
+                    <button onclick="window.history.back()" class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Kembali
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Main Content -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                {% if tukar_shift_records %}
+                    <!-- Desktop Table -->
+                    <div class="hidden lg:block overflow-x-auto">
+                        <div class="relative overflow-y-auto scrollbar-hidden" style="max-height: calc(100vh - 200px);">
+                            <table class="table-auto border-collapse w-full text-sm">
+                                <thead class="bg-blue-600 text-white sticky top-0 z-10 shadow-md">
+                                    <tr>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">No</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">NIP</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Nama</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Divisi</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Tim</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Periode Tukar</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Shift Awal</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Shift Baru</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Pegawai Tukar</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Status</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Pengajuan</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in tukar_shift_records %}
+                                    <tr class="hover:bg-gray-100 transition ease-in-out duration-200 border-b border-gray-300">
+                                        <td class="px-4 py-3 text-center text-gray-800 font-medium">{{ loop.index }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800 font-medium">{{ record.pegawai_nip }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.pegawai_nama }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.pembagian1_nama or '-' }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.tim }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.tanggal_mulai }} s/d {{ record.tanggal_akhir }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.shift_awal_nama }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.shift_baru_nama }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.pegawai_tukar_nama }}</td>
+                                        <td class="px-4 py-3 text-center">
+                                            <select onchange="updateStatus({{ record.id_tukar_shift }}, this.value)" 
+                                                    class="px-3 py-1 rounded-full text-sm font-medium border-0 cursor-pointer
+                                                    {% if record.status == 'OK' %}
+                                                        bg-green-100 text-green-800
+                                                    {% elif record.status == 'Menunggu' %}
+                                                        bg-yellow-100 text-yellow-800
+                                                    {% elif record.status == 'Ditolak' %}
+                                                        bg-red-100 text-red-800
+                                                    {% endif %}">
+                                                <option value="OK" {% if record.status == 'OK' %}selected{% endif %}>OK</option>
+                                                <option value="Menunggu" {% if record.status == 'Menunggu' %}selected{% endif %}>Menunggu</option>
+                                                <option value="Ditolak" {% if record.status == 'Ditolak' %}selected{% endif %}>Ditolak</option>
+                                            </select>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-gray-800 text-xs">{{ record.tanggal_pengajuan }}</td>
+                                        <td class="px-4 py-3 text-center">
+                                            <div class="flex justify-center space-x-2">
+                                                <button onclick="showDetail({{ record.id_tukar_shift }})" 
+                                                        class="inline-flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                                        title="Detail">
+                                                    <i class="fas fa-eye text-xs"></i>
+                                                </button>
+                                                <a href="/download-tukar-shift/{{ record.id_tukar_shift }}" 
+                                                   class="inline-flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                                   title="Download PDF">
+                                                    <i class="fas fa-download text-xs"></i>
+                                                </a>
+                                                <a href="/hapus-tukar-shift-admin/{{ record.id_tukar_shift }}" 
+                                                   class="inline-flex items-center justify-center w-8 h-8 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                                                   onclick="return confirm('Yakin ingin menghapus pengajuan tukar shift ini?')"
+                                                   title="Hapus">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="lg:hidden">
+                        <div class="grid gap-4 p-4">
+                            {% for record in tukar_shift_records %}
+                            <div class="bg-white shadow-md rounded-lg p-4 border border-gray-200">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">{{ record.pegawai_nama }}</h3>
+                                        <p class="text-sm text-gray-600">{{ record.pegawai_nip }} - {{ record.pembagian1_nama or '-' }}</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+                                        Tukar Shift
+                                    </span>
+                                </div>
+                                
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Tim :</span>
+                                        <span class="text-gray-800 font-medium">{{ record.tim }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Periode :</span>
+                                        <span class="text-gray-800">{{ record.tanggal_mulai }} s/d {{ record.tanggal_akhir }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Shift Awal :</span>
+                                        <span class="text-gray-800">{{ record.shift_awal_nama }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Shift Baru :</span>
+                                        <span class="text-gray-800">{{ record.shift_baru_nama }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Pegawai Tukar :</span>
+                                        <span class="text-gray-800">{{ record.pegawai_tukar_nama }}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Status:</span>
+                                        <select onchange="updateStatus({{ record.id_tukar_shift }}, this.value)" 
+                                                class="px-2 py-1 rounded text-xs font-medium border-0 cursor-pointer
+                                                {% if record.status == 'OK' %}
+                                                    bg-green-100 text-green-800
+                                                {% elif record.status == 'Menunggu' %}
+                                                    bg-yellow-100 text-yellow-800
+                                                {% elif record.status == 'Ditolak' %}
+                                                    bg-red-100 text-red-800
+                                                {% endif %}">
+                                            <option value="OK" {% if record.status == 'OK' %}selected{% endif %}>OK</option>
+                                            <option value="Menunggu" {% if record.status == 'Menunggu' %}selected{% endif %}>Menunggu</option>
+                                            <option value="Ditolak" {% if record.status == 'Ditolak' %}selected{% endif %}>Ditolak</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Pengajuan:</span>
+                                        <span class="text-gray-800 text-xs">{{ record.tanggal_pengajuan }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end space-x-2 mt-4">
+                                    <button onclick="showDetail({{ record.id_tukar_shift }})" 
+                                            class="inline-flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                            title="Detail">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </button>
+                                    <a href="/download-tukar-shift/{{ record.id_tukar_shift }}" 
+                                       class="inline-flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                       title="Download PDF">
+                                        <i class="fas fa-download text-xs"></i>
+                                    </a>
+                                    <a href="/hapus-tukar-shift-admin/{{ record.id_tukar_shift }}" 
+                                       class="inline-flex items-center justify-center w-8 h-8 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                                       onclick="return confirm('Yakin ingin menghapus pengajuan tukar shift ini?')"
+                                       title="Hapus">
+                                        <i class="fas fa-trash text-xs"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-12">
+                        <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-exchange-alt text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ada Data Tukar Shift</h3>
+                        <p class="text-gray-500">Tidak ada pengajuan tukar shift ditemukan untuk filter yang dipilih</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Footer Info -->
+            {% if tukar_shift_records %}
+            <div class="mt-6 text-center">
+                <p class="text-sm text-gray-500">
+                    Total {{ tukar_shift_records|length }} pengajuan tukar shift ditemukan
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Filter -->
+    <div id="filterModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-96 max-h-[90vh] overflow-y-auto">
+            <div class="border-b px-4 py-3 flex justify-between items-center bg-gray-50">
+                <h5 class="text-lg font-semibold text-gray-800">Filter Data Tukar Shift</h5>
+                <button class="text-gray-500 hover:text-gray-700 text-xl" onclick="toggleModal(false, 'filterModal')">&times;</button>
+            </div>
+
+            <div class="p-4">
+                <form action="{{ url_for('daftar_tukar_shift') }}" method="get">
+                    <div class="mb-4">
+                        <label for="start_date" class="block text-sm font-semibold text-gray-700">
+                            <i class="fas fa-calendar-alt mr-2"></i> Tanggal Awal Pengajuan
+                        </label>
+                        <input type="date" id="start_date" name="start_date" 
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            value="{{ start_date }}">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="end_date" class="block text-sm font-semibold text-gray-700">
+                            <i class="fas fa-calendar-alt mr-2"></i> Tanggal Akhir Pengajuan
+                        </label>
+                        <input type="date" id="end_date" name="end_date" 
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            value="{{ end_date }}">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="shift_awal_filter" class="block text-sm font-semibold text-gray-700">
+                            <i class="fas fa-clock mr-2"></i> Shift Awal
+                        </label>
+                        <select id="shift_awal_filter" name="shift_awal_filter" 
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Semua Shift Awal</option>
+                            {% for shift in shift_list %}
+                                <option value="{{ shift.jk_id }}" {% if shift_awal_filter|string == shift.jk_id|string %}selected{% endif %}>{{ shift.jk_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="shift_baru_filter" class="block text-sm font-semibold text-gray-700">
+                            <i class="fas fa-clock mr-2"></i> Shift Baru
+                        </label>
+                        <select id="shift_baru_filter" name="shift_baru_filter" 
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Semua Shift Baru</option>
+                            {% for shift in shift_list %}
+                                <option value="{{ shift.jk_id }}" {% if shift_baru_filter|string == shift.jk_id|string %}selected{% endif %}>{{ shift.jk_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="status_filter" class="block text-sm font-semibold text-gray-700">
+                            <i class="fas fa-check-circle mr-2"></i> Status
+                        </label>
+                        <select id="status_filter" name="status_filter" 
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Semua Status</option>
+                            <option value="OK" {% if status_filter == 'OK' %}selected{% endif %}>OK</option>
+                            <option value="Menunggu" {% if status_filter == 'Menunggu' %}selected{% endif %}>Menunggu</option>
+                            <option value="Ditolak" {% if status_filter == 'Ditolak' %}selected{% endif %}>Ditolak</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="divisi_filter" class="block text-sm font-semibold text-gray-700">
+                            <i class="fas fa-building mr-2"></i> Divisi
+                        </label>
+                        <select id="divisi_filter" name="divisi_filter" 
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Semua Divisi</option>
+                            {% for divisi in divisi_list %}
+                                <option value="{{ divisi.pembagian1_nama }}" {% if divisi_filter == divisi.pembagian1_nama %}selected{% endif %}>{{ divisi.pembagian1_nama }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="search_nama" class="block text-sm font-semibold text-gray-700">
+                            <i class="fas fa-user mr-2"></i> Cari Nama/NIP
+                        </label>
+                        <input type="text" id="search_nama" name="search_nama" 
+                            class="w-full mt-1 h-10 px-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" 
+                            value="{{ search_nama or '' }}"
+                            placeholder="Masukkan nama pengaju atau nama pegawai tukar">
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="resetFilter()" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 shadow">
+                            Reset
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow">
+                            Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail -->
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Detail Pengajuan Tukar Shift</h3>
+                <button onclick="closeDetail()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div id="detailContent" class="space-y-3 text-sm">
+                <!-- Detail akan diisi via JavaScript -->
+            </div>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeDetail()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data untuk detail modal
+        const tukarShiftData = {
+            {% for record in tukar_shift_records %}
+            {{ record.id_tukar_shift }}: {
+                nama: "{{ record.pegawai_nama }}",
+                nip: "{{ record.pegawai_nip }}",
+                divisi: "{{ record.pembagian1_nama or '-' }}",
+                nomor_surat: "{{ record.nomor_surat }}",
+                tim: "{{ record.tim }}",
+                tanggal_mulai: "{{ record.tanggal_mulai }}",
+                tanggal_akhir: "{{ record.tanggal_akhir }}",
+                shift_awal_nama: "{{ record.shift_awal_nama }}",
+                shift_baru_nama: "{{ record.shift_baru_nama }}",
+                pegawai_tukar_nama: "{{ record.pegawai_tukar_nama }}",
+                pegawai_tukar_nip: "{{ record.pegawai_tukar_nip }}",
+                alasan_tukar_shift: "{{ record.alasan_tukar_shift }}",
+                nama_mengetahui: "{{ record.nama_mengetahui }}",
+                nama_menyetujui: "{{ record.nama_menyetujui }}",
+                status: "{{ record.status }}",
+                tanggal_pengajuan: "{{ record.tanggal_pengajuan }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        function toggleModal(show, modalId) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function showDetail(idTukarShift) {
+            const data = tukarShiftData[idTukarShift];
+            if (!data) return;
+
+            const content = document.getElementById('detailContent');
+            content.innerHTML = `
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Informasi Pengaju</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><strong>Nama :</strong> ${data.nama}</div>
+                        <div><strong>NIP :</strong> ${data.nip}</div>
+                        <div><strong>Divisi :</strong> ${data.divisi}</div>
+                        <div><strong>Tim :</strong> ${data.tim}</div>
+                        <div><strong>Nomor Surat :</strong> ${data.nomor_surat}</div>
+                        <div><strong>Status :</strong> ${data.status}</div>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Detail Tukar Shift</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><strong>Periode Tukar :</strong> ${data.tanggal_mulai} s/d ${data.tanggal_akhir}</div>
+                        <div><strong>Shift Awal :</strong> ${data.shift_awal_nama}</div>
+                        <div><strong>Shift Baru :</strong> ${data.shift_baru_nama}</div>
+                        <div><strong>Pegawai Tukar :</strong> ${data.pegawai_tukar_nama} (${data.pegawai_tukar_nip})</div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg mb-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Alasan Tukar Shift</h4>
+                    <div class="bg-white p-3 rounded border">${data.alasan_tukar_shift}</div>
+                </div>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">Persetujuan</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div><strong>Team Leader :</strong> ${data.nama_mengetahui}</div>
+                        <div><strong>Nama Menyetujui (SPV) :</strong> ${data.nama_menyetujui}</div>
+                        <div><strong>Tanggal Pengajuan :</strong> ${data.tanggal_pengajuan}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetail() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function resetFilter() {
+            document.getElementById('start_date').value = '';
+            document.getElementById('end_date').value = '';
+            document.getElementById('shift_awal_filter').value = '';
+            document.getElementById('shift_baru_filter').value = '';
+            document.getElementById('status_filter').value = '';
+            document.getElementById('divisi_filter').value = '';
+            document.getElementById('search_nama').value = '';
+        }
+
+        function updateStatus(idTukarShift, newStatus) {
+            if (!confirm('Yakin ingin mengubah status pengajuan tukar shift ini?')) {
+                location.reload();
+                return;
+            }
+
+            fetch(`/update-tukar-shift/${idTukarShift}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Status berhasil diupdate');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                alert('Terjadi kesalahan saat mengupdate status');
+                console.error('Error:', error);
+                location.reload();
+            });
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('filterModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                toggleModal(false, 'filterModal');
+            }
+        });
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetail();
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                toggleModal(false, 'filterModal');
+                closeDetail();
+            }
+        });
+    </script>
+</body>
+</html>

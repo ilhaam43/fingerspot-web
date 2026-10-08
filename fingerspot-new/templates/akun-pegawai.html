@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <title>Profil Pegawai — APBI</title>
+        <meta name="description" content="Profil & pengaturan akun pegawai Lintasarta APBI">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+        <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            html, body { height: 100%; font-family: 'Inter', sans-serif; }
+
+            /* ══ BACKGROUND ══ */
+            body {
+                min-height: 100vh;
+                background: #eef4ff;
+                position: relative;
+                overflow-x: hidden;
+            }
+            body::before {
+                content: '';
+                position: fixed; inset: 0;
+                background:
+                    radial-gradient(ellipse 80% 60% at 15% 0%, rgba(59,130,246,0.15) 0%, transparent 55%),
+                    radial-gradient(ellipse 60% 50% at 85% 100%, rgba(99,102,241,0.12) 0%, transparent 50%),
+                    linear-gradient(180deg, #eef4ff 0%, #f0f5ff 100%);
+                z-index: 0; pointer-events: none;
+            }
+            body::after {
+                content: '';
+                position: fixed; inset: 0;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='rgba(59,130,246,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+                z-index: 0; pointer-events: none;
+            }
+
+            /* ══ LAYOUT ══ */
+            .page-content {
+                position: relative; z-index: 1;
+                padding: 0 0 104px;
+                min-height: 100vh;
+            }
+
+            /* ══ PAGE HEADER ══ */
+            .page-header {
+                padding: 20px 16px 0;
+                display: flex; align-items: center; gap: 12px;
+                margin-bottom: 20px;
+            }
+            .page-header-icon {
+                width: 44px; height: 44px;
+                border-radius: 14px;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 6px 18px rgba(37,99,235,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+                flex-shrink: 0;
+            }
+            .page-header-icon i { color: #fff; font-size: 18px; }
+            .page-header-title { font-size: 20px; font-weight: 900; color: #0f172a; letter-spacing: -0.03em; }
+            .page-header-sub { font-size: 12px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
+
+            /* ══ SECTION PADDING ══ */
+            .section { padding: 0 16px; margin-bottom: 14px; }
+
+            /* ══ GLASS CARD ══ */
+            .glass-card {
+                background: rgba(255,255,255,0.72);
+                border: 1px solid rgba(255,255,255,0.95);
+                border-radius: 20px;
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                box-shadow: 0 2px 16px rgba(37,99,235,0.07), inset 0 1px 0 #fff;
+                overflow: hidden;
+                position: relative;
+            }
+            .glass-card::before {
+                content: '';
+                position: absolute; top: 0; left: 24px; right: 24px;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #3b82f6, #6366f1, transparent);
+            }
+
+            /* ══ PROFILE SECTION ══ */
+            .profile-top {
+                padding: 28px 20px 20px;
+                text-align: center;
+            }
+            .avatar-wrap {
+                position: relative;
+                display: inline-block;
+                margin-bottom: 14px;
+            }
+            .avatar {
+                width: 80px; height: 80px;
+                border-radius: 24px;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 8px 24px rgba(37,99,235,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+            .avatar i { color: #fff; font-size: 32px; }
+            .status-dot {
+                position: absolute; bottom: -2px; right: -2px;
+                width: 18px; height: 18px;
+                background: #10b981;
+                border-radius: 50%;
+                border: 3px solid #fff;
+                box-shadow: 0 0 8px rgba(16,185,129,0.6);
+            }
+            .profile-name {
+                font-size: 19px; font-weight: 800;
+                color: #0f172a; letter-spacing: -0.02em;
+                margin-bottom: 4px;
+            }
+            .profile-jabatan {
+                font-size: 13px; color: #64748b; font-weight: 500;
+            }
+
+            /* ══ INFO LIST ══ */
+            .info-list {
+                margin: 0 20px 20px;
+                background: rgba(241,245,249,0.6);
+                border: 1px solid rgba(226,232,240,0.5);
+                border-radius: 14px;
+                overflow: hidden;
+            }
+            .info-row {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 13px 16px;
+                border-bottom: 1px solid rgba(226,232,240,0.4);
+            }
+            .info-row:last-child { border-bottom: none; }
+            .info-label {
+                font-size: 10px; font-weight: 800;
+                color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em;
+                display: flex; align-items: center; gap: 7px;
+            }
+            .info-label i { font-size: 11px; color: #93c5fd; }
+            .info-value { font-size: 13px; font-weight: 700; color: #1e293b; text-align: right; max-width: 55%; word-break: break-word; }
+
+            /* ══ CARD HEADER ══ */
+            .card-section-header {
+                padding: 20px 20px 0;
+                display: flex; align-items: center; gap: 10px;
+                margin-bottom: 16px;
+            }
+            .card-section-icon {
+                width: 32px; height: 32px;
+                border-radius: 10px;
+                background: rgba(59,130,246,0.1);
+                display: flex; align-items: center; justify-content: center;
+            }
+            .card-section-icon i { color: #2563eb; font-size: 13px; }
+            .card-section-title { font-size: 15px; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
+
+            /* ══ FORM ══ */
+            .form-body { padding: 0 20px 20px; }
+            .form-group { margin-bottom: 14px; }
+
+            .form-label {
+                display: block;
+                font-size: 10px; font-weight: 800;
+                color: #475569; text-transform: uppercase; letter-spacing: 0.08em;
+                margin-bottom: 7px;
+            }
+            .input-wrap { position: relative; }
+            .form-input {
+                width: 100%; height: 48px;
+                padding: 0 46px 0 14px;
+                background: rgba(248,250,252,0.85);
+                border: 1.5px solid rgba(203,213,225,0.6);
+                border-radius: 12px;
+                font-size: 14px; font-family: 'Inter', sans-serif;
+                color: #0f172a; outline: none;
+                transition: all 0.2s;
+            }
+            .form-input:focus {
+                background: rgba(255,255,255,0.95);
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+            }
+            .toggle-eye {
+                position: absolute; right: 0; top: 0;
+                height: 100%; width: 46px;
+                display: flex; align-items: center; justify-content: center;
+                background: none; border: none;
+                color: #94a3b8; cursor: pointer;
+                font-size: 14px; transition: color 0.2s;
+            }
+            .toggle-eye:hover { color: #2563eb; }
+
+            /* ══ SUBMIT BUTTON ══ */
+            .btn-submit {
+                width: 100%; height: 50px;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                color: #fff; border: none;
+                border-radius: 14px;
+                font-size: 15px; font-family: 'Inter', sans-serif;
+                font-weight: 700; cursor: pointer;
+                display: flex; align-items: center; justify-content: center; gap: 8px;
+                box-shadow: 0 6px 20px rgba(37,99,235,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+                transition: all 0.2s; position: relative; overflow: hidden;
+                margin-top: 20px;
+            }
+            .btn-submit::before {
+                content: '';
+                position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+                transform: skewX(-20deg); transition: left 0.5s;
+            }
+            .btn-submit:hover::before { left: 160%; }
+            .btn-submit:active { transform: scale(0.98); }
+
+            /* ══ ALERT ══ */
+            .alert {
+                display: flex; align-items: flex-start; gap: 10px;
+                padding: 14px 16px; border-radius: 14px;
+                font-size: 13px; font-weight: 500;
+                margin-bottom: 12px;
+                animation: fadeIn 0.3s ease-out;
+            }
+            @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+            .alert-icon { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
+            .alert-error { background: rgba(254,242,242,0.9); border: 1px solid rgba(252,165,165,0.4); color: #dc2626; }
+            .alert-error .alert-icon { color: #ef4444; }
+            .alert-success { background: rgba(240,253,250,0.9); border: 1px solid rgba(110,231,183,0.4); color: #065f46; }
+            .alert-success .alert-icon { color: #10b981; }
+
+            /* ══ EMPTY STATE ══ */
+            .empty-state {
+                text-align: center;
+                padding: 48px 24px;
+            }
+            .empty-icon {
+                width: 72px; height: 72px;
+                border-radius: 22px;
+                background: rgba(239,246,255,0.8);
+                display: flex; align-items: center; justify-content: center;
+                margin: 0 auto 16px;
+            }
+            .empty-icon i { font-size: 28px; color: #93c5fd; }
+            .empty-title { font-size: 16px; font-weight: 800; color: #334155; margin-bottom: 6px; }
+            .empty-sub { font-size: 13px; color: #94a3b8; font-weight: 500; }
+
+            /* ══ BOTTOM NAV ══ */
+            .bottom-nav {
+                position: fixed; bottom: 0; left: 0; right: 0;
+                background: rgba(255,255,255,0.85);
+                border-top: 1px solid rgba(226,232,240,0.6);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                z-index: 50;
+                box-shadow: 0 -4px 24px rgba(37,99,235,0.07);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); height: 68px; }
+            .nav-item {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-decoration: none; color: #94a3b8; font-family: 'Inter', sans-serif;
+                transition: color 0.2s; position: relative; gap: 3px;
+            }
+            .nav-item.active { color: #2563eb; }
+            .nav-item-icon {
+                width: 40px; height: 40px;
+                border-radius: 12px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 18px; transition: all 0.2s;
+            }
+            .nav-item.active .nav-item-icon {
+                background: rgba(37,99,235,0.1);
+                color: #2563eb;
+            }
+            .nav-item:not(.active):hover .nav-item-icon { background: rgba(241,245,249,0.8); color: #64748b; }
+            .nav-label { font-size: 10px; font-weight: 700; }
+            .nav-item.active::before {
+                content: '';
+                position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+                width: 24px; height: 3px;
+                background: linear-gradient(90deg, #2563eb, #4f46e5);
+                border-radius: 0 0 4px 4px;
+            }
+
+            /* hide scrollbar */
+            ::-webkit-scrollbar { display: none; }
+            * { -ms-overflow-style: none; scrollbar-width: none; }
+        </style>
+
+        <style>
+            .submenu {
+                padding-left: 2.5rem;
+                display: none;
+            }
+
+            .submenu-item {
+                display: flex;
+                align-items: center;
+                padding: 8px 0;
+                color: inherit;
+                text-decoration: none;
+                font-size: 0.9em;
+            }
+
+            .submenu-icon {
+                margin-right: 10px;
+                width: 16px;
+            }
+
+            .nav-arrow {
+                margin-left: auto;
+                transition: transform 0.3s ease;
+            }
+
+            /* Container pembungkus item bottom navbar */
+            .nav-item-dropdown {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Kartu Submenu Melayang */
+            .dropup-popover {
+                display: none;
+                position: absolute;
+                bottom: calc(100% + 12px); /* Melayang 12px tepat di atas navbar */
+                left: 50%;
+                transform: translateX(-50%); /* Mengetengahkan menu persis di atas tombol */
+                min-width: 170px;
+                background-color: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e2e8f0;
+                padding: 6px;
+                z-index: 1000;
+            }
+
+            /* Arrow/Segitiga Kecil Penunjuk ke Bawah */
+            .dropup-popover::after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border-width: 6px;
+                border-style: solid;
+                border-color: #ffffff transparent transparent transparent;
+            }
+
+            .dropup-popover.show {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            /* Item Menu Di Dalam Popover */
+            .popover-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 14px;
+                color: #334155;
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: 500;
+                border-radius: 8px;
+                white-space: nowrap;
+                transition: background-color 0.2s, color 0.2s;
+            }
+
+            .popover-item:hover {
+                background-color: #f1f5f9;
+                color: #2563eb;
+            }
+
+            .popover-icon {
+                font-size: 1rem;
+                width: 18px;
+                text-align: center;
+            }
+
+            /* Style Parent Utama saat Aktif */
+            .nav-item.active {
+                color: #2563eb !important; /* Warna teks & ikon jadi biru */
+            }
+
+            .nav-item.active .nav-item-icon i {
+                color: #2563eb !important;
+            }
+
+            /* Style Submenu Item (Child) saat Aktif */
+            .popover-item.active-child {
+                background-color: #eff6ff !important; /* Background biru muda */
+                color: #2563eb !important;             /* Teks & ikon biru utama */
+                font-weight: 600;
+            }
+
+            .popover-item.active-child .popover-icon {
+                color: #2563eb !important;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="page-content">
+
+            <!-- ══ PAGE HEADER ══ -->
+            <div class="page-header">
+                <div class="page-header-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div>
+                    <div class="page-header-title">Profil Saya</div>
+                    <div class="page-header-sub">Informasi akun & ganti password</div>
+                </div>
+            </div>
+
+            <!-- ══ ALERTS ══ -->
+            {% if error or success %}
+                <div class="section">
+                    {% if error %}
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle alert-icon"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+                    {% if success %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle alert-icon"></i>
+                        <span>{{ success }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if pegawai %}
+                <!-- ══ PROFILE CARD ══ -->
+                <div class="section">
+                    <div class="glass-card">
+                        <div class="profile-top">
+                            <div class="avatar-wrap">
+                                <div class="avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="status-dot"></div>
+                            </div>
+                            <div class="profile-name">{{ pegawai.pegawai_nama }}</div>
+                            <div class="profile-jabatan">{{ pegawai.jabatan or 'Jabatan tidak diketahui' }}</div>
+                        </div>
+
+                        <div class="info-list">
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-id-card"></i>
+                                    NIK Lintasarta
+                                </span>
+                                <span class="info-value">{{ pegawai.pegawai_nik_lintas or '-' }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-hashtag"></i>
+                                    NIP Pegawai
+                                </span>
+                                <span class="info-value">{{ pegawai.pegawai_nip or '-' }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">
+                                    <i class="fas fa-building"></i>
+                                    Divisi
+                                </span>
+                                <span class="info-value">{{ pegawai.divisi or '-' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══ CHANGE PASSWORD CARD ══ -->
+                <div class="section">
+                    <div class="glass-card">
+                        <div class="card-section-header">
+                            <div class="card-section-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="card-section-title">Ganti Password</div>
+                        </div>
+
+                        <div class="form-body">
+                            <form method="POST" action="{{ url_for('dashboard_pegawai.akun_pegawai') }}">
+
+                                <div class="form-group">
+                                    <label class="form-label">Password Lama</label>
+                                    <div class="input-wrap">
+                                        <input type="password" id="old_password" name="old_password"
+                                            class="form-input" placeholder="••••••••" required>
+                                        <button type="button" class="toggle-eye toggle-password" data-target="old_password">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Password Baru</label>
+                                    <div class="input-wrap">
+                                        <input type="password" id="new_password" name="new_password"
+                                            class="form-input" placeholder="••••••••" required>
+                                        <button type="button" class="toggle-eye toggle-password" data-target="new_password">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Konfirmasi Password Baru</label>
+                                    <div class="input-wrap">
+                                        <input type="password" id="confirm_password" name="confirm_password"
+                                            class="form-input" placeholder="••••••••" required>
+                                        <button type="button" class="toggle-eye toggle-password" data-target="confirm_password">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn-submit">
+                                    <i class="fas fa-save" style="font-size:14px;"></i>
+                                    Simpan Perubahan
+                                </button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- ══ EMPTY STATE ══ -->
+                <div class="section">
+                    <div class="glass-card">
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-user-slash"></i>
+                            </div>
+                            <div class="empty-title">Profil Tidak Ditemukan</div>
+                            <div class="empty-sub">Sistem tidak dapat memuat data profil Anda.</div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- ══ BOTTOM NAVIGATION ══ -->
+            <nav class="bottom-nav">
+                <div class="nav-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); width: 100%;">
+
+                    <!-- 1. Dasbor -->
+                    <a href="{{ url_for('dashboard_pegawai.dasbor_pegawai') }}" 
+                        class="nav-item {% if request.endpoint == 'dashboard_pegawai.dasbor_pegawai' %}active{% endif %}">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <span class="nav-label">Dasbor</span>
+                    </a>
+
+                    <!-- 2. Milkshake -->
+                    <div class="nav-item" style="position:relative;">
+                        <div id="milkshake-bubble" style="display:none;">
+                            <div class="bubble-inner">
+                                <div class="bubble-title">Butuh Form?</div>
+                                <div class="bubble-sub">Akses form & layanan lewat Milkshake.</div>
+                            </div>
+                        </div>
+
+                        <a href="https://msha.ke/personilhdti#links" target="_blank" id="btn-milkshake"
+                            style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;height:100%;text-decoration:none;color:#94a3b8;">
+                            <div class="nav-item-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <span class="nav-label">Milkshake</span>
+                        </a>
+                    </div>
+
+                    <!-- 3. Akun -->
+                    <a href="{{ url_for('dashboard_pegawai.akun_pegawai') }}" 
+                        class="nav-item {% if request.endpoint == 'dashboard_pegawai.akun_pegawai' %}active{% endif %}">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="nav-label">Akun</span>
+                    </a>
+
+                    <!-- 4. Tukar Shift -->
+                    <a href="{{ url_for('dashboard_pegawai.tukar_shift_page') }}" 
+                        class="nav-item {% if request.endpoint == 'dashboard_pegawai.tukar_shift_page' %}active{% endif %}">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <span class="nav-label">Tukar Shift</span>
+                    </a>
+
+                    <!-- 5. Form Pengajuan (Parent Menu) -->
+                    <div class="nav-item-dropdown">
+
+                        <div class="dropup-popover" id="submenu-pengajuan">
+
+                            <a href="{{ url_for('view_kalender_ketersediaan_cuti.view_data') }}" 
+                            class="popover-item {% if request.endpoint == 'view_kalender_ketersediaan_cuti.view_data' %}active-child{% endif %}">
+                                <i class="fas fa-calendar-check popover-icon"></i>
+                                <span>Lihat Pengajuan</span>
+                            </a>
+
+                            
+                            <a href="{{ url_for('form_pengajuan_tidakhadir.form_pengajuan') }}" 
+                            class="popover-item {% if request.endpoint == 'form_pengajuan_tidakhadir.form_pengajuan' %}active-child{% endif %}">
+                                <i class="fas fa-user-times popover-icon"></i>
+                                <span>Tidak Hadir</span>
+                            </a>
+                            
+                            <a href="{{ url_for('form_pengajuan_cuti.form_pengajuan') }}"
+                                class="popover-item {% if request.endpoint == 'form_pengajuan_cuti.form_pengajuan' %}active-child{% endif %}">
+                                <i class="fas fa-plane-departure popover-icon"></i>
+                                <span>Cuti</span>
+                            </a>
+                            
+                            <a href="#" class="popover-item">
+                                <i class="fas fa-business-time popover-icon"></i>
+                                <span>Lembur</span>
+                            </a>
+                        </div>
+
+                        <a href="#" class="nav-item {% if 'form_pengajuan' in request.endpoint %} active {% endif %}" onclick="toggleSubmenu(event, 'submenu-pengajuan', this)">
+                            <div class="nav-item-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <span class="nav-label">Form Pengajuan</span>
+                        </a>
+                    </div>
+
+                    <!-- 6. Logout -->
+                    <a href="{{ url_for('auth.auth_logout') }}" class="nav-item"
+                        style="color:#f43f5e;" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e'">
+                        <div class="nav-item-icon" style="background:rgba(244,63,94,0.08);">
+                            <i class="fas fa-sign-out-alt" style="color:#f43f5e;"></i>
+                        </div>
+                        <span class="nav-label" style="color:#f43f5e;">Logout</span>
+                    </a>
+
+                </div>
+            </nav>
+
+            <script>
+                document.querySelectorAll('.toggle-password').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const input = document.getElementById(this.getAttribute('data-target'));
+                        const icon = this.querySelector('i');
+                        const isPass = input.type === 'password';
+
+                        // Scale micro-animation
+                        this.style.transform = 'scale(1.2)';
+                        setTimeout(() => this.style.transform = 'scale(1)', 150);
+
+                        input.type = isPass ? 'text' : 'password';
+                        icon.classList.toggle('fa-eye', !isPass);
+                        icon.classList.toggle('fa-eye-slash', isPass);
+
+                        if (isPass) { icon.style.color = '#2563eb'; }
+                        else { icon.style.color = ''; }
+                    });
+                });
+            </script>
+
+            <script>
+                function toggleSubmenu(event, submenuId) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const submenu = document.getElementById(submenuId);
+                    
+                    // Tutup menu lain jika sedang terbuka
+                    document.querySelectorAll('.dropup-popover').forEach(el => {
+                        if (el.id !== submenuId) el.classList.remove('show');
+                    });
+
+                    submenu.classList.toggle('show');
+                }
+
+                // Tutup popover otomatis jika mengeklik di luar menu
+                document.addEventListener('click', function(e) {
+                    const popover = document.getElementById('submenu-pengajuan');
+                    if (popover && !popover.contains(e.target)) {
+                        popover.classList.remove('show');
+                    }
+                });
+            </script>
+        
+        </div>
+
+    </body>
+</html>

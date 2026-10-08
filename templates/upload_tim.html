@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Upload Tim Assignment - APBI</title>
+    <style>
+        .scrollbar-hidden {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .scrollbar-hidden::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo" class="h-20 object-contain">
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Upload Tim Assignment</h1>
+            <p class="text-lg text-gray-600">Assign tim kepada pegawai berdasarkan NIK dan Nama</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="flex justify-center mb-8">
+            <a href="/" class="inline-flex items-center px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all shadow-md">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Kembali ke Dashboard
+            </a>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-8 space-y-3">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg shadow-md
+                            {% if category == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700
+                            {% elif category == 'warning' %}bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700
+                            {% elif category == 'success' %}bg-green-100 border-l-4 border-green-500 text-green-700
+                            {% else %}bg-blue-100 border-l-4 border-blue-500 text-blue-700{% endif %}">
+                            <div class="flex items-center">
+                                <i class="fas fa-{% if category == 'error' %}exclamation-triangle{% elif category == 'warning' %}exclamation-circle{% elif category == 'success' %}check-circle{% else %}info-circle{% endif %} mr-3"></i>
+                                {{ message }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Upload Results -->
+        {% if upload_result %}
+        <div class="bg-white shadow-xl rounded-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-clipboard-check mr-3 text-green-600"></i>
+                Hasil Upload Tim Assignment
+            </h2>
+            
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium">Update via NIK</p>
+                            <p class="text-3xl font-bold">{{ upload_result.updated_nik }}</p>
+                        </div>
+                        <i class="fas fa-id-card text-2xl text-blue-200"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm font-medium">Update via Nama</p>
+                            <p class="text-3xl font-bold">{{ upload_result.updated_nama }}</p>
+                        </div>
+                        <i class="fas fa-user text-2xl text-green-200"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm font-medium">Total Assigned</p>
+                            <p class="text-3xl font-bold">{{ upload_result.total_assigned }}</p>
+                        </div>
+                        <i class="fas fa-users text-2xl text-purple-200"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-gray-500 to-gray-600 text-white p-6 rounded-lg shadow-lg">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-100 text-sm font-medium">Belum Ada Tim</p>
+                            <p class="text-3xl font-bold">{{ upload_result.total_pegawai - upload_result.total_assigned }}</p>
+                        </div>
+                        <i class="fas fa-user-times text-2xl text-gray-200"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tim Statistics -->
+            {% if upload_result.tim_statistics %}
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-pie mr-2 text-indigo-600"></i>
+                    Distribusi Tim
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {% for tim in upload_result.tim_statistics %}
+                    <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-lg text-center hover:bg-indigo-100 transition-colors">
+                        <div class="text-2xl font-bold text-indigo-600">{{ tim.jumlah }}</div>
+                        <div class="text-sm text-indigo-800 font-medium">{{ tim.pembagian3_nama }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Detailed Results Tabs -->
+            <div class="border-b border-gray-200 mb-6">
+                <nav class="flex space-x-8">
+                    <button onclick="showTab('similarity')" id="tab-similarity" class="tab-button py-3 px-1 border-b-2 border-green-500 font-semibold text-green-600 transition-colors">
+                        <i class="fas fa-search mr-2"></i>
+                        Similarity Matches ({{ upload_result.similarity_matches|length }})
+                    </button>
+                    <button onclick="showTab('not-found-nik')" id="tab-not-found-nik" class="tab-button py-3 px-1 border-b-2 border-transparent font-semibold text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        NIK Tidak Ditemukan ({{ upload_result.not_found_nik|length }})
+                    </button>
+                    <button onclick="showTab('not-found-nama')" id="tab-not-found-nama" class="tab-button py-3 px-1 border-b-2 border-transparent font-semibold text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors">
+                        <i class="fas fa-user-times mr-2"></i>
+                        Nama Tidak Ditemukan ({{ upload_result.not_found_nama|length }})
+                    </button>
+                    <button onclick="showTab('tanpa-tim')" id="tab-tanpa-tim" class="tab-button py-3 px-1 border-b-2 border-transparent font-semibold text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors">
+                        <i class="fas fa-users-slash mr-2"></i>
+                        Tanpa Tim ({{ upload_result.pegawai_tanpa_tim|length }})
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="tab-content-wrapper">
+                <!-- Similarity Matches -->
+                <div id="content-similarity" class="tab-content">
+                    {% if upload_result.similarity_matches %}
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-green-800 mb-4">Pencocokan Nama dengan Similarity Algorithm</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg shadow-sm">
+                                <thead class="bg-green-100">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">No</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Nama di Excel</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Nama di Database</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Tim</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-green-700 uppercase tracking-wider">Similarity</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for match in upload_result.similarity_matches %}
+                                    {% set parts = match.split(' → ') %}
+                                    {% set nama_excel = parts[0] %}
+                                    {% set rest = parts[1] %}
+                                    {% set nama_db = rest.split(' (')[0] %}
+                                    {% set score_and_tim = rest.split(' (')[1] %}
+                                    {% set score = score_and_tim.split(') - ')[0] %}
+                                    {% set tim = score_and_tim.split(') - ')[1] %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ loop.index }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ nama_excel }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ nama_db }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">{{ tim }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{ score }}%</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-500 text-lg">Tidak ada similarity matches ditemukan</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- NIK Tidak Ditemukan -->
+                <div id="content-not-found-nik" class="tab-content hidden">
+                    {% if upload_result.not_found_nik %}
+                    <div class="bg-red-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-red-800 mb-4">NIK yang Tidak Ditemukan di Database</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg shadow-sm">
+                                <thead class="bg-red-100">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">No</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">NIK di Excel</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Tim</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-red-700 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for item in upload_result.not_found_nik %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ loop.index }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">{{ item.nik }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">{{ item.tim }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">{{ item.status }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-check-circle text-4xl text-green-400 mb-4"></i>
+                        <p class="text-gray-500 text-lg">Semua NIK berhasil ditemukan di database</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Nama Tidak Ditemukan -->
+                <div id="content-not-found-nama" class="tab-content hidden">
+                    {% if upload_result.not_found_nama %}
+                    <div class="bg-yellow-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-yellow-800 mb-4">Nama yang Tidak Dapat Dicocokkan</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg shadow-sm">
+                                <thead class="bg-yellow-100">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">No</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Nama di Excel</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Tim</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-yellow-700 uppercase tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for item in upload_result.not_found_nama %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ loop.index }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ item.nama }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">{{ item.tim }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ item.status }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-check-circle text-4xl text-green-400 mb-4"></i>
+                        <p class="text-gray-500 text-lg">Semua nama berhasil dicocokkan</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Pegawai Tanpa Tim -->
+                <div id="content-tanpa-tim" class="tab-content hidden">
+                    {% if upload_result.pegawai_tanpa_tim %}
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-4">Pegawai yang Belum Diassign Tim</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white rounded-lg shadow-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">No</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">NIP</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Nama</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">NIK Lintas</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Divisi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    {% for pegawai in upload_result.pegawai_tanpa_tim %}
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ loop.index }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">{{ pegawai.pegawai_nip or '-' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{{ pegawai.pegawai_nama }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">{{ pegawai.pegawai_nik_lintas or '-' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ pegawai.pembagian1_nama or '-' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12">
+                        <i class="fas fa-users text-4xl text-green-400 mb-4"></i>
+                        <p class="text-gray-500 text-lg">Semua pegawai sudah diassign ke tim</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Current Statistics -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {% if stats %}
+            <div class="bg-white shadow-xl rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-chart-bar mr-3 text-blue-500"></i>
+                    Statistik Saat Ini
+                </h3>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-3xl font-bold text-blue-600">{{ stats.total_pegawai }}</div>
+                        <div class="text-sm text-blue-800 font-medium">Total Pegawai</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-3xl font-bold text-green-600">{{ stats.pegawai_with_tim }}</div>
+                        <div class="text-sm text-green-800 font-medium">Sudah Ada Tim</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if tim_stats %}
+            <div class="bg-white shadow-xl rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-users mr-3 text-purple-500"></i>
+                    Distribusi Tim Saat Ini
+                </h3>
+                <div class="space-y-3 max-h-64 overflow-y-auto scrollbar-hidden">
+                    {% for tim in tim_stats %}
+                    <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors">
+                        <span class="text-sm font-medium text-purple-900">{{ tim.pembagian3_nama }}</span>
+                        <span class="text-sm font-bold text-purple-600 bg-purple-200 px-2 py-1 rounded-full">{{ tim.jumlah }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Upload Form -->
+        <div class="bg-white shadow-xl rounded-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-upload mr-3 text-blue-500"></i>
+                Upload File Tim Assignment
+            </h2>
+            
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                
+                <!-- File NIK -->
+                <div class="space-y-2">
+                    <label for="file_nik" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-id-card mr-2 text-blue-500"></i>
+                        File Tim berdasarkan NIK
+                    </label>
+                    <input type="file" 
+                           id="file_nik" 
+                           name="file_nik" 
+                           accept=".xlsx,.xls" 
+                           required
+                           class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
+                    <p class="mt-2 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Format Excel dengan kolom: <strong>NIK</strong> dan <strong>TIM</strong>
+                    </p>
+                </div>
+
+                <!-- File Nama -->
+                <div class="space-y-2">
+                    <label for="file_nama" class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-user mr-2 text-green-500"></i>
+                        File Tim berdasarkan Nama
+                    </label>
+                    <input type="file" 
+                           id="file_nama" 
+                           name="file_nama" 
+                           accept=".xlsx,.xls" 
+                           required
+                           class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-100 file:text-green-700 hover:file:bg-green-200">
+                    <p class="mt-2 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Format Excel dengan kolom: <strong>Nama</strong> dan <strong>TIM</strong>
+                    </p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" 
+                            class="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-300 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-upload mr-2"></i>
+                        Upload dan Assign Tim
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6 mt-8">
+            <h4 class="font-semibold text-blue-900 mb-4 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                Petunjuk Penggunaan
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h5 class="font-medium text-blue-800 mb-2">Proses Upload:</h5>
+                    <ol class="list-decimal list-inside space-y-1 text-sm text-blue-700">
+                        <li>Sistem akan clear semua assignment tim</li>
+                        <li>File NIK diproses dengan exact matching</li>
+                        <li>File Nama diproses dengan similarity matching</li>
+                        <li>Sistem membuat entry tim baru otomatis</li>
+                    </ol>
+                </div>
+                <div>
+                    <h5 class="font-medium text-blue-800 mb-2">Format File Excel:</h5>
+                    <ul class="list-disc list-inside space-y-1 text-sm text-blue-700">
+                        <li>File NIK: kolom <strong>NIK</strong> dan <strong>TIM</strong></li>
+                        <li>File Nama: kolom <strong>Nama</strong> dan <strong>TIM</strong></li>
+                        <li>Ekstensi: .xlsx atau .xls</li>
+                        <li>Similarity threshold: 80%</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('border-green-500', 'text-green-600');
+                button.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            document.getElementById('content-' + tabName).classList.remove('hidden');
+            
+            const activeButton = document.getElementById('tab-' + tabName);
+            activeButton.classList.remove('border-transparent', 'text-gray-500');
+            activeButton.classList.add('border-green-500', 'text-green-600');
+        }
+
+        document.querySelector('form').addEventListener('submit', function() {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>

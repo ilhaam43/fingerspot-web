@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Fingerspot- APBI</title>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('hidden');
+            if (sidebar.classList.contains('hidden')) {
+                content.classList.remove('lg:ml-56');
+            } else {
+                content.classList.add('lg:ml-56');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleModal(show, modalId) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+ document.addEventListener('DOMContentLoaded', () => {
+    const scrollableElement = document.querySelector('.relative.overflow-y-auto'); 
+    const editButtons = document.querySelectorAll('.edit-button');
+
+    const savedScrollPosition = localStorage.getItem('scrollableElementScrollPosition');
+    const highlightedRowIds = JSON.parse(localStorage.getItem('highlightedRowIds')) || []; 
+
+    if (savedScrollPosition) {
+        scrollableElement.scrollTop = parseInt(savedScrollPosition, 10);
+        localStorage.removeItem('scrollableElementScrollPosition'); 
+    }
+
+    highlightedRowIds.forEach(rowId => {
+        const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+        if (row) {
+            row.style.backgroundColor = '#f0f4ff'; 
+        }
+    });
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault(); 
+
+            const row = button.closest('tr'); 
+            row.style.backgroundColor = '#f0f4ff'; 
+
+            const rowId = row.getAttribute('data-row-id');
+            if (!highlightedRowIds.includes(rowId)) {
+                highlightedRowIds.push(rowId); 
+                localStorage.setItem('highlightedRowIds', JSON.stringify(highlightedRowIds)); 
+            }
+
+            localStorage.setItem('scrollableElementScrollPosition', scrollableElement.scrollTop); 
+
+            setTimeout(() => {
+                window.location.href = button.href;
+            }, 200);
+        });
+    });
+});
+
+    </script>
+    <style>
+                                .scrollbar-hidden {
+                            scrollbar-width: none; 
+                            -ms-overflow-style: none; 
+                        }
+                        .scrollbar-hidden::-webkit-scrollbar {
+                            display: none; 
+                        }
+
+                        #selectAll:checked ~ label div {
+                            transform: rotate(45deg);
+                            border-color: white;
+                            border-top-style: none;
+                            border-right-style: none;
+                            width: 0.5rem;
+                            height: 1rem;
+                            top: -0.25rem;
+                        }
+                        #selectAll:checked ~ label {
+                            background-color: #2563eb;
+                            border-color: #2563eb;
+                        }
+                        .form-checkbox:checked {
+                            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+                        }
+
+                        .custom-scrollbar::-webkit-scrollbar {
+                            width: 6px;
+                            height: 6px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-track {
+                            background: #f1f1f1;
+                            border-radius: 10px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-thumb {
+                            background: #c1c1c1;
+                            border-radius: 10px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                            background: #a8a8a8;
+                        }
+    </style>
+</head>
+<body class="bg-gray-100 flex">
+    <div class="relative flex min-h-screen w-full">
+
+        <div id="sidebar" class="w-56 bg-white text-gray-800 flex flex-col p-4 fixed h-full z-40 shadow-lg border-r border-gray-200">
+
+            <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-gray-800 text-xl lg:hidden">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center justify-center mb-8">
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo" class="h-auto object-contain max-w-[150px]">
+            </div>
+
+           <nav class="space-y-6">
+                <ul class="space-y-2">
+                
+                    <li>
+                        <a href="/" class="group flex items-center p-3 rounded-xl hover:bg-blue-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Absen</span>
+                        </a>
+                    </li>
+            
+                  
+                    <li>
+                        <a href="/upload_excel" class="group flex items-center p-3 rounded-xl hover:bg-green-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-alt mr-4 text-green-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Upload Jadwal Shift</span>
+                        </a>
+                    </li>
+            
+                   
+                    <li>
+                        <a href="/upload" class="group flex items-center p-3 rounded-xl hover:bg-yellow-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-history mr-4 text-yellow-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen (Mesin Lama)</span>
+                        </a>
+                    </li>
+            
+              
+                    <li>
+                        <a href="/att_log" class="group flex items-center p-3 rounded-xl hover:bg-purple-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-fingerprint mr-4 text-purple-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen Fingerspot</span>
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <a href="/daftar-cuti" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-clipboard-list mr-4 text-pink-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Cuti Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/cek_jadwal"  class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Cek Jadwal Pegawai</span>
+                        </a>
+                    </li>
+            
+                 
+                    <li>
+                        <div>
+                            <button onclick="toggleDropdown()" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300 w-full text-left">
+                                <i class="fas fa-ellipsis-h mr-4 text-pink-500 text-lg"></i>
+                                <span class="font-semibold text-sm">Lainnya</span>
+                                <i class="fas fa-chevron-down ml-auto text-gray-400 group-hover:text-pink-500"></i>
+                            </button>
+                            <ul id="settings-dropdown" class="pl-8 mt-3 space-y-2 hidden">
+                                <li>
+                                    <a href="/pegawai" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-users mr-2 text-blue-500"></i> Pegawai
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/upload-lembur" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-business-time mr-2 text-green-600"></i> Lemburan
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/ito_load" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>&nbsp;&nbsp; Absen ITO
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mt-auto text-center text-sm text-gray-500 border-t border-gray-300 pt-4">
+                <a href="/logout">
+                    <i class="fas fa-sign-out text-lg"></i>
+                    <span class="hidden md:inline font-medium text-sm">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="content" class="flex-1 flex flex-col lg:ml-56">
+
+<div class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
+
+    <button onclick="toggleSidebar()" class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2">
+        <i class="fas fa-bars text-lg"></i>
+        <span class="hidden md:inline font-medium text-sm">Menu</span>
+    </button>
+
+    <div class="flex items-center space-x-3">
+
+    </div>
+</div>
+
+<div class="flex-grow p-4 md:p-6 flex flex-col bg-gray-50">
+    <div class="flex-grow flex flex-col">
+        <!-- Filter Section -->
+        <div class="bg-white rounded-xl shadow-md p -4 mb-6">
+            <form method="get" action="{{ url_for('att_log') }}" class="flex flex-col md:flex-row items-center gap-4">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center flex-shrink-0">
+                    <i class="fas fa-filter text-blue-500 mr-2"></i>
+                    <span class="hidden lg:inline">Filter Data</span>
+                </h3>
+                <div class="flex-grow w-full md:w-auto">
+                    <div class="relative">
+                        <input type="date" id="start_date" name="start_date" value="{{ start_date or '' }}"
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-calendar-alt text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-grow w-full md:w-auto">
+                    <div class="relative">
+                        <input type="date" id="end_date" name="end_date" value="{{ end_date or '' }}"
+                               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-calendar-alt text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-grow w-full md:w-auto">
+                    <div class="relative">
+                        <select id="division" name="division"
+                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="">Semua Divisi</option>
+                            {% for division in divisions %}
+                                <option value="{{ division }}" {% if division == selected_division %}selected{% endif %}>
+                                    {{ division }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-building text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-grow w-full md:w-auto" id="hapus_card_container" style="display: none;">
+                    <div class="flex items-center space-x-2 h-full px-2 mt-2 md:mt-0">
+                        <input type="checkbox" id="hapus_card" name="hapus_card" value="1" {% if hapus_card == '1' %}checked{% endif %}
+                               class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                        <label for="hapus_card" class="text-sm font-medium text-gray-700 whitespace-nowrap">Hapus Verify Card</label>
+                    </div>
+                </div>
+                <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center">
+                    <i class="fas fa-search mr-2"></i> Filter
+                </button>
+            </form>
+        </div>
+
+        <!-- Table Section -->
+        <form action="{{ url_for('update_shift_result') }}" method="post" class="flex-grow flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
+                <div class="p-4 md:p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 flex items-center space-x-2">
+                 
+                        <span>Data Absensi Mesin Absen Atas (Fingerspot)</span>
+                    </h2>
+                    <p class="text-sm text-gray-500 mt-1">Pilih data yang ingin diupdate ke halaman 'Data Absen'.</p>
+                </div>
+                <button type="submit" class="m-4 md:m-6 mt-0 md:mt-4 bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg hover:from-green-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center">
+                    <i class="fas fa-save mr-2"></i> Update ke 'Data Absen'
+                </button>
+            </div>
+
+            <div class="flex-grow overflow-hidden relative">
+                <div class="absolute inset-0 overflow-auto custom-scrollbar">
+                <table class="min-w-full text-sm text-left text-gray-700">
+                    <thead class="text-xs text-white uppercase bg-gradient-to-r from-blue-600 to-blue-500 sticky top-0 z-10">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <input type="checkbox" id="selectAll" class="hidden">
+                                <label for="selectAll" class="w-4 h-4 border-2 border-white rounded-sm cursor-pointer flex items-center justify-center relative mx-auto">
+                                    <div class="w-0 h-0 transition-all duration-200"></div>
+                                </label>
+                            </th>
+                            {% for header in headers %}
+                                <th scope="col" class="px-4 py-3 {{ 'text-left' if header == 'Nama Pegawai' else 'text-center' }}">{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% if records %}
+                            {% for record in records %}
+                                <tr class="hover:bg-blue-50 transition-colors duration-200">
+                                    <td class="px-4 py-2">
+                                        <div class="flex justify-center">
+                                            <input type="checkbox" name="selected_records" value="{{ record.pin }}|{{ record.tanggal_scan }}" 
+                                                   class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                                        </div>
+                                    
+                                        <input type="hidden" name="scan_in_{{ record.pin }}_{{ record.tanggal_scan }}" value="{{ record.scan_in }}">
+                                        <input type="hidden" name="scan_out_{{ record.pin }}_{{ record.tanggal_scan }}" value="{{ record.scan_out }}">
+                                    </td>
+                                    
+                                    <td class="px-4 py-2 text-left font-medium text-gray-800">{{ record.nama_pegawai }}</td>
+                                    <td class="px-4 py-2 text-center">{{ record.pin }}</td>
+                                    <td class="px-4 py-2 text-center">{{ record.tanggal_scan }}</td>
+                                    <td class="px-4 py-2 text-center font-semibold text-blue-700">{{ record.scan_in }}</td>
+                                    <td class="px-4 py-2 text-center font-semibold text-purple-700">{{ record.scan_out }}</td>
+                                    <td class="px-4 py-2 text-center text-gray-600">{{ record.verifymode }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="{{ headers|length + 1 }}" class="px-4 py-6 text-center text-gray-500">Tidak ada data untuk ditampilkan pada rentang tanggal yang dipilih.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAll = document.getElementById('selectAll');
+        const checkboxes = document.querySelectorAll('input[name="selected_records"]');
+
+        selectAll.addEventListener('change', function() {
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (!this.checked) {
+                    selectAll.checked = false;
+                }
+            });
+        });
+
+        // Toggle Hapus Card checkbox visibility
+        const divisionSelect = document.getElementById('division');
+        const hapusCardContainer = document.getElementById('hapus_card_container');
+
+        function toggleHapusCard() {
+            if (divisionSelect.value === 'QAQC' || divisionSelect.value === 'TA') {
+                hapusCardContainer.style.display = 'block';
+            } else {
+                hapusCardContainer.style.display = 'none';
+                document.getElementById('hapus_card').checked = false;
+            }
+        }
+
+        if(divisionSelect && hapusCardContainer) {
+            divisionSelect.addEventListener('change', toggleHapusCard);
+            // Run on load to set initial state
+            toggleHapusCard();
+        }
+    });
+</script>
+</body>
+</html>

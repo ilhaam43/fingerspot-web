@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Data Pengajuan Tidak Hadir - Lintasarta APBI</title>
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <!-- Flatpickr CSS -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+        <!-- Flatpickr JS -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+        <!-- Bahasa Indonesia -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                        colors: {
+                            primary: { 50:'#ecfeff',100:'#cffafe',500:'#06b6d4',600:'#0891b2',700:'#0e7490' }
+                        }
+                    }
+                }
+            }
+        </script>
+        
+        <style>
+            body { font-family: 'Inter', sans-serif; }
+            
+            .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+            .scrollbar-styled::-webkit-scrollbar { width: 5px; height: 5px; }
+            .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+            /* SweetAlert Customization */
+            .swal2-popup { border-radius: 1rem; font-family: 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+            .swal2-title { font-size: 1.25rem; font-weight: 700; color: #111827; }
+            .swal2-confirm { background-color: #0891b2 !important; border-radius: 0.5rem !important; font-weight: 600; }
+            .swal2-cancel { border-radius: 0.5rem !important; font-weight: 600; }
+
+            /* Table Styling */
+            .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; white-space: nowrap; }
+            .data-table thead { background: #f8fafc; position: sticky; top: 0; z-index: 10; }
+            .data-table th { padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 2px solid #e2e8f0; }
+            .data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; background: white; }
+            .data-table tbody tr:nth-child(even) { background: #fafafa; }
+            .data-table tbody tr:hover { background: #ecfeff !important; }
+            .data-table td { padding: 10px 16px; color: #111827; font-weight: 500; }
+            
+            /* Action buttons */
+            .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
+            .btn-edit { background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
+            .btn-edit:hover { background: #14b8a6; color: white; border-color: #14b8a6; }
+            .btn-delete { background: #fff1f2; color: #be123c; border: 1px solid #ffe4e6; }
+            .btn-delete:hover { background: #f43f5e; color: white; border-color: #f43f5e; }
+
+            /* Input Styling for SweetAlert Form */
+            .swal-input-group { margin-bottom: 15px; text-align: left; }
+            .swal-input-group label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+            .swal-input-group input, .swal-input-group select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #1e293b; background-color: #f8fafc; outline: none; transition: all 0.2s; box-sizing: border-box; }
+            .swal-input-group input:focus, .swal-input-group select:focus { border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); background-color: #ffffff; }
+        
+            /* Tabs */
+            .tab-btn { padding: 12px 24px; font-weight: 600; font-size: 14px; color: #64748b; border-bottom: 2px solid transparent; transition: all 0.2s; }
+            .tab-btn:hover { color: #0f172a; }
+            .tab-btn.active { color: #0891b2; border-bottom-color: #0891b2; background: rgba(8, 145, 178, 0.05); }
+            .tab-content { display: none; height: 100%; }
+            .tab-content.active { display: flex; flex-direction: column; }
+        </style>
+        
+        <style>
+            .filter-input,
+            .filter-input:focus,
+            .filter-clear-btn {
+                border-color: #b9b9b9 !important;
+                outline: none !important;
+                box-shadow: none !important;
+            }
+
+            .filter-input {
+                color: #000000;
+            }
+
+            .filter-select-placeholder {
+                color: #9ca3af !important;
+            }
+
+            .filter-input option {
+                color: #000000;
+            }
+        </style>
+
+    </head>
+
+    <body class="bg-slate-50 overflow-hidden">
+
+        <div class="flex h-screen w-full">
+            <!-- Sidebar --> {% include 'components/sidebar.html' %} <!-- Main Content Wrapper -->
+            <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden relative">
+                <!-- Topbar --> {% include 'components/topbar-pengajuan-tidak-hadir.html' %} <!-- Main Area -->
+                <div class="flex-1 p-4 md:p-6 overflow-hidden flex flex-col gap-4">
+                    <!-- 1. Tombol Download / Export Data (Di Luar & Di Atas Card Tabel) -->
+                    <div class="mb-4">
+                        <button id="btnExport" type="button" onclick="exportPengajuan()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white text-sm font-semibold rounded-xl hover:bg-cyan-700 transition-colors shadow-sm">
+                            <i class="fas fa-download"></i> Download / Export Data 
+                        </button>
+                    </div>
+                    <!-- 2. Table Container Card -->
+                    <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col shadow-sm">
+                        <!-- Header Section (Show Entries & Search) -->
+                        <div class="px-6 py-4 border-b border-gray-100 bg-slate-50/50 shrink-0">
+                            <div class="flex flex-col gap-3">
+                                <!-- BARIS 1 -->
+                                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                                    <!-- Show Entries -->
+                                    <div class="flex items-center gap-2 text-xs text-gray-600 font-medium">
+                                        <span>Show</span>
+                                            <select id="entriesSelect" onchange="changeRowsPerPage(this.value)" class="px-2 py-1 bg-white border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none cursor-pointer">
+
+                                                <option value="5" selected>5</option>
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                                <option value="all">All</option>
+
+                                            </select>
+                                        <span>entries</span>
+                                    </div>
+                                    <!-- Search Global -->
+                                    <div class="flex items-center gap-2 w-full md:w-auto justify-end" style="visibility :hidden;">
+                                        <label for="tableSearch" class="text-xs font-medium text-gray-600"> Search: </label>
+                                        <input type="text" id="tableSearch" onkeyup="filterTable()" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none w-full md:w-56" placeholder="Ketik untuk mencari...">
+                                    </div>
+                                </div>
+                                <!-- BARIS 2 : FILTER KOLOM -->
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-[13px] table-fixed">
+                                        <tr>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Table Section -->
+                        <div class="overflow-auto scrollbar-styled flex-1 relative">
+                            <table class="data-table text-[13px] w-full">
+                                <thead>
+                                    <tr class="bg-slate-50">
+                                        <th></th>
+
+                                        <!-- NIK LINTASARTA -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <input
+                                                    type="number"
+                                                    id="filterNik"
+                                                    onkeyup="filterTable(); toggleClearButton('filterNik');"
+                                                    placeholder="Cari NIK"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l">
+
+                                                <button
+                                                    id="clearFilterNik"
+                                                    type="button"
+                                                    onclick="clearInput('filterNik')"
+                                                    class="filter-clear-btn hidden w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </th>
+
+                                        <!-- NAMA LENGKAP -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <input
+                                                    type="text"
+                                                    id="filterNama"
+                                                    onkeyup="filterTable(); toggleClearButton('filterNama');"
+                                                    placeholder="Cari Nama Lengkap"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l">
+
+                                                <button
+                                                    id="clearFilterNama"
+                                                    type="button"
+                                                    onclick="clearInput('filterNama')"
+                                                    class="filter-clear-btn hidden w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </th>
+
+                                        <!-- TIM PERSONIL -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <input
+                                                    type="text"
+                                                    id="filterPersonil"
+                                                    onkeyup="filterTable(); toggleClearButton('filterPersonil');"
+                                                    placeholder="Cari Tim Personil"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l">
+
+                                                <button
+                                                    id="clearFilterPersonil"
+                                                    type="button"
+                                                    onclick="clearInput('filterPersonil')"
+                                                    class="filter-clear-btn hidden w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </th>
+
+                                        <!-- TANGGAL PENGAJUAN -->
+                                        <th>
+                                            <div class="relative flex">
+
+                                                <input
+                                                    readonly
+                                                    type="text"
+                                                    id="filterTanggalPengajuan"
+                                                    data-tanggal="{{ tanggal_filter if tanggal_filter else '' }}"
+                                                    placeholder="Pilih Tanggal"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l bg-white cursor-pointer">
+
+                                                {% if tanggal_filter %}
+                                                <button
+                                                    type="button"
+                                                    onclick="clearFilterRefresh(event)"
+                                                    class="filter-clear-btn w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                                {% endif %}
+
+                                            </div>
+                                        </th>
+
+                                        <!-- PERIODE PENGAJUAN -->
+                                        <th>
+                                            <div class="relative flex">
+
+                                                <input
+                                                    readonly
+                                                    type="text"
+                                                    id="filterPeriode"
+                                                    data-periode="{{ periode if periode else '' }}"
+                                                    placeholder="Pilih Tanggal"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l bg-white cursor-pointer">
+
+                                                {% if periode %}
+                                                <button
+                                                    type="button"
+                                                    onclick="clearFilterRefresh(event)"
+                                                    class="filter-clear-btn w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                                {% endif %}
+
+                                            </div>
+                                        </th>
+
+                                        <!-- JENIS PENGAJUAN -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <select
+                                                    id="filterJenis"
+                                                    onchange="handleSelectFilter('filterJenis')"
+                                                    class="filter-input filter-select-placeholder w-full px-2 py-1 text-xs border rounded">
+
+                                                    <option value="" selected hidden>Pilih</option>
+                                                    <option value="All">Semua</option>
+                                                    <option value="Dinas">Dinas</option>
+                                                    <option value="Sakit">Sakit</option>
+                                                    <option value="Terlambat">Terlambat</option>
+                                                    <option value="Tidak Penuh">Tidak Penuh</option>
+                                                    <option value="Tidak Hadir">Tidak Hadir</option>
+
+                                                </select>
+                                            </div>
+                                        </th>
+                                                                                
+                                        <!-- JUMLAH HARI (DURASI) -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <input
+                                                    type="number"
+                                                    id="filterDurasi"
+                                                    onkeyup="filterTable(); toggleClearButton('filterDurasi');"
+                                                    placeholder="Cari Jumlah Hari"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l">
+
+                                                <button
+                                                    id="clearFilterDurasi"
+                                                    type="button"
+                                                    onclick="clearInput('filterDurasi')"
+                                                    class="filter-clear-btn hidden w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </th>
+
+                                        <!-- PROJECT MANAGER -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <input
+                                                    type="text"
+                                                    id="filterProjectManager"
+                                                    onkeyup="filterTable(); toggleClearButton('filterProjectManager');"
+                                                    placeholder="Cari Project Manager"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l">
+
+                                                <button
+                                                    id="clearFilterProjectManager"
+                                                    type="button"
+                                                    onclick="clearInput('filterProjectManager')"
+                                                    class="filter-clear-btn hidden w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </th>
+
+                                        <!-- PIMPINAN / SUPERVISOR -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <input
+                                                    type="text"
+                                                    id="filterSupervisor"
+                                                    onkeyup="filterTable(); toggleClearButton('filterSupervisor');"
+                                                    placeholder="Cari Atasan"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l">
+
+                                                <button
+                                                    id="clearFilterSupervisor"
+                                                    type="button"
+                                                    onclick="clearInput('filterSupervisor')"
+                                                    class="filter-clear-btn hidden w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </th>
+
+                                        <!-- KETERANGAN (ALASAN) -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <input
+                                                    type="text"
+                                                    id="filterKeterangan"
+                                                    onkeyup="filterTable(); toggleClearButton('filterKeterangan');"
+                                                    placeholder="Cari Keterangan (Alasan)"
+                                                    class="filter-input w-full px-2 py-1 text-xs border rounded-l">
+
+                                                <button
+                                                    id="clearFilterKeterangan"
+                                                    type="button"
+                                                    onclick="clearInput('filterKeterangan')"
+                                                    class="filter-clear-btn hidden w-8 border border-l-0 bg-slate-100 hover:bg-red-100 text-red-500 hover:text-red-700 text-sm font-bold rounded-r">
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </th>
+
+                                        <!-- STATUS -->
+                                        <th>
+                                            <div class="relative flex">
+                                                <select
+                                                    id="filterStatus"
+                                                    onchange="handleSelectFilter('filterStatus')"
+                                                    class="filter-input filter-select-placeholder w-full px-2 py-1 text-xs border rounded">
+                                                    <option value="" selected hidden>Pilih</option>
+                                                    <option value="All">Semua</option>
+                                                    <option value="Tidak Hadir">Tidak Hadir</option>
+
+                                                </select>
+                                            </div>
+                                        </th>
+
+                                        <th></th>
+                                    </tr>
+                                    <tr class="text-[13px]">
+                                        <th class="text-center w-12">NO</th>
+                                        <th class="text-center">NIK LINTASARTA</th>
+                                        <th class="text-center">NAMA LENGKAP</th>
+                                        <th class="text-center">TIM PERSONIL</th>
+                                        <th class="text-center">TANGGAL PENGAJUAN</th>
+                                        <th class="text-center">PERIODE PENGAJUAN</th>
+                                        <th class="text-center">JENIS PENGAJUAN</th>
+                                        <th class="text-center w-20">JUMLAH HARI (DURASI)</th>
+                                        <th class="text-center">PROJECT MANAGER</th>
+                                        <th class="text-center">PIMPINAN / SUPERVISOR</th>
+                                        <th class="text-center">KETERANGAN (ALASAN)</th>
+                                        <th class="text-center">STATUS</th>
+                                        <th class="text-center w-36">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody> {% for item in data_pengajuan %} <tr data-row-id="{{ item.Id }}" class="text-[13px]">
+                                        <td class="text-center font-mono text-gray-500">{{ loop.index }}</td>
+                                        <td class="text-center font-mono font-bold text-cyan-700">{{ item.Nik_Lintasarta or '-' }}</td>
+                                        <td>
+                                            <div class="font-bold text-gray-900 text-[13px]">{{ item.Nama_Lengkap or '-' }}</div>
+                                            <div class="text-[13px] text-gray-400">{{ item.Alamat_Email or '' }}</div>
+                                        </td>
+                                        <td class="text-center"> {% if item.Nama_Tim and 'HDTI' in item.Nama_Tim %} <span class="px-2 py-0.5 text-[13px] font-normal rounded bg-blue-100 text-blue-700 border border-blue-200">{{ item.Nama_Tim }}</span> {% elif item.Nama_Tim and 'HDBS' in item.Nama_Tim %} <span class="px-2 py-0.5 text-[13px] font-normal rounded bg-amber-100 text-amber-700 border border-amber-200">{{ item.Nama_Tim }}</span> {% else %} <span class="px-2 py-0.5 text-[13px] font-normal rounded bg-slate-100 text-slate-700 border border-slate-200">{{ item.Nama_Tim or '-' }}</span> {% endif %} </td>
+                                        <td class="text-center font-mono text-[13px] text-gray-500 whitespace-nowrap">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <span>{{ item.Submitted_Date or '-' }}</span> 
+                                                {% if item.is_new %} 
+                                                <span class="inline-flex items-center justify-center ml-2 px-2.5 py-1 rounded-md text-xs font-bold bg-green-500 text-white shadow-sm">
+                                                    NEW
+                                                </span>
+                                                {% else %} 
+                                                <!-- Buka Bagian Ini Jika Ingin Menampilkan Label Badge OLD -->
+                                                <!-- <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-300 text-gray-700 shadow-sm">
+                                                    OLD
+                                                </span>-->
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td class="text-center whitespace-nowrap">
+
+                                            <div class="font-medium text-gray-800">
+                                                {{ item.Tanggal_Mulai }}
+                                                <span class="text-gray-400">
+                                                    s/d
+                                                </span>
+                                                {{ item.Tanggal_Akhir }}
+                                            </div>
+
+                                            <div class="text-xs text-gray-500">
+                                                {{ item.Jumlah_Hari }} Hari
+                                            </div>
+
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[13px] font-normal rounded-lg text-gray-900 border border-gray-400 shadow-sm" style="background-color: #d1d5db;">
+                                                <i class="text-[12px] text-gray-900"></i> {{ item.Status_Absensi or '-' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="inline-flex items-center justify-center px-2 py-0.5 rounded-lg text-gray-900 font-normal text-[13px] border border-gray-400 shadow-sm" style="background-color: #d1d5db;">
+                                                {{ item.Jumlah_Hari or '0' }} Hari
+                                            </div>
+                                        </td>
+                                        <td><span class="text-[13px] font-medium text-gray-800">{{ item.Project_Manager or '-' }}</span></td>
+                                        <td><span class="text-[13px] font-medium text-gray-800">{{ item.Pimpinan_Supervisor or '-' }}</span></td>
+                                        <td class="max-w-md">
+                                            <div class="text-[13px] min-w-[350px] text-gray-800 break-words whitespace-normal">
+                                                {{ item.Keterangan or '-' }}
+                                            </div>
+                                        </td>
+                                        <td class="text-center"> 
+                                            {% if not item.Status_Pengajuan %} 
+                                            <span class="px-2.5 py-1 text-[13px] font-medium tracking-wide rounded-md bg-blue-100 text-blue-700 border border-blue-200"> 
+                                                Tidak Hadir 
+                                            </span> 
+                                            {% elif item.Status_Pengajuan == 'Tidak Hadir' %} 
+                                            <span class="px-2.5 py-1 text-[13px] font-medium tracking-wide rounded-md bg-blue-100 text-blue-700 border border-blue-200"> 
+                                                Tidak Hadir 
+                                            </span> 
+                                            {% elif item.Status_Pengajuan == 'Pending' %} 
+                                            <span class="px-2.5 py-1 text-[13px] font-medium tracking-wide rounded-md bg-amber-100 text-amber-700 border border-amber-200"> 
+                                                Pending 
+                                            </span> 
+                                            {% elif item.Status_Pengajuan in ['Approved', 'Approve'] %} 
+                                            <span class="px-2.5 py-1 text-[13px] font-medium tracking-wide rounded-md bg-emerald-100 text-emerald-700 border border-emerald-200"> 
+                                                Approved 
+                                            </span> 
+                                            {% elif item.Status_Pengajuan in ['Rejected', 'Reject'] %} 
+                                            <span class="px-2.5 py-1 text-[13px] font-medium tracking-wide rounded-md bg-rose-100 text-rose-700 border border-rose-200"> 
+                                                Rejected 
+                                            </span> 
+                                            {% else %} 
+                                            <span class="px-2.5 py-1 text-[13px] font-medium tracking-wide rounded-md bg-blue-100 text-blue-700 border border-blue-200">
+                                                {{ item.Status_Pengajuan }}
+                                            </span> 
+                                            {% endif %} 
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center justify-center gap-1">
+                                                
+                                                {% if not item.Status_Pengajuan or item.Status_Pengajuan == 'Pending' %} 
+                                                <!-- APPROVE -->
+                                                <button type="button" title="Approve Pengajuan" onclick="approvePengajuan('{{ item.Id }}')" class="btn-action bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-200 p-1.5 rounded-lg transition-colors">
+                                                    <i class="fas fa-check text-[13px]"></i>
+                                                </button>                                           
+                                                <!-- REJECT -->
+                                                <button type="button" title="Reject Pengajuan" onclick="rejectPengajuan('{{ item.Id }}')" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 p-1.5 rounded-lg transition-colors">
+                                                    <i class="fas fa-ban text-[13px]"></i>
+                                                </button> 
+                                                {% endif %} 
+                                                
+                                                <!-- Divider --> 
+                                                {% if not item.Status_Pengajuan or item.Status_Pengajuan == 'Pending' %} 
+                                                    <div class="h-4 w-[1px] bg-gray-300 mx-1.5 self-center">
+                                                    </div> 
+                                                {% endif %} 
+
+                                                <!-- DETAIL -->
+                                                <button type="button" class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 p-1.5 rounded-lg transition-colors" title="Lihat Detail" onclick="showDetailModal('{{ item.Id }}')">
+                                                    <i class="fas fa-eye text-[13px]"></i>
+                                                </button>
+                                                <!-- EDIT -->
+                                                <button type="button" class="edit-button btn-action bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-200 p-1.5 rounded-lg transition-colors" title="Edit Data" onclick="showEditModal('{{ item.Id }}')">
+                                                    <i class="fas fa-pen text-[13px]"></i>
+                                                </button>
+                                                <!-- DELETE -->
+                                                <button type="button" title="Delete Data" onclick="deletePengajuan('{{ item.Id }}')" class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 p-1.5 rounded-lg transition-colors">
+                                                    <i class="fas fa-trash text-[13px]"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr> {% else %} <tr id="noDataRow">
+                                        <td colspan="13" class="text-center py-8 text-gray-400 font-medium text-[13px]">Tidak ada data pengajuan terdaftar.</td>
+                                    </tr> {% endfor %} </tbody>
+                            </table>
+                        </div>
+                        <!-- Pagination & Info Container -->
+                        <div class="px-6 py-3 border-t border-gray-100 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-4 shrink-0">
+                            <!-- Info Total & Halaman -->
+                            <div class="text-xs font-semibold text-gray-500 order-2 md:order-1"> Showing <span id="pageStart" class="text-gray-900 font-bold">0</span> to <span id="pageEnd" class="text-gray-900 font-bold">0</span> of <span id="totalEntries" class="text-gray-900 font-bold">0</span> entries </div>
+                            <!-- Tombol Navigasi Menjadi Satu Grup (DI TENGAH) -->
+                            <div class="flex items-center justify-center order-1 md:order-2 w-full md:w-auto">
+                                <div class="inline-flex rounded-lg border border-gray-300 bg-white overflow-hidden shadow-sm divide-x divide-gray-200">
+                                    <button id="btnPrev" onclick="changePage(-1)" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center">
+                                        <i class="fas fa-chevron-left mr-1"></i> Prev </button>
+                                    <div id="pageNumbers" class="flex divide-x divide-gray-200 text-xs"></div>
+                                    <button id="btnNext" onclick="changePage(1)" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center"> Next <i class="fas fa-chevron-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Spacer penyeimbang layout desktop -->
+                            <div class="hidden md:block w-48 order-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Detail Pengajuan -->
+        <div id="detailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl relative">
+                <!-- Header Modal -->
+                <div class="flex justify-between items-center mb-6 pb-4 border-b">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Detail Informasi</h3>
+                        <p class="text-xs text-gray-500">Informasi lengkap data karyawan</p>
+                    </div>
+                    <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <!-- Form Inputs (Pastikan NIK Lintasarta di bawah ini cocok!) -->
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <!-- NIK Lintasarta & Status -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">NIK Lintasarta</label>
+                        <input type="text" id="detail_nik_lintasarta" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1"> Status  <span class="text-rose-500">*</span></label>
+                        <select id="detail_status" disabled class="w-full px-3 py-2 rounded-lg border text-sm font-medium cursor-not-allowed">
+                            <option value="Tidak Hadir">Tidak Hadir</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <!-- Nama & Email -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap</label>
+                        <input type="text" id="detail_nama" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Alamat Email</label>
+                        <input type="text" id="detail_email" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <!-- Tim & Jenis -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tim / Personil</label>
+                        <input type="text" id="detail_tim" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Jenis Pengajuan</label>
+                        <input type="text" id="detail_jenis" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <!-- Tanggal Submit & Durasi -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Pengajuan (Submitted)</label>
+                        <input type="text" id="detail_tgl_pengajuan" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Durasi (Hari)</label>
+                        <input type="text" id="detail_durasi" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <!-- Tanggal Mulai & Selesai -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Mulai</label>
+                        <input type="text" id="detail_tgl_mulai" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Selesai</label>
+                        <input type="text" id="detail_tgl_akhir" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <!-- PM & Supervisor -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Project Manager</label>
+                        <input type="text" id="detail_pm" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1">Pimpinan / Supervisor</label>
+                        <input type="text" id="detail_spv" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+                    </div>
+                    <!-- KETERANGAN -->
+                    <div class="mt-4 col-span-2">
+                        <label class="block text-xs font-semibold text-gray-600 mb-1"> Keterangan Pengajuan </label>
+                        <textarea
+                            id="detail_keterangan"
+                            rows="4"
+                            readonly
+                            class="w-full min-h-[110px] bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-700 resize-none">
+                        </textarea>
+                    </div>
+                </div>
+                <!-- Footer -->
+                <div class="mt-6 flex justify-end">
+                    <button onclick="closeDetailModal()" class="px-5 py-2 bg-rose-600 text-white font-semibold text-sm rounded-xl hover:bg-rose-700 transition-colors">
+                        <i class="fas fa-times mr-1"></i> Tutup </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Edit Data Pengajuan -->
+        <div id="editModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeEditModal()"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-2xl transition-all border border-gray-100">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                                <i class="fas fa-pen-to-square text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-gray-900">Edit Data Pengajuan</h3>
+                                <p class="text-xs text-gray-500">Perbarui informasi permohonan pengajuan karyawan</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeEditModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+                    <form id="formEditPengajuan" action="#" method="POST" onsubmit="handleUpdate(event)">
+                        <input type="hidden" id="edit_id" name="id">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <!-- BARIS 1 -->
+                            <div class="space-y-1">
+                                <label class="font-semibold text-gray-600">NIK Lintasarta</label>
+                                <input type="text" id="edit_nik_lintasarta" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500 font-mono font-semibold focus:outline-none cursor-not-allowed">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="font-semibold text-gray-700">Status <span class="text-rose-500">*</span></label>
+                                <select id="edit_status" name="status_pengajuan" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none font-semibold">
+                                    <option value="Tidak Hadir"> Tidak Hadir </option>
+                                    <option value="Pending"> Pending </option>
+                                    <option value="Approved"> Approved </option>
+                                    <option value="Rejected"> Rejected </option>
+                                </select>
+                            </div>
+                            <!-- BARIS 2 -->
+                            <div class="space-y-1">
+                                <label class="font-semibold text-gray-600">Nama Lengkap</label>
+                                <input type="text" id="edit_nama" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500 font-medium focus:outline-none cursor-not-allowed">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="font-semibold text-gray-600">Alamat Email</label>
+                                <input type="text" id="edit_email" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500 focus:outline-none cursor-not-allowed">
+                            </div>
+
+                            <!-- BARIS 3: DROPDOWN TIM & PERSONIL -->
+                            
+                            <!-- GROUP HDTI -->
+                            <div id="container_tim_hdti" class="space-y-1 hidden">
+                                <label class="font-semibold text-gray-700">TIM HDTI <span class="text-rose-500">*</span></label>
+                                <select id="edit_tim_hdti" name="tim_hdti" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                    {% for tim in list_tim_hdti %} 
+                                    <option value="{{ tim.pembagian3_id }}">
+                                        {{ tim.pembagian3_nama }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div id="container_personil_hdti" class="space-y-1 hidden">
+                                <label class="font-semibold text-gray-700">PERSONIL HDTI <span class="text-rose-500">*</span></label>
+                                <select id="edit_personil_hdti" name="pegawai_id_hdti" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                    <option value="">
+                                        Choose
+                                    </option> 
+                                    {% for p in list_pegawai_hdti %} 
+                                    <option value="{{ p.pegawai_id }}">
+                                        {{ p.pegawai_nama }}
+                                    </option> 
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- GROUP HDBS -->
+                            <div id="container_tim_hdbs" class="space-y-1 hidden">
+                                <label class="font-semibold text-gray-700">TIM HDBS <span class="text-rose-500">*</span></label>
+                                <select id="edit_tim_hdbs" name="tim_hdbs" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                    {% for tim in list_tim_hdbs %} 
+                                    <option value="{{ tim.pembagian3_id }}">
+                                        {{ tim.pembagian3_nama }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div id="container_personil_hdbs" class="space-y-1 hidden">
+                                <label class="font-semibold text-gray-700">PERSONIL HDBS <span class="text-rose-500">*</span></label>
+                                <select id="edit_personil_hdbs" name="pegawai_id_hdbs" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                    <option value="">
+                                        Choose
+                                    </option> 
+                                    {% for p in list_pegawai_hdbs %} 
+                                    <option value="{{ p.pegawai_id }}">
+                                        {{ p.pegawai_nama }}
+                                    </option> 
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- BARIS 4 : JENIS PENGAJUAN | TANGGAL PENGAJUAN -->
+                            <div class="space-y-1">
+                                <label class="font-semibold text-gray-700"> Jenis Pengajuan <span class="text-rose-500">*</span>
+                                </label>
+                                <select id="edit_jenis" name="status_absensi" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                    <option value="Dinas"> Dinas </option>
+                                    <option value="Sakit"> Sakit </option>
+                                    <option value="Terlambat"> Terlambat </option>
+                                    <option value="Tidak Penuh"> Tidak Penuh </option>
+                                    <option value="Tidak Hadir"> Tidak Hadir </option>
+                                </select>
+                            </div>
+
+                            <!-- KOSONGKAN KOLOM KANAN -->
+                            <div></div>
+
+                            <!-- BARIS 5 : TANGGAL PENGAJUAN (SUBMITTED) | TANGGAL MULAI | TANGGAL SELESAI -->
+                            
+                            <!-- BARIS KHUSUS TANGGAL -->
+                            <div class="md:col-span-2">
+                                <div class="grid grid-cols-8 gap-4">
+                                    <!-- TANGGAL PENGAJUAN -->
+                                    <div class="space-y-1 col-span-4">
+                                        <label class="font-semibold text-gray-600"> Tanggal Pengajuan (Submitted) </label>
+                                        <input type="text" id="edit_tgl_pengajuan" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500 font-medium">
+                                    </div>
+                                    <!-- TANGGAL MULAI -->
+                                    <div class="space-y-1 col-span-2">
+                                        <label class="font-semibold text-gray-700"> Tanggal Mulai <span class="text-rose-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_tgl_mulai" name="tanggal_mulai" class="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-lg text-gray-900 font-mono">
+                                            <i class="fas fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                    <!-- TANGGAL SELESAI -->
+                                    <div class="space-y-1 col-span-2">
+                                        <label class="font-semibold text-gray-700"> Tanggal Selesai <span class="text-rose-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <input type="text" id="edit_tgl_akhir" name="tanggal_akhir" class="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-lg text-gray-900 font-mono">
+                                            <i class="fas fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <!-- BARIS 6 : PROJECT MANAGER | PIMPINAN SUPERVISOR -->
+                            <div class="space-y-1">
+                                <label class="font-semibold text-gray-700"> Project Manager <span class="text-rose-500">*</span>
+                                </label>
+                                <select id="edit_pm" name="project_manager" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                                                        
+                                    {% for pm in list_project_manager %}
+                                    <option value="{{ pm.pegawai_id }}">
+                                        {{ pm.pegawai_nama }}
+                                    </option>
+                                    {% endfor %}
+                                
+                                
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="font-semibold text-gray-700"> Pimpinan / Supervisor <span class="text-rose-500">*</span>
+                                </label>
+                                <select id="edit_spv" name="pimpinan_supervisor" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                    {% for spv in list_supervisor %} <option value="{{ spv.nama }}">
+                                        {{ spv.nama }}
+                                    </option> {% endfor %}
+                                </select>
+                            </div>
+                            <!-- KETERANGAN -->
+                            <div class="space-y-1 md:col-span-2">
+                                <label class="font-semibold text-gray-700"> Keterangan (Alasan) </label>
+                                <textarea
+                                    id="edit_keterangan"
+                                    name="keterangan"
+                                    rows="3"
+                                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none resize-none"
+                                ></textarea>
+                            </div>
+                        </div>
+                        <!-- Action Buttons Footer Modal -->
+                        <div class="mt-6 flex justify-end items-center gap-2 border-t border-gray-100 pt-4">
+                            
+                            <button type="submit" class="px-5 py-2.5 bg-cyan-600 text-white font-semibold rounded-xl hover:bg-cyan-700 active:bg-cyan-800 transition-colors text-xs shadow-sm flex items-center gap-1.5">
+                                <i class="fas fa-save text-xs"></i> Update </button>
+
+                            <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-rose-600 text-white font-semibold rounded-xl hover:bg-rose-700 active:bg-rose-800 transition-colors text-xs shadow-sm flex items-center gap-1.5">
+                                <i class="fas fa-times text-xs"></i> Cancel </button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datatable -->
+        <script>
+            let rowsPerPage = 5;
+            let currentPage = 1;
+            const table = document.querySelector('.data-table');
+            const tbody = table.querySelector('tbody');
+            const allRows = Array.from(tbody.querySelectorAll('tr:not(#noDataRow)'));
+            let filteredRows = [...allRows];
+
+            function renderTable() {
+                const totalEntries = filteredRows.length;
+                const totalPages = Math.ceil(totalEntries / rowsPerPage) || 1;
+
+                if (currentPage > totalPages) currentPage = totalPages;
+                if (currentPage < 1) currentPage = 1;
+
+                const start = (currentPage - 1) * rowsPerPage;
+                const end = start + rowsPerPage;
+
+                allRows.forEach(row => row.style.display = 'none');
+
+                filteredRows.forEach((row, index) => {
+                    if (index >= start && index < end) 
+                    {
+                        row.style.display = '';
+                    }
+                });
+
+                document.getElementById('pageStart').textContent = totalEntries === 0 ? 0 : start + 1;
+                document.getElementById('pageEnd').textContent = Math.min(end, totalEntries);
+                document.getElementById('totalEntries').textContent = totalEntries;
+                document.getElementById('btnPrev').disabled = currentPage === 1 || totalEntries === 0;
+                document.getElementById('btnNext').disabled = currentPage >= totalPages || totalEntries === 0;
+
+                renderPageNumbers(totalPages);
+            }
+
+            function changePage(delta) {
+                currentPage += delta;
+                renderTable();
+            }
+
+            function changeRowsPerPage(val)
+            {
+                if (val === 'all')
+                {
+                    rowsPerPage = filteredRows.length;
+                }
+                else
+                {
+                    rowsPerPage = parseInt(val);
+                }
+
+                currentPage = 1;
+                renderTable();
+            }
+
+            //// Original Filter Function
+            // function filterTable() {
+            // const query = document.getElementById('tableSearch').value.toLowerCase();
+            // filteredRows = allRows.filter(row => {
+            // const text = row.textContent.toLowerCase();
+            // return text.includes(query);
+            // });
+            // currentPage = 1;
+            // renderTable();
+            // }
+
+            function filterTable() 
+            {
+                const globalSearch =document.getElementById('tableSearch').value.toLowerCase();
+                const nikLintasarta = document.getElementById('filterNik')?.value.toLowerCase() || '';
+                const namaLengkap = document.getElementById('filterNama')?.value.toLowerCase() || '';
+                const personil = document.getElementById('filterPersonil')?.value.toLowerCase() || '';
+                const tanggalPengajuan = document.getElementById('filterTanggalPengajuan')?.value || '';
+                const periode = document.getElementById('filterPeriode')?.value.toLowerCase() || '';
+                const jenis = document.getElementById('filterJenis')?.value.toLowerCase() || '';
+                const durasi = document.getElementById('filterDurasi')?.value.toLowerCase() || '';
+                const projectManager = document.getElementById('filterProjectManager')?.value.toLowerCase() || '';
+                const supervisor = document.getElementById('filterSupervisor')?.value.toLowerCase() || '';
+                const keterangan = document.getElementById('filterKeterangan')?.value.toLowerCase() || '';
+                const status = document.getElementById('filterStatus')?.value.toLowerCase() || '';
+
+                filteredRows = allRows.filter(row => {
+
+                    const cells = row.querySelectorAll('td');
+                    const rowText = row.textContent.toLowerCase();
+                    const nikLintasartaText = cells[1]?.innerText.toLowerCase() || '';
+                    const namaText = cells[2]?.innerText.toLowerCase() || '';
+                    const personilText = cells[3]?.innerText.toLowerCase() || '';
+                    const tanggalPengajuanText = cells[4]?.innerText || '';
+                    const periodeText = cells[5]?.innerText.toLowerCase() || '';
+                    const jenisText = cells[6]?.innerText.toLowerCase() || '';
+                    const durasiText = cells[7]?.innerText.toLowerCase() || '';
+                    const projectManagerText = cells[8]?.innerText.toLowerCase() || '';
+                    const supervisorText = cells[9]?.innerText.toLowerCase() || '';
+                    const keteranganText = cells[10]?.innerText.toLowerCase() || '';
+                    const statusText = cells[11]?.innerText.toLowerCase() || '';
+
+                    // ==================================
+                    // FILTER TANGGAL PENGAJUAN
+                    // ==================================
+                    let matchTanggal = true;
+
+                    if (tanggalPengajuan) 
+                    {
+                        const tanggalRow = tanggalPengajuanText.replace('NEW', '').replace('OLD', '').trim().substring(0, 10).toLowerCase();
+                        matchTanggal = tanggalRow.includes(tanggalPengajuan);
+                    }
+
+
+                    // ==================================
+                    // FILTER PERIODE
+                    // ==================================
+
+                    let matchPeriode = true;
+
+                    if (periode)
+                    {
+                        const range = periode.match(/\d{2}-\d{2}-\d{4}/g);
+                        const dataRange = periodeText.match(/\d{2}-\d{2}-\d{4}/g);
+
+                        if (range && dataRange && dataRange.length === 2)
+                        {
+                            const toDate = (str) =>
+                            {
+                                const [dd, mm, yyyy] = str.split('-');
+                                return new Date(
+                                    parseInt(yyyy),
+                                    parseInt(mm) - 1,
+                                    parseInt(dd)
+                                );
+                            };
+
+                            const dataStartDate = toDate(dataRange[0]);
+                            const dataEndDate = toDate(dataRange[1]);
+
+                            // FILTER 1 TANGGAL
+                            if (range.length === 1)
+                            {
+                                const selectedDate = toDate(range[0]);
+                                matchPeriode = selectedDate >= dataStartDate && selectedDate <= dataEndDate;
+                            }
+                            // FILTER RANGE
+                            else if (range.length === 2)
+                            {
+                                const filterStartDate = toDate(range[0]);
+                                const filterEndDate = toDate(range[1]);
+                                matchPeriode = filterStartDate <= dataEndDate && filterEndDate >= dataStartDate;
+                            }
+                        }
+                    }
+
+                    return (
+                        rowText.includes(globalSearch)
+                        && nikLintasartaText.includes(nikLintasarta)
+                        && namaText.includes(namaLengkap)
+                        && personilText.includes(personil)
+                        && matchTanggal
+                        && matchPeriode
+                        && jenisText.includes(jenis)
+                        && durasiText.includes(durasi)
+                        && projectManagerText.includes(projectManager)
+                        && supervisorText.includes(supervisor)
+                        && keteranganText.includes(keterangan)
+                        && statusText.includes(status)
+                    );
+                });
+
+                currentPage = 1;
+                renderTable();
+            }
+
+            function renderPageNumbers(totalPages) {
+                const pageNumbersContainer = document.getElementById('pageNumbers');
+                pageNumbersContainer.innerHTML = '';
+
+                // Tampilkan nomor halaman meskipun hanya ada 1 halaman
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement('button');
+                    btn.textContent = i;
+                    btn.className = `px-3 py-1.5 text-xs font-semibold transition-colors ${
+                        i === currentPage ? 'bg-cyan-600 text-white' : 'text-gray-600 hover:bg-gray-100 bg-white'
+                    }`;
+                    btn.onclick = () => { 
+                        currentPage = i; 
+                        renderTable(); 
+                    };
+                    pageNumbersContainer.appendChild(btn);
+                }
+            }
+
+            // Initial render
+            renderTable();
+        </script>
+        
+        <!-- Modal View Control Scripts -->
+        <script>
+            async function showDetailModal(id) 
+            {
+                try 
+                {
+                    const response = await fetch(`/detail-pengajuan/${id}`);
+                    const result = await response.json();
+                    if (!result.success) {
+                        alert(result.message);
+                        return;
+                    }
+
+                    const d = result.data;
+
+                    document.getElementById('detail_nik_lintasarta').value = d.nik_lintasarta || '-';
+                    document.getElementById('detail_nama').value = d.nama_lengkap || '-';
+                    document.getElementById('detail_email').value = d.email || '-';
+                    document.getElementById('detail_tim').value = d.tim || '-';
+                    document.getElementById('detail_jenis').value = d.jenis_pengajuan || '-';
+                    document.getElementById('detail_tgl_pengajuan').value = d.tgl_pengajuan || '-';
+                    document.getElementById('detail_tgl_mulai').value = d.tgl_mulai || '-';
+                    document.getElementById('detail_tgl_akhir').value = d.tgl_selesai || '-';
+                    document.getElementById('detail_durasi').value = `${d.durasi || 0} Hari`;
+                    document.getElementById('detail_pm').value = d.project_manager || '-';
+                    document.getElementById('detail_spv').value = d.pimpinan || '-';
+                    document.getElementById('detail_keterangan').value = d.keterangan || '-';
+
+                    const statusSelect = document.getElementById('detail_status');
+
+                    if (statusSelect) 
+                    {
+                        const status = d.status || 'Tidak Hadir';
+                        statusSelect.value = status;
+                        statusSelect.readOnly = true;
+                        statusSelect.className = 'w-full px-3 py-2 rounded-lg border text-sm font-medium cursor-not-allowed';
+                        switch (status.toUpperCase()) 
+                        {
+                            case 'PENDING':
+                                statusSelect.classList.add(
+                                    'bg-amber-100',
+                                    'text-amber-700',
+                                    'border-amber-200'
+                                );
+                                break;
+                            case 'APPROVED':
+                                statusSelect.classList.add(
+                                    'bg-emerald-100',
+                                    'text-emerald-700',
+                                    'border-emerald-200'
+                                );
+                                break;
+                            case 'REJECTED':
+                                statusSelect.classList.add(
+                                    'bg-rose-100',
+                                    'text-rose-700',
+                                    'border-rose-200'
+                                );
+                                break;
+                            default:
+                                statusSelect.classList.add(
+                                    'bg-blue-100',
+                                    'text-blue-700',
+                                    'border-blue-200'
+                                );
+                        }
+                    }
+                    document.getElementById('detailModal').classList.remove('hidden');
+                }
+                catch (err) 
+                {
+                    console.error(err);
+                    alert('Gagal mengambil detail data.');
+                }
+            }
+
+            function closeDetailModal()
+            {
+                document.getElementById('detailModal').classList.add('hidden');
+            }
+        </script>
+
+        <!-- Modal Edit Control Scripts -->
+        <script>
+            async function showEditModal(id) 
+            {
+                try 
+                {
+                    const response = await fetch(`/detail-pengajuan/${id}`);
+                    const result = await response.json();
+                    if (!result.success) {
+                        Swal.fire(
+                            'Gagal',
+                            result.message || 'Data tidak ditemukan',
+                            'error'
+                        );
+                        return;
+                    }
+
+                    const d = result.data;
+                    const get = (id) => document.getElementById(id);
+
+                    // =====================================
+                    // TIM HDTI / HDBS
+                    // =====================================
+
+                    get('container_tim_hdti')?.classList.add('hidden');
+                    get('container_tim_hdbs')?.classList.add('hidden');
+
+                    get('container_personil_hdti')?.classList.add('hidden');
+                    get('container_personil_hdbs')?.classList.add('hidden');
+
+                    if (d.tim_personil === 'HDTI')
+                    {
+                        get('container_tim_hdti')?.classList.remove('hidden');
+
+                        get('edit_tim_hdti').value =
+                            String(d.tim_id || '');
+                    }
+                    else if (d.tim_personil === 'HDBS')
+                    {
+                        get('container_tim_hdbs')?.classList.remove('hidden');
+
+                        get('edit_tim_hdbs').value =
+                            String(d.tim_id || '');
+                    }
+
+                    // =====================================
+                    // FIELD DASAR
+                    // =====================================
+                    const setValue = (id, value) => 
+                    {
+                        const el = get(id);
+                        if (el) 
+                        {
+                            el.value = value || '';
+                        }
+                    };
+
+                    setValue('edit_id', d.id);
+                    setValue('edit_nik_lintasarta', d.nik_lintasarta);
+                    setValue('edit_nama', d.nama_lengkap);
+                    setValue('edit_email', d.email);
+                    setValue('edit_tgl_pengajuan', d.tgl_pengajuan);
+                    setValue('edit_keterangan', d.keterangan);
+
+                    // =====================================
+                    // TANGGAL (FLATPICKR)
+                    // =====================================
+
+                    const tglMulai = d.tgl_mulai;
+                    const tglAkhir = d.tgl_selesai;
+
+                    console.log("tgl_mulai =", d.tgl_mulai);
+                    console.log("tgl_selesai =", d.tgl_selesai);
+
+                    if (typeof fpMulai !== 'undefined')
+                    {
+                        fpMulai.setDate(d.tgl_mulai, true, "d-m-Y");
+                    }
+                    else
+                    {
+                        setValue('edit_tgl_mulai', d.tgl_mulai);
+                    }
+
+                    if (typeof fpAkhir !== 'undefined')
+                    {
+                        fpAkhir.setDate(d.tgl_selesai, true, "d-m-Y");
+                    }
+                    else
+                    {
+                        setValue('edit_tgl_akhir', d.tgl_selesai);
+                    }
+
+                    // =====================================
+                    // DROPDOWN
+                    // =====================================
+
+                    get('edit_jenis').value = d.jenis_pengajuan || '';
+                    //get('edit_pm').value = d.project_manager_id || '';
+                    get('edit_pm').value = String(d.project_manager_id || '');
+                    const pmSelect = get('edit_pm');
+
+                    [...pmSelect.options].forEach(opt =>
+                    {
+                        if (String(opt.value) === String(d.project_manager_id))
+                        {
+                            pmSelect.value = opt.value;
+                        }
+                    });
+
+                    const spvSelect = get('edit_spv');
+
+                    if (spvSelect)
+                    {
+                        const targetValue = (d.pimpinan || '').trim();
+
+                        [...spvSelect.options].forEach(opt =>
+                        {
+                            if (opt.value.trim() === targetValue)
+                            {
+                                spvSelect.value = opt.value;
+                            }
+                        });
+                    }
+
+                    // =====================================
+                    // STATUS PENGAJUAN
+                    // =====================================
+
+                    const statusSelect = get('edit_status');
+                    const statusPengajuan = d.status || 'Tidak Hadir';
+
+                    statusSelect.value = statusPengajuan;
+                    statusSelect.classList.remove(
+                        'bg-slate-100',
+                        'text-gray-500',
+                        'border-gray-200',
+                        'cursor-not-allowed',
+                        'bg-white',
+                        'text-gray-900',
+                        'border-gray-300'
+                    );
+
+                    if (statusPengajuan === 'Tidak Hadir') 
+                    {
+                        statusSelect.disabled = true;
+                        statusSelect.classList.add(
+                            'bg-slate-100',
+                            'text-gray-500',
+                            'border-gray-200',
+                            'cursor-not-allowed'
+                        );
+                    }
+                    else {
+                        statusSelect.disabled = false;
+                        statusSelect.classList.add(
+                            'bg-white',
+                            'text-gray-900',
+                            'border-gray-300'
+                        );
+                    }
+
+                    // =====================================
+                    // OPEN MODAL
+                    // =====================================
+
+                    get('editModal').classList.remove('hidden');
+                }
+                catch (error) {
+                    console.error(error);
+                    Swal.fire(
+                        'Error',
+                        'Gagal mengambil data.',
+                        'error'
+                    );
+                }
+            }
+
+            function closeEditModal() {
+                document.getElementById('editModal').classList.add('hidden');
+            }
+        </script>
+
+        <!-- Approved & Rejected Data Scripts -->
+        <script>
+            async function approvePengajuan(id) {
+                const confirmResult = await Swal.fire({
+                    title: 'Approve Pengajuan?',
+                    text: 'Data pengajuan akan disetujui.',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Approve',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#6b7280',
+                    reverseButtons: true
+                });
+
+                if (!confirmResult.isConfirmed) {
+                    return;
+                }
+
+                try 
+                {
+                    const response = await fetch(`/approve-pengajuan/${id}`, { method: 'POST'});
+                    const result = await response.json();
+                    if (!result.success) 
+                    {
+                        Swal.fire({
+                            title: 'Gagal',
+                            text: result.message,
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                        return;
+                    }
+                    await Swal.fire({
+                        title: 'Berhasil',
+                        text: 'Pengajuan berhasil di-Approve.',
+                        icon: 'success',
+                        confirmButtonColor: '#10b981'
+                    });
+                    location.reload();
+                } 
+                catch (error) 
+                {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Gagal melakukan approve.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            }
+
+            async function rejectPengajuan(id) {
+                const confirmResult = await Swal.fire({
+                    title: 'Reject Pengajuan?',
+                    text: 'Data pengajuan akan ditolak.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Reject',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    reverseButtons: true
+                });
+
+                if (!confirmResult.isConfirmed) {
+                    return;
+                }
+
+                try 
+                {
+                    const response = await fetch(`/reject-pengajuan/${id}`, {method: 'POST'});
+                    const result = await response.json();
+
+                    if (!result.success) 
+                    {
+                        Swal.fire({
+                            title: 'Gagal',
+                            text: result.message,
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                        return;
+                    }
+
+                    await Swal.fire({
+                        title: 'Berhasil',
+                        text: 'Pengajuan berhasil di-Reject.',
+                        icon: 'success',
+                        confirmButtonColor: '#10b981'
+                    });
+                    location.reload();
+                } 
+                catch (error) 
+                {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Gagal melakukan reject.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            }
+        </script>
+
+        <!-- Update Data Scripts -->
+        <script>
+            async function handleUpdate(event) 
+            {
+                event.preventDefault();
+                const confirmResult = await Swal.fire({
+                    title: 'Konfirmasi Update',
+                    text: 'Apakah Anda yakin ingin memperbarui data pengajuan ini ?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Update',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#0891b2',
+                    cancelButtonColor: '#dc2626',
+                    reverseButtons: false
+                });
+
+                if (!confirmResult.isConfirmed) {
+                    return;
+                }
+
+                const form = document.getElementById('formEditPengajuan');
+                const formData = new FormData(form);
+
+                try 
+                {
+                    const response = await fetch('/update-pengajuan-tidak-hadir',
+                    {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) 
+                    {
+                        await Swal.fire({
+                            title: 'Berhasil',
+                            text: result.message,
+                            icon: 'success',
+                            confirmButtonColor: '#0891b2',
+                            confirmButtonText: 'OK'
+                        });
+
+                        closeEditModal();
+                        location.reload();
+                    } 
+                    else 
+                    {
+                        Swal.fire({
+                            title: 'Gagal',
+                            text: result.message,
+                            icon: 'error',
+                            confirmButtonColor: '#dc2626'
+                        });
+                    }
+                }
+                catch (error) 
+                {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Terjadi kesalahan saat mengupdate data.',
+                        icon: 'error',
+                        confirmButtonColor: '#dc2626'
+                    });
+                }
+            }
+        </script>
+
+        <!-- Delete Data Scripts -->
+        <script>
+            async function deletePengajuan(id) 
+            {
+                const result = await Swal.fire({
+                    icon: 'warning',
+                    title: 'Hapus Data',
+                    text: 'Apakah yakin akan menghapus data ini ?',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (!result.isConfirmed) return;
+
+                try 
+                {
+                    const response = await fetch(`/delete-pengajuan-tidak-hadir/${id}`, 
+                    {
+                        method: 'POST'
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) 
+                    {
+                        Swal.fire('Gagal', data.message, 'error');
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Data berhasil dihapus'
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+                catch (err) 
+                {
+                    Swal.fire(
+                        'Error',
+                        'Terjadi kesalahan sistem',
+                        'error'
+                    );
+                }
+            }
+        </script>
+
+        <!-- Export Scripts -->
+        <script>
+            function exportPengajuan() 
+            {
+                window.location.href = '/export-pengajuan-tidak-hadir';
+            }
+        </script>
+
+        <!-- Flatpickr Initialization -->
+        <script>
+            let fpMulai;
+            let fpAkhir;
+
+            document.addEventListener('DOMContentLoaded', () => 
+            {
+                    fpMulai = flatpickr('#edit_tgl_mulai',
+                        {
+                            locale: 'id',
+                            dateFormat: 'd-m-Y',
+                            allowInput: true
+                        }
+                    );
+                    fpAkhir = flatpickr('#edit_tgl_akhir',
+                        {
+                            locale: 'id',
+                            dateFormat: 'd-m-Y',
+                            allowInput: true
+                        }
+                    );
+                }
+            );
+
+            /*
+            =====================================
+            HELPER UNTUK SHOW EDIT MODAL
+            =====================================
+            */
+
+            function setEditDates(data) 
+            {
+                if (fpMulai && data.tgl_mulai) 
+                {
+                    fpMulai.setDate(data.tgl_mulai);
+                }
+
+                if (fpAkhir && data.tgl_selesai) 
+                {
+                    fpAkhir.setDate(data.tgl_selesai);
+                }
+            }
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => 
+            {
+                document.querySelectorAll('.column-filter').forEach(input => 
+                {
+                    input.addEventListener('keyup', filterTableColumns);
+                    input.addEventListener('change', filterTableColumns);
+                });
+            });
+
+            function filterTableColumns()
+            {
+                const rows = document.querySelectorAll('table tbody tr');
+                
+                rows.forEach(row => 
+                {
+                    let show = true;
+                    document.querySelectorAll('.column-filter').forEach(input => 
+                    {
+                        const keyword = input.value.trim().toLowerCase();
+                        if (!keyword)
+                        return;
+
+                        const columnIndex = parseInt(input.dataset.column);
+                        const cell = row.cells[columnIndex];
+                        if (!cell)
+                        return;
+
+                        const text = cell.innerText.trim().toLowerCase();                    
+                        if (!text.includes(keyword)) {
+                            show = false;
+                        }
+                    });
+
+                    row.style.display = show ? '' : 'none';
+                });
+            }
+        </script>
+        
+        <script>
+            document.getElementById("filterNik").addEventListener("keydown", function(e) {
+                if (['e', 'E', '+', '-'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+
+            document.getElementById("filterDurasi").addEventListener("keydown", function(e) {
+                if (['e', 'E', '+', '-'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+        </script>
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function ()
+            {
+                [
+                    "filterNik",
+                    "filterNama",
+                    "filterPersonil",
+                    "filterTanggalPengajuan",
+                    "filterPeriode",
+                    "filterJenis",
+                    "filterDurasi",
+                    "filterProjectManager",
+                    "filterSupervisor",
+                    "filterKeterangan",
+                    "filterStatus"
+                ].forEach(toggleClearButton);
+
+                // ==========================================
+                // RESET URL SAAT REFRESH
+                // ==========================================
+                if (window.location.search.includes("tanggal_pengajuan"))
+                {
+                    window.history.replaceState({}, document.title, "/view-data-pengajuan-tidak-hadir");
+                }
+
+                // ==========================================
+                // FILTER TANGGAL PENGAJUAN
+                // ==========================================
+                flatpickr("#filterTanggalPengajuan",
+                {
+                    locale: "id",
+                    dateFormat: "d-m-Y",
+
+                    onReady: function(selectedDates, dateStr, instance)
+                    {
+                        const tanggal = instance.input.dataset.tanggal;
+                        if (tanggal)
+                        {
+                            setTimeout(() =>
+                            {
+                                instance.input.value = tanggal;
+                            }, 50);
+                        }
+                    },
+
+                    onChange: function(selectedDates, dateStr)
+                    {
+                        if (!dateStr)
+                        {
+                            window.location.href = "/view-data-pengajuan-tidak-hadir";
+                            return;
+                        }
+
+                        window.location.href = "/view-data-pengajuan-tidak-hadir?tanggal_pengajuan=" + encodeURIComponent(dateStr);
+                    }
+                });
+
+                // ==========================================
+                // FILTER PERIODE
+                // ==========================================
+                flatpickr("#filterPeriode",
+                {
+                    locale: "id",
+                    mode: "range",
+                    dateFormat: "d-m-Y",
+
+                    onReady: function(selectedDates, dateStr, instance)
+                    {
+                        const periode = instance.input.dataset.periode;
+                        if (periode)
+                        {
+                            setTimeout(() =>
+                            {
+                                instance.input.value = periode;
+                            }, 50);
+                        }
+                    },
+
+                    onChange: function(selectedDates, dateStr, instance)
+                    {
+                        if (selectedDates.length === 2)
+                        {
+                            const tglMulai = instance.formatDate(selectedDates[0], "d-m-Y");
+                            const tglAkhir = instance.formatDate(selectedDates[1],"d-m-Y");
+                            const periode = `${tglMulai} s/d ${tglAkhir}`;
+                            window.location.href = "/view-data-pengajuan-tidak-hadir?periode=" + encodeURIComponent(periode);
+                        }
+                    }
+                });
+            
+            });
+
+            function clearFilterRefresh(event)
+            {
+                event.preventDefault();
+                event.stopPropagation();
+                window.location.href = "/clear-filter-refresh-tidak-hadir";
+            }
+
+            function clearInput(id)
+            {
+                const input = document.getElementById(id);
+                if (!input)
+                {
+                    return;
+                }
+                input.value = '';
+                toggleClearButton(id);
+                filterTable();
+                input.focus();
+            }
+
+            function toggleClearButton(inputId)
+            {
+                const input = document.getElementById(inputId);
+                const btn = document.getElementById("clear" + inputId.charAt(0).toUpperCase() + inputId.slice(1));
+                if (!input || !btn)
+                {
+                    return;
+                }
+                if (input.value.trim() !== "")
+                {
+                    btn.classList.remove("hidden");
+                }
+                else
+                {
+                    btn.classList.add("hidden");
+                }
+            }
+
+            function handleSelectFilter(selectId)
+            {
+                const select = document.getElementById(selectId);
+
+                if (!select)
+                {
+                    return;
+                }
+
+                if (select.value === "All")
+                {
+                    select.selectedIndex = 0; // kembali ke "Pilih"
+                }
+
+                if (select.selectedIndex === 0)
+                {
+                    select.classList.add("filter-select-placeholder");
+                }
+                else
+                {
+                    select.classList.remove("filter-select-placeholder");
+                }
+
+                filterTable();
+            }
+        </script>
+
+    </body>
+</html>

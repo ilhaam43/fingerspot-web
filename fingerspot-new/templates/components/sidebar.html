@@ -1,0 +1,389 @@
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar" class="w-[260px] flex flex-col fixed h-full z-40 transition-transform duration-300 transform -translate-x-full lg:translate-x-0 sidebar-root">
+
+    <!-- Close button (mobile only) -->
+    <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg lg:hidden transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
+        <i class="fas fa-times"></i>
+    </button>
+
+    <!-- Brand -->
+    <div class="px-5 py-5 border-b border-white/[0.06] shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 brand-icon">
+                <i class="fas fa-fingerprint text-white text-base"></i>
+            </div>
+            <div>
+                <p class="text-white font-bold text-sm leading-tight tracking-wide">APBI System</p>
+                <p class="text-slate-400 text-[10px] leading-tight mt-0.5 tracking-wide">Absensi Project BI</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 overflow-y-auto py-4 px-3 scrollbar-none">
+
+        <!-- Utama -->
+        <p class="nav-label">Utama</p>
+
+        <a href="{{ url_for('main.index') }}"
+            class="nav-item {% if request.endpoint == 'main.index' %}nav-active{% else %}nav-inactive{% endif %}">
+            <div class="nav-icon {% if request.endpoint == 'main.index' %}nav-icon-active bg-blue-500{% else %}nav-icon-idle{% endif %}">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <span>Data Absen</span>
+            {% if request.endpoint == 'main.index' %}<span class="nav-dot"></span>{% endif %}
+        </a>
+
+        <a href="{{ url_for('upload_jadwal_shift.upload_jadwal_shift') }}"
+            class="nav-item {% if 'upload_jadwal_shift' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+            <div class="nav-icon {% if 'upload_jadwal_shift' in request.endpoint %}nav-icon-active bg-emerald-500{% else %}nav-icon-idle{% endif %}">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <span>Upload Jadwal Shift</span>
+            {% if 'upload_jadwal_shift' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+        </a>
+
+        <!-- Mesin Absensi -->
+        <p class="nav-label mt-4">Mesin Absensi</p>
+
+        <a href="{{ url_for('upload_mesin_lama.upload_csv_mesin_lama') }}"
+            class="nav-item {% if 'upload_mesin_lama' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+            <div class="nav-icon {% if 'upload_mesin_lama' in request.endpoint %}nav-icon-active bg-amber-500{% else %}nav-icon-idle{% endif %}">
+                <i class="fas fa-history"></i>
+            </div>
+            <span>Mesin Lama</span>
+            {% if 'upload_mesin_lama' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+        </a>
+
+        <a href="{{ url_for('data_absen_fingerspot.data_absen_fingerspot') }}"
+            class="nav-item {% if 'data_absen_fingerspot' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+            <div class="nav-icon {% if 'data_absen_fingerspot' in request.endpoint %}nav-icon-active bg-violet-500{% else %}nav-icon-idle{% endif %}">
+                <i class="fas fa-fingerprint"></i>
+            </div>
+            <span>Fingerspot</span>
+            {% if 'data_absen_fingerspot' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+        </a>
+
+        <a href="{{ url_for('dcap.upload_dcap') }}"
+            class="nav-item {% if 'dcap' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+            <div class="nav-icon {% if 'dcap' in request.endpoint %}nav-icon-active bg-orange-500{% else %}nav-icon-idle{% endif %}">
+                <i class="fas fa-mobile-alt"></i>
+            </div>
+            <span>DCAP</span>
+            {% if 'dcap' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+        </a>
+
+        <a href="{{ url_for('ito.upload_ito') }}"
+            class="nav-item {% if 'ito' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+            <div class="nav-icon {% if 'ito' in request.endpoint %}nav-icon-active bg-indigo-500{% else %}nav-icon-idle{% endif %}">
+                <i class="fas fa-mobile"></i>
+            </div>
+            <span>Absen ITO</span>
+            {% if 'ito' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+        </a>
+
+
+        <!-- Lainnya (collapsible) -->
+        {% set lainnya_active = 'jam_kerja_khusus' in request.endpoint or 'pengaturan_shift' in request.endpoint or 'pengaturan_organisasi' in request.endpoint or 'aturan_puasa' in request.endpoint or 'jadwal_bulanan' in request.endpoint or 'pegawai' in request.endpoint or 'admin_tukar_shift' in request.endpoint %}
+        <div class="mt-4">
+            <button onclick="toggleLainnya()" id="btn-lainnya"
+                class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold transition-all
+                {% if lainnya_active %}text-white bg-white/[0.06]{% else %}text-slate-400 hover:text-white hover:bg-white/[0.04]{% endif %}">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-[30px] h-[30px] rounded-lg flex items-center justify-center transition-all
+                        {% if lainnya_active %}bg-slate-600{% else %}bg-white/[0.06]{% endif %}">
+                        <i class="fas fa-layer-group text-xs {% if lainnya_active %}text-white{% else %}text-slate-400{% endif %}"></i>
+                    </div>
+                    <span>Lainnya</span>
+                </div>
+                <i id="icon-lainnya" class="fas fa-chevron-right text-[10px] transition-transform duration-200
+                    {% if lainnya_active %}rotate-90{% endif %}"></i>
+            </button>
+
+            <!-- Submenu items -->
+            <div id="submenu-lainnya" class="pl-3 mt-1 space-y-0.5 overflow-hidden transition-all duration-200
+                {% if lainnya_active %}block{% else %}hidden{% endif %}">
+
+                <a href="{{ url_for('pegawai.data_pegawai') }}"
+                    class="nav-item {% if 'pegawai' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+                    <div class="nav-icon {% if 'pegawai' in request.endpoint %}nav-icon-active bg-cyan-500{% else %}nav-icon-idle{% endif %}">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <span>Data Pegawai</span>
+                    {% if 'pegawai' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+                </a>
+
+                <a href="{{ url_for('pengaturan_organisasi.index') }}"
+                    class="nav-item {% if 'pengaturan_organisasi' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+                    <div class="nav-icon {% if 'pengaturan_organisasi' in request.endpoint %}nav-icon-active bg-teal-500{% else %}nav-icon-idle{% endif %}">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <span>Pengaturan Organisasi</span>
+                    {% if 'pengaturan_organisasi' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+                </a>
+
+                <a href="{{ url_for('pengaturan_shift.index') }}"
+                    class="nav-item {% if 'pengaturan_shift' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+                    <div class="nav-icon {% if 'pengaturan_shift' in request.endpoint %}nav-icon-active bg-sky-500{% else %}nav-icon-idle{% endif %}">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                    <span>Pengaturan Shift</span>
+                    {% if 'pengaturan_shift' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+                </a>
+
+                <a href="{{ url_for('jam_kerja_khusus.index') }}"
+                    class="nav-item {% if 'jam_kerja_khusus' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+                    <div class="nav-icon {% if 'jam_kerja_khusus' in request.endpoint %}nav-icon-active bg-fuchsia-500{% else %}nav-icon-idle{% endif %}">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span>Jam Kerja Khusus</span>
+                    {% if 'jam_kerja_khusus' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+                </a>
+
+                <a href="{{ url_for('aturan_puasa.index') }}"
+                    class="nav-item {% if 'aturan_puasa' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+                    <div class="nav-icon {% if 'aturan_puasa' in request.endpoint %}nav-icon-active bg-rose-500{% else %}nav-icon-idle{% endif %}">
+                        <i class="fas fa-moon"></i>
+                    </div>
+                    <span>Aturan Puasa</span>
+                    {% if 'aturan_puasa' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+                </a>
+
+                <a href="{{ url_for('jadwal_bulanan.jadwal_bulanan') }}"
+                    class="nav-item {% if 'jadwal_bulanan' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+                    <div class="nav-icon {% if 'jadwal_bulanan' in request.endpoint %}nav-icon-active bg-indigo-500{% else %}nav-icon-idle{% endif %}">
+                        <i class="fas fa-table"></i>
+                    </div>
+                    <span>Jadwal Bulanan</span>
+                    {% if 'jadwal_bulanan' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+                </a>
+
+                <a href="{{ url_for('admin_tukar_shift.admin_tukar_shift_page') }}"
+                    class="nav-item {% if 'admin_tukar_shift' in request.endpoint %}nav-active{% else %}nav-inactive{% endif %}">
+                    <div class="nav-icon {% if 'admin_tukar_shift' in request.endpoint %}nav-icon-active bg-pink-500{% else %}nav-icon-idle{% endif %}">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <span>Pengajuan Tukar Shift</span>
+                    {% if 'admin_tukar_shift' in request.endpoint %}<span class="nav-dot"></span>{% endif %}
+                </a>
+
+            </div>
+        </div>
+
+<!-- Lihat Pengajuan (Wrapper Accordion Sub-Menu) -->
+{% set is_pengajuan_open = 'pengajuan_tidak_hadir' in request.endpoint or 'cuti' in request.endpoint or 'lembur' in request.endpoint %}
+
+<div x-data="{ open: {{ 'true' if is_pengajuan_open else 'false' }} }" class="w-full">
+    
+    <!-- Parent Menu: Lihat Pengajuan -->
+    <button @click="open = !open" 
+            type="button"
+            class="w-full flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 cursor-pointer group text-slate-400 hover:text-white hover:bg-[#1e293b]/50">
+        
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-[#1e293b] text-slate-300 group-hover:bg-[#2e3e5c] group-hover:text-white transition-colors">
+                <i class="fas fa-layer-group text-sm"></i>
+            </div>
+            <span class="font-semibold text-[13px] text-slate-300 group-hover:text-white">Lihat Pengajuan</span>
+        </div>
+
+        <!-- Arrow Icon -->
+        <i class="fas fa-chevron-right text-xs text-slate-400 transition-transform duration-200" :class="open ? 'rotate-90' : ''"></i>
+    </button>
+
+    <!-- Container Sub-Menu List -->
+    <div x-show="open" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 -translate-y-1"
+         x-transition:enter-end="opacity-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0"
+         x-transition:leave-end="opacity-0 -translate-y-1"
+         class="mt-1 pl-3 space-y-1.5">
+        
+        <!-- 1. Pengajuan Tidak Hadir -->
+        {% set is_active_tidak_hadir = 'view_data_pengajuan_tidak_hadir' in request.endpoint %}
+        <a href="{{ url_for('view_data_pengajuan_tidak_hadir.view_data') }}"
+           class="flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 group {% if is_active_tidak_hadir %}bg-[#1c2438] text-white border border-slate-700/50{% else %}text-slate-400 hover:text-white hover:bg-[#1a233a]{% endif %}">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if is_active_tidak_hadir %}bg-[#00c8b3] text-white shadow-lg shadow-[#00c8b3]/30{% else %}bg-[#1e293b] text-slate-400 group-hover:bg-[#283652] group-hover:text-white{% endif %}">
+                    <i class="fas fa-user-times text-sm"></i>
+                </div>
+                <span class="text-[13px] font-semibold">Pengajuan Tidak Hadir</span>
+            </div>
+
+            {% if is_active_tidak_hadir %}
+                <span class="w-1.5 h-1.5 rounded-full bg-[#00c8b3] shadow-sm shadow-[#00c8b3]/50"></span>
+            {% endif %}
+        </a>
+
+        <!-- 2. Pengajuan Cuti -->
+        {% set is_active_cuti = 'view_data_pengajuan_cuti' in request.endpoint %}
+        <a href="{{ url_for('view_data_pengajuan_cuti.view_data') }}"
+            class="flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 group {% if is_active_cuti %}bg-[#1c2438] text-white border border-slate-700/50{% else %}text-slate-400 hover:text-white hover:bg-[#1a233a]{% endif %}">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if is_active_cuti %}bg-[#00c8b3] text-white shadow-lg shadow-[#00c8b3]/30{% else %}bg-[#1e293b] text-slate-400 group-hover:bg-[#283652] group-hover:text-white{% endif %}">
+                    <i class="fas fa-calendar-minus text-sm"></i>
+                </div>
+                <span class="text-[13px] font-semibold">Pengajuan Cuti</span>
+            </div>
+                
+            {% if is_active_cuti %}
+                <span class="w-1.5 h-1.5 rounded-full bg-[#00c8b3] shadow-sm shadow-[#00c8b3]/50"></span>
+            {% endif %}
+        </a>
+
+        <!-- 3. Pengajuan Lembur -->
+        {% set is_active_lembur = 'lembur' in request.endpoint %}
+        <a href="{{ url_for('pengajuan_lembur.index') if 'pengajuan_lembur.index' in g.routes else '#' }}" 
+        class="flex items-center justify-between p-2.5 rounded-xl transition-all duration-200 group {% if is_active_lembur %}bg-[#1c2438] text-white border border-slate-700/50{% else %}text-slate-400 hover:text-white hover:bg-[#1a233a]{% endif %}">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center transition-colors {% if is_active_lembur %}bg-[#00c8b3] text-white shadow-lg shadow-[#00c8b3]/30{% else %}bg-[#1e293b] text-slate-400 group-hover:bg-[#283652] group-hover:text-white{% endif %}">
+                    <i class="fas fa-business-time text-sm"></i>
+                </div>
+                <span class="text-[13px] font-semibold">Pengajuan Lembur</span>
+            </div>
+
+            {% if is_active_lembur %}
+                <span class="w-1.5 h-1.5 rounded-full bg-[#00c8b3] shadow-sm shadow-[#00c8b3]/50"></span>
+            {% endif %}
+        </a>
+    
+    </div>
+</div>
+
+    </nav>
+
+    <!-- Footer / Logout -->
+    <div class="px-3 py-4 border-t border-white/[0.06] shrink-0">
+        <!-- Logout -->
+        <a href="{{ url_for('auth.auth_logout') }}"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all group">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/[0.04] group-hover:bg-red-500/20 transition-all shrink-0">
+                <i class="fas fa-sign-out-alt text-xs group-hover:text-red-400 transition-colors"></i>
+            </div>
+            <span>Logout</span>
+        </a>
+        <p class="text-center text-slate-700 text-[10px] mt-3 tracking-wide">v3.0 &nbsp;•&nbsp; Lintasarta APBI</p>
+    </div>
+</aside>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+<style>
+    .sidebar-root {
+        background: linear-gradient(175deg, #0a0f1e 0%, #0f172a 40%, #111827 100%);
+        border-right: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .brand-icon {
+        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    /* Navigation labels */
+    .nav-label {
+        padding: 0 12px 6px;
+        font-size: 9px;
+        font-weight: 800;
+        color: rgba(100, 116, 139, 0.7);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+    }
+
+    /* Nav item base */
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.18s ease;
+        margin-bottom: 1px;
+        position: relative;
+    }
+
+    /* Nav item states */
+    .nav-active {
+        color: #fff;
+        background: rgba(59, 130, 246, 0.12);
+        border: 1px solid rgba(59, 130, 246, 0.18);
+    }
+    .nav-inactive {
+        color: rgb(148, 163, 184);
+        border: 1px solid transparent;
+    }
+    .nav-inactive:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.06);
+    }
+
+    /* Icons */
+    .nav-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        shrink: 0;
+        transition: all 0.18s;
+    }
+    .nav-icon-active {
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .nav-icon-idle {
+        background: rgba(255,255,255,0.06);
+        color: rgb(148, 163, 184);
+    }
+    .nav-inactive:hover .nav-icon-idle {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+    }
+
+    /* Active dot indicator */
+    .nav-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #3b82f6;
+        box-shadow: 0 0 6px #3b82f6;
+        margin-left: auto;
+        shrink: 0;
+        animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Scrollbar hide */
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if(sidebar) sidebar.classList.toggle('-translate-x-full');
+    }
+
+    function toggleLainnya() {
+        const submenu = document.getElementById('submenu-lainnya');
+        const icon = document.getElementById('icon-lainnya');
+        const isHidden = submenu.classList.contains('hidden');
+        
+        submenu.classList.toggle('hidden');
+        icon.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+    }
+</script>

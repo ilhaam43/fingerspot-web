@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Form Pengajuan Tukar Shift</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            color: #000;
+        }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        .title {
+            font-size: 16pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .form-table td {
+            padding: 5px;
+            vertical-align: top;
+        }
+        .form-table .label {
+            width: 200px;
+        }
+        .form-table .colon {
+            width: 10px;
+        }
+        .signature-table {
+            margin-top: 50px;
+            width: 100%;
+            text-align: center;
+        }
+        .signature-table td {
+            width: 50%;
+            padding: 10px;
+        }
+        .signature-box {
+            height: 80px;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 10pt;
+            text-align: left;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title">FORM PENGAJUAN TUKAR SHIFT</div>
+    <div class="subtitle">Bank Indonesia</div>
+
+    <table class="form-table">
+        <tr>
+            <td class="label">Tanggal Pembuatan</td>
+            <td class="colon">:</td>
+            <td>{{ data.tanggal_pengajuan }}</td>
+        </tr>
+        <tr>
+            <td class="label">TIM</td>
+            <td class="colon">:</td>
+            <td>{{ data.tim }}</td>
+        </tr>
+        <tr>
+            <td class="label">Nama Personil</td>
+            <td class="colon">:</td>
+            <td>{{ data.nama_pegawai }}</td>
+        </tr>
+        <tr>
+            <td class="label">Personil Pengganti</td>
+            <td class="colon">:</td>
+            <td>{{ data.pegawai_tukar_nama }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tanggal Tukar Shift</td>
+            <td class="colon">:</td>
+            <td>{{ data.tanggal_mulai }} s/d {{ data.tanggal_akhir }}</td>
+        </tr>
+        <tr>
+            <td class="label">Jumlah Hari</td>
+            <td class="colon">:</td>
+            <td>{{ data.jumlah_hari }} Hari</td>
+        </tr>
+        <tr>
+            <td class="label">Shift Awal</td>
+            <td class="colon">:</td>
+            <td>{{ data.shift_awal_nama }}</td>
+        </tr>
+        <tr>
+            <td class="label">Shift Baru</td>
+            <td class="colon">:</td>
+            <td>{{ data.shift_baru_nama }}</td>
+        </tr>
+        <tr>
+            <td class="label">Alasan</td>
+            <td class="colon">:</td>
+            <td>{{ data.alasan_tukar_shift }}</td>
+        </tr>
+    </table>
+
+    <table class="signature-table">
+        <tr>
+            <td>Personil,</td>
+            <td>Personil Pengganti,</td>
+        </tr>
+        <tr>
+            <td class="signature-box"></td>
+            <td class="signature-box"></td>
+        </tr>
+        <tr>
+            <td>( <strong>{{ data.nama_pegawai }}</strong> )</td>
+            <td>( <strong>{{ data.pegawai_tukar_nama }}</strong> )</td>
+        </tr>
+    </table>
+
+    <table class="signature-table" style="margin-top: 30px;">
+        <tr>
+            <td colspan="2">Menyetujui,</td>
+        </tr>
+        <tr>
+            <td>Supervisor</td>
+            <td>Leader / PIC</td>
+        </tr>
+        <tr>
+            <td class="signature-box"></td>
+            <td class="signature-box"></td>
+        </tr>
+        <tr>
+            <td>( <strong>{{ data.nama_supervisor }}</strong> )</td>
+            <td>( <strong>{{ data.nama_leader }}</strong> )</td>
+        </tr>
+    </table>
+
+</body>
+</html>

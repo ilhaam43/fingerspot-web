@@ -1,0 +1,58 @@
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        document.onkeydown = function(e) {
+            if (e.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-2xl font-bold mb-6">Edit Pengaturan Koneksi Database</h1>
+        <form action="{{ url_for('save_connection') }}" method="post">
+            <div class="mb-4">
+                <label for="user" class="block text-sm font-medium text-gray-700 mb-1">User:</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="user" name="user" value="{{ config.user }}" required>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password:</label>
+                <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="password" name="password" value="{{ config.password }}" required>
+            </div>
+            <div class="mb-4">
+                <label for="host" class="block text-sm font-medium text-gray-700 mb-1">Host:</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="host" name="host" value="{{ config.host }}" required>
+                <p class="mt-1 text-sm"><strong>Server IP:</strong> {{ server_ip }}</p>
+            </div>
+            <div class="mb-4">
+                <label for="database" class="block text-sm font-medium text-gray-700 mb-1">Database:</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="database" name="database" value="{{ config.database }}" required>
+            </div>
+            <div class="mb-4">
+                <label for="port" class="block text-sm font-medium text-gray-700 mb-1">Port:</label>
+                <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="port" name="port" value="{{ config.port }}" required>
+            </div>
+            <div class="mb-4">
+                <label for="charset" class="block text-sm font-medium text-gray-700 mb-1">Charset:</label>
+                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="charset" name="charset" value="{{ config.charset }}" required>
+            </div>
+            <div id="error-message" class="text-red-500 mb-4"></div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Simpan</button>
+        </form>
+    </div>
+</body>
+</html>

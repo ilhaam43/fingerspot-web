@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Aturan DCAP — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter"', 'sans-serif'] } } } }</script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .scrollbar-styled::-webkit-scrollbar { width: 5px; height: 5px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .injected-table { width: 100%; }
+        .injected-table table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 13.5px; color: #111827; text-align: left; white-space: nowrap; }
+        .injected-table thead { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
+        .injected-table th { padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: #374151; white-space: nowrap; text-align: left !important; }
+        .injected-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; background: white; }
+        .injected-table tbody tr.normal-row:nth-child(even) { background: #fafafa; }
+        .injected-table tbody tr.normal-row:hover { background: #fff7ed !important; }
+        .injected-table td { padding: 10px 16px; color: #111827; font-weight: 500; white-space: nowrap; text-align: left !important; }
+        .row-checkbox { width: 16px; height: 16px; border: 2px solid #d1d5db; border-radius: 4px; cursor: pointer; accent-color: #f97316; flex-shrink: 0; }
+        .row-checkbox:checked { border-color: #f97316; }
+        .sortable { cursor: pointer; user-select: none; }
+        .sortable:hover { background-color: #e2e8f0; }
+        .filter-input { height: 38px; padding: 0 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; color: #1e293b; transition: all 0.15s; }
+        .filter-input:focus { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15); background: white; }
+    </style>
+</head>
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+        {% include 'components/sidebar.html' %}
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 px-4 py-3 overflow-hidden flex flex-col gap-3">
+
+                <!-- Step indicator bar -->
+                <div class="bg-white rounded-xl border border-gray-100 px-5 py-3 flex items-center gap-2 shrink-0" style="box-shadow:0 1px 6px rgba(0,0,0,0.04);">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-check text-[9px]"></i></div>
+                        <span class="text-xs font-bold text-orange-500">Upload</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-check text-[9px]"></i></div>
+                        <span class="text-xs font-bold text-orange-500">Preview</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-check text-[9px]"></i></div>
+                        <span class="text-xs font-bold text-orange-500">Konversi</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold">4</div>
+                        <span class="text-xs font-bold text-orange-600">Simpan ke DB</span>
+                    </div>
+                    <div class="ml-auto flex items-center gap-1 text-xs">
+                        <i class="fas fa-file text-orange-400"></i>
+                        <span class="font-semibold text-orange-700">{{ filename }}</span>
+                    </div>
+                </div>
+
+                <!-- Table card -->
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+                    <!-- Header -->
+                    <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/60 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center shrink-0">
+                                <i class="fas fa-list-check text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-gray-900">Review Aturan Shift DCAP</h2>
+                                <p class="text-xs text-gray-500 mt-0.5">Kolom Scan In/Out Final disesuaikan dengan aturan shift</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5 shrink-0 flex-wrap w-full sm:w-auto">
+                            <!-- Filters -->
+                            <div class="flex items-center gap-2 mr-2 border-r border-gray-200 pr-4">
+                                <input type="date" id="filterStartDate" class="filter-input w-[130px]" title="Dari Tanggal">
+                                <span class="text-xs text-gray-500 font-bold">-</span>
+                                <input type="date" id="filterEndDate" class="filter-input w-[130px]" title="Sampai Tanggal">
+                                
+                                <div class="relative" id="filterLokasiWrapper">
+                                    <button type="button" id="filterLokasiBtn" class="filter-input min-w-[140px] max-w-[200px] flex items-center justify-between gap-2 bg-white text-left text-sm cursor-pointer border border-gray-200">
+                                        <span id="filterLokasiText" class="truncate">Semua Lokasi</span>
+                                        <i class="fas fa-chevron-down text-gray-400 text-[10px] shrink-0"></i>
+                                    </button>
+                                    <div id="filterLokasiMenu" class="absolute z-50 mt-1 right-0 w-max min-w-[224px] bg-white border border-gray-200 rounded-xl shadow-lg hidden flex-col max-h-[300px]">
+                                        <div class="p-2.5 border-b border-gray-100 flex items-center gap-2 sticky top-0 bg-white rounded-t-xl z-10">
+                                            <input type="checkbox" id="filterLokasiAll" class="row-checkbox" checked>
+                                            <label for="filterLokasiAll" class="text-sm font-bold text-gray-700 cursor-pointer w-full whitespace-nowrap pr-4">Pilih Semua Lokasi</label>
+                                        </div>
+                                        <div class="overflow-y-auto overflow-x-hidden scrollbar-styled p-2 flex flex-col gap-1" id="filterLokasiList">
+                                            <label class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors">
+                                                <input type="checkbox" class="row-checkbox loc-checkbox" value="[kosong]" checked>
+                                                <span class="text-sm font-medium text-gray-600 whitespace-nowrap pr-2" title="-- Lokasi Kosong --">-- Lokasi Kosong --</span>
+                                            </label>
+                                            <!-- Options will be injected by JS -->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="relative" id="filterDivisiWrapper">
+                                    <button type="button" id="filterDivisiBtn" class="filter-input min-w-[140px] max-w-[200px] flex items-center justify-between gap-2 bg-white text-left text-sm cursor-pointer border border-gray-200">
+                                        <span id="filterDivisiText" class="truncate">Semua Divisi</span>
+                                        <i class="fas fa-chevron-down text-gray-400 text-[10px] shrink-0"></i>
+                                    </button>
+                                    <div id="filterDivisiMenu" class="absolute z-50 mt-1 right-0 w-max min-w-[224px] bg-white border border-gray-200 rounded-xl shadow-lg hidden flex-col max-h-[300px]">
+                                        <div class="p-2.5 border-b border-gray-100 flex items-center gap-2 sticky top-0 bg-white rounded-t-xl z-10">
+                                            <input type="checkbox" id="filterDivisiAll" class="row-checkbox">
+                                            <label for="filterDivisiAll" class="text-sm font-bold text-gray-700 cursor-pointer w-full whitespace-nowrap pr-4">Pilih Semua Divisi</label>
+                                        </div>
+                                        <div class="overflow-y-auto overflow-x-hidden scrollbar-styled p-2 flex flex-col gap-1" id="filterDivisiList">
+                                            <label class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors">
+                                                <input type="checkbox" class="row-checkbox div-checkbox" value="[kosong]">
+                                                <span class="text-sm font-medium text-gray-600 whitespace-nowrap pr-2" title="-- Divisi Kosong --">-- Divisi Kosong --</span>
+                                            </label>
+                                            <!-- Options will be injected by JS -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="{{ url_for('dcap.konversi_dcap', filename=filename) }}"
+                                class="px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                                <i class="fas fa-arrow-left text-xs"></i> Kembali
+                            </a>
+                            
+                            <form action="{{ url_for('dcap.simpan_dcap', filename=filename) }}" method="POST" id="simpanForm" class="m-0 p-0">
+                                <input type="hidden" name="selected_records" id="selectedRecordsInput">
+                                <button type="submit"
+                                    class="px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow whitespace-nowrap">
+                                    <i class="fas fa-database text-xs"></i> Update ke DB
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="flex-1 flex flex-col items-center justify-center p-8 bg-slate-50/50">
+                        <div class="w-16 h-16 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center text-3xl mb-4 shadow-sm">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">Filter Data</h3>
+                        <p class="text-sm text-slate-500 text-center max-w-md">
+                            Silakan pilih minimal 1 <b>Divisi</b> pada filter di atas untuk menampilkan data rekap absen. (Rentang tanggal dan lokasi bersifat opsional).
+                        </p>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="overflow-auto scrollbar-styled flex-1 relative hidden" id="tableContainer">
+                        <div class="injected-table">{{ tables|safe }}</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const table = document.querySelector(".injected-table table");
+            if (!table) return;
+
+            const theadTr = table.querySelector("thead tr");
+            const tbodyRows = Array.from(table.querySelectorAll("tbody tr"));
+            
+            const headers = Array.from(table.querySelectorAll("th")).map(th => th.textContent.trim());
+            const lokasiIndex = headers.indexOf("Lokasi Masuk");
+            const nipIndex = headers.indexOf("NIP");
+            const pinIndex = headers.indexOf("Pin");
+            const tglIndex = headers.indexOf("Tanggal");
+            const namaIndex = headers.indexOf("Nama");
+            const divisiIndex = headers.indexOf("Divisi");
+
+            // 1. Inject Checkbox Column Header
+            const thCheck = document.createElement("th");
+            thCheck.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <input type="checkbox" id="selectAll" class="row-checkbox" checked>
+                </div>
+            `;
+            thCheck.style.width = "40px";
+            theadTr.insertBefore(thCheck, theadTr.firstChild);
+
+            
+            const rumjabNips = ["1360", "1359", "2350", "2355", "1316"];
+            const lokasiSet = new Set();
+            const divisiSet = new Set();
+            
+            tbodyRows.forEach((row, rowIndex) => {
+                const cells = row.querySelectorAll("td");
+                
+                // Determine logic
+                let isRumjab = false;
+                let isLokasiKosong = false;
+                
+                if (nipIndex !== -1 && cells.length > nipIndex) {
+                    const nipVal = cells[nipIndex].textContent.trim();
+                    if (rumjabNips.includes(nipVal)) isRumjab = true;
+                }
+                if (!isRumjab && pinIndex !== -1 && cells.length > pinIndex) {
+                    const pinVal = cells[pinIndex].textContent.trim();
+                    if (rumjabNips.includes(pinVal)) isRumjab = true;
+                }
+                
+                let lokasiVal = "";
+                if (lokasiIndex !== -1 && cells.length > lokasiIndex) {
+                    lokasiVal = cells[lokasiIndex].textContent.replace(/\u00a0/g, " ").trim();
+                    const cellText = lokasiVal.toLowerCase();
+                    if(cellText === "" || cellText === "nan" || cellText === "none" || cellText === "null" || cellText === "-" || cellText === "nat" || cellText === "<na>") {
+                        isLokasiKosong = true;
+                        lokasiVal = ""; // Normalize for filter
+                    } else {
+                        lokasiSet.add(lokasiVal);
+                    }
+                }
+                
+                let shouldCheck = true;
+                if (isRumjab) {
+                    row.classList.remove('normal-row');
+                    row.style.backgroundColor = "#bae6fd"; 
+                    shouldCheck = true; 
+                } else if (isLokasiKosong) {
+                    row.classList.remove('normal-row');
+                    row.style.backgroundColor = "#fef08a"; 
+                    shouldCheck = false;
+                } else {
+                    row.classList.add('normal-row');
+                }
+                
+                // Store data for filtering/sorting
+                let tglVal = "";
+                if (tglIndex !== -1 && cells.length > tglIndex) {
+                    tglVal = cells[tglIndex].textContent.trim();
+                    // Assume dd/mm/yyyy or yyyy-mm-dd
+                    let d = tglVal;
+                    if(tglVal.includes("/")) {
+                        const pts = tglVal.split("/");
+                        if(pts.length === 3) d = `${pts[2]}-${pts[1]}-${pts[0]}`;
+                    }
+                    row.dataset.date = d; // YYYY-MM-DD format for sorting/filtering
+                }
+                
+                let divisiVal = "";
+                if (divisiIndex !== -1 && cells.length > divisiIndex) {
+                    divisiVal = cells[divisiIndex].textContent.replace(/\u00a0/g, " ").trim();
+                    const cellText = divisiVal.toLowerCase();
+                    if(cellText === "" || cellText === "nan" || cellText === "none" || cellText === "null" || cellText === "-" || cellText === "nat" || cellText === "<na>") {
+                        divisiVal = "";
+                    } else {
+                        divisiSet.add(divisiVal);
+                    }
+                }
+                
+                row.dataset.lokasi = lokasiVal;
+                row.dataset.divisi = divisiVal;
+                
+                const tdCheck = document.createElement("td");
+                tdCheck.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <input type="checkbox" class="row-checkbox record-cb" ${shouldCheck ? 'checked' : ''} data-index="${rowIndex}">
+                    </div>
+                `;
+                row.insertBefore(tdCheck, row.firstChild);
+            });
+            
+            // 2. Select All Logic
+            const selectAll = document.getElementById("selectAll");
+            const recordCbs = document.querySelectorAll(".record-cb");
+            
+            selectAll.addEventListener("change", function() {
+                recordCbs.forEach(cb => {
+                    const tr = cb.closest("tr");
+                    if (tr.style.display !== "none") {
+                        cb.checked = this.checked;
+                    }
+                });
+            });
+            
+            recordCbs.forEach(cb => {
+                cb.addEventListener("change", function() {
+                    if(!this.checked) selectAll.checked = false;
+                });
+            });
+
+            // 3. Populate Lokasi Filter
+            const filterLokasiList = document.getElementById("filterLokasiList");
+            if (filterLokasiList) {
+                const sortedLokasi = Array.from(lokasiSet).sort();
+                sortedLokasi.forEach(loc => {
+                    const label = document.createElement("label");
+                    label.className = "flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors";
+                    label.innerHTML = `
+                        <input type="checkbox" class="row-checkbox loc-checkbox" value="${loc}" checked>
+                        <span class="text-sm font-medium text-gray-600 whitespace-nowrap pr-2" title="${loc}">${loc}</span>
+                    `;
+                    filterLokasiList.appendChild(label);
+                });
+            }
+
+            // Dropdown UI logic
+            const filterLokasiBtn = document.getElementById("filterLokasiBtn");
+            const filterLokasiMenu = document.getElementById("filterLokasiMenu");
+            const filterLokasiAll = document.getElementById("filterLokasiAll");
+            const filterLokasiText = document.getElementById("filterLokasiText");
+            
+            if (filterLokasiBtn && filterLokasiMenu) {
+                filterLokasiBtn.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    filterLokasiMenu.classList.toggle("hidden");
+                });
+                
+                document.addEventListener("click", function(e) {
+                    if (!filterLokasiMenu.contains(e.target) && !filterLokasiBtn.contains(e.target)) {
+                        filterLokasiMenu.classList.add("hidden");
+                    }
+                });
+            }
+            
+            function updateLokasiText() {
+                const locCheckboxes = document.querySelectorAll(".loc-checkbox");
+                const checked = document.querySelectorAll(".loc-checkbox:checked");
+                
+                if (checked.length === locCheckboxes.length) {
+                    filterLokasiText.textContent = "Semua Lokasi";
+                    if (filterLokasiAll) filterLokasiAll.checked = true;
+                } else if (checked.length === 0) {
+                    filterLokasiText.textContent = "0 Terpilih";
+                    if (filterLokasiAll) filterLokasiAll.checked = false;
+                } else {
+                    filterLokasiText.textContent = `${checked.length} Terpilih`;
+                    if (filterLokasiAll) filterLokasiAll.checked = false;
+                }
+                
+                applyFilters();
+            }
+
+            if (filterLokasiAll) {
+                filterLokasiAll.addEventListener("change", function() {
+                    const locCheckboxes = document.querySelectorAll(".loc-checkbox");
+                    locCheckboxes.forEach(cb => cb.checked = this.checked);
+                    updateLokasiText();
+                });
+            }
+
+            if (filterLokasiList) {
+                filterLokasiList.addEventListener("change", function(e) {
+                    if (e.target.classList.contains("loc-checkbox")) {
+                        updateLokasiText();
+                    }
+                });
+            }
+
+            // 3b. Populate Divisi Filter
+            const filterDivisiList = document.getElementById("filterDivisiList");
+            if (filterDivisiList) {
+                const sortedDivisi = Array.from(divisiSet).sort();
+                sortedDivisi.forEach(div => {
+                    const label = document.createElement("label");
+                    label.className = "flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors";
+                    label.innerHTML = `
+                        <input type="checkbox" class="row-checkbox div-checkbox" value="${div}">
+                        <span class="text-sm font-medium text-gray-600 whitespace-nowrap pr-2" title="${div}">${div}</span>
+                    `;
+                    filterDivisiList.appendChild(label);
+                });
+            }
+
+            const filterDivisiBtn = document.getElementById("filterDivisiBtn");
+            const filterDivisiMenu = document.getElementById("filterDivisiMenu");
+            const filterDivisiAll = document.getElementById("filterDivisiAll");
+            const filterDivisiText = document.getElementById("filterDivisiText");
+            
+            if (filterDivisiBtn && filterDivisiMenu) {
+                filterDivisiBtn.addEventListener("click", function(e) {
+                    e.stopPropagation();
+                    filterDivisiMenu.classList.toggle("hidden");
+                });
+                
+                document.addEventListener("click", function(e) {
+                    if (!filterDivisiMenu.contains(e.target) && !filterDivisiBtn.contains(e.target)) {
+                        filterDivisiMenu.classList.add("hidden");
+                    }
+                });
+            }
+            
+            function updateDivisiText() {
+                const divCheckboxes = document.querySelectorAll(".div-checkbox");
+                const checked = document.querySelectorAll(".div-checkbox:checked");
+                
+                if (checked.length === divCheckboxes.length) {
+                    filterDivisiText.textContent = "Semua Divisi";
+                    if (filterDivisiAll) filterDivisiAll.checked = true;
+                } else if (checked.length === 0) {
+                    filterDivisiText.textContent = "0 Terpilih";
+                    if (filterDivisiAll) filterDivisiAll.checked = false;
+                } else {
+                    filterDivisiText.textContent = `${checked.length} Terpilih`;
+                    if (filterDivisiAll) filterDivisiAll.checked = false;
+                }
+                
+                applyFilters();
+            }
+
+            if (filterDivisiAll) {
+                filterDivisiAll.addEventListener("change", function() {
+                    const divCheckboxes = document.querySelectorAll(".div-checkbox");
+                    divCheckboxes.forEach(cb => cb.checked = this.checked);
+                    updateDivisiText();
+                });
+            }
+
+            if (filterDivisiList) {
+                filterDivisiList.addEventListener("change", function(e) {
+                    if (e.target.classList.contains("div-checkbox")) {
+                        updateDivisiText();
+                    }
+                });
+            }
+
+            // 4. Filtering Logic
+            const filterStartDate = document.getElementById("filterStartDate");
+            const filterEndDate = document.getElementById("filterEndDate");
+            const emptyState = document.getElementById("emptyState");
+            const tableContainer = document.getElementById("tableContainer");
+            
+            function applyFilters() {
+                const start = filterStartDate ? filterStartDate.value : "";
+                const end = filterEndDate ? filterEndDate.value : "";
+                
+                const locCheckboxes = document.querySelectorAll(".loc-checkbox:checked");
+                const selectedLocs = Array.from(locCheckboxes).map(cb => cb.value);
+                const isAllSelected = document.getElementById("filterLokasiAll") ? document.getElementById("filterLokasiAll").checked : true;
+                
+                const divCheckboxes = document.querySelectorAll(".div-checkbox:checked");
+                const selectedDivs = Array.from(divCheckboxes).map(cb => cb.value);
+                const isAllDivisiSelected = document.getElementById("filterDivisiAll") ? document.getElementById("filterDivisiAll").checked : true;
+                
+                if (selectedDivs.length === 0) {
+                    emptyState.classList.remove("hidden");
+                    tableContainer.classList.add("hidden");
+                } else {
+                    emptyState.classList.add("hidden");
+                    tableContainer.classList.remove("hidden");
+                }
+
+                tbodyRows.forEach(row => {
+                    const rowDate = row.dataset.date || "";
+                    const rowLoc = (row.dataset.lokasi || "").toLowerCase();
+                    const rowDivisi = (row.dataset.divisi || "").toLowerCase();
+                    
+                    let show = true;
+                    if (start && rowDate < start) show = false;
+                    if (end && rowDate > end) show = false;
+                    
+                    // Filter location
+                    if (!isAllSelected && selectedLocs.length !== document.querySelectorAll(".loc-checkbox").length) {
+                        let matchesLoc = false;
+                        if (selectedLocs.includes("[kosong]") && rowLoc === "") {
+                            matchesLoc = true;
+                        } else if (selectedLocs.some(loc => loc !== "[kosong]" && loc.toLowerCase() === rowLoc)) {
+                            matchesLoc = true;
+                        }
+                        if (!matchesLoc) show = false;
+                    }
+                    
+                    // Filter divisi
+                    if (!isAllDivisiSelected && selectedDivs.length !== document.querySelectorAll(".div-checkbox").length) {
+                        let matchesDiv = false;
+                        if (selectedDivs.includes("[kosong]") && rowDivisi === "") {
+                            matchesDiv = true;
+                        } else if (selectedDivs.some(div => div !== "[kosong]" && div.toLowerCase() === rowDivisi)) {
+                            matchesDiv = true;
+                        }
+                        if (!matchesDiv) show = false;
+                    }
+                    
+                    row.style.display = show ? "" : "none";
+                });
+                
+                // Reset select all if some rows are hidden
+                if (selectAll) selectAll.checked = false;
+            }
+            
+            if (filterStartDate) filterStartDate.addEventListener("change", applyFilters);
+            if (filterEndDate) filterEndDate.addEventListener("change", applyFilters);
+            // location filter triggers are handled in updateLokasiText()
+
+            // Initialize filter state
+            updateDivisiText();
+            applyFilters();
+
+            // 5. Sorting Logic
+            let sortCol = -1;
+            let sortAsc = true;
+            
+            const sortableIndices = [];
+            if(namaIndex !== -1) sortableIndices.push(namaIndex + 1);
+            if(tglIndex !== -1) sortableIndices.push(tglIndex + 1);
+            if(lokasiIndex !== -1) sortableIndices.push(lokasiIndex + 1);
+            
+            const thElements = table.querySelectorAll("thead th");
+            sortableIndices.forEach(idx => {
+                if(thElements[idx]) {
+                    thElements[idx].classList.add("sortable");
+                    thElements[idx].title = "Klik untuk mengurutkan";
+                    thElements[idx].innerHTML += ` <i class="fas fa-sort text-gray-300 ml-1"></i>`;
+                    
+                    thElements[idx].addEventListener("click", () => {
+                        if (sortCol === idx) {
+                            sortAsc = !sortAsc;
+                        } else {
+                            sortCol = idx;
+                            sortAsc = true;
+                        }
+                        
+                        sortableIndices.forEach(i => {
+                            const icon = thElements[i].querySelector("i");
+                            if(icon) {
+                                icon.className = "fas ml-1 " + (i === sortCol ? (sortAsc ? "fa-sort-up text-orange-500" : "fa-sort-down text-orange-500") : "fa-sort text-gray-300");
+                            }
+                        });
+                        
+                        const tbody = table.querySelector("tbody");
+                        const rows = Array.from(tbody.querySelectorAll("tr"));
+                        
+                        rows.sort((a, b) => {
+                            const valA = a.querySelectorAll("td")[idx].textContent.trim();
+                            const valB = b.querySelectorAll("td")[idx].textContent.trim();
+                            
+                            if (idx === tglIndex + 1) {
+                                return sortAsc ? a.dataset.date.localeCompare(b.dataset.date) : b.dataset.date.localeCompare(a.dataset.date);
+                            }
+                            return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                        });
+                        
+                        rows.forEach(r => tbody.appendChild(r));
+                    });
+                }
+            });
+
+            // 6. Form Submit Logic
+            const simpanForm = document.getElementById("simpanForm");
+            if (simpanForm) {
+                simpanForm.addEventListener("submit", function(e) {
+                    e.preventDefault();
+                    const selected = [];
+                    const rNipIndex = nipIndex !== -1 ? nipIndex + 1 : -1;
+                    const rPinIndex = pinIndex !== -1 ? pinIndex + 1 : -1;
+                    const rTglIndex = tglIndex !== -1 ? tglIndex + 1 : -1;
+                    
+                    document.querySelectorAll(".record-cb:checked").forEach(cb => {
+                        const tr = cb.closest("tr");
+                        // Abaikan jika baris sedang disembunyikan oleh filter
+                        if (tr.style.display === "none") return;
+                        
+                        const cells = tr.querySelectorAll("td");
+                        
+                        let nip = "";
+                        if (rNipIndex !== -1 && cells.length > rNipIndex) nip = cells[rNipIndex].textContent.trim();
+                        
+                        let pin = "";
+                        if (rPinIndex !== -1 && cells.length > rPinIndex) pin = cells[rPinIndex].textContent.trim();
+                        
+                        let tgl = "";
+                        if (rTglIndex !== -1 && cells.length > rTglIndex) tgl = cells[rTglIndex].textContent.trim();
+                        
+                        selected.push({
+                            nip: nip,
+                            pin: pin,
+                            tanggal: tgl
+                        });
+                    });
+                    
+                    if (selected.length === 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Peringatan',
+                            text: 'Tidak ada data yang dicentang untuk disimpan!',
+                            confirmButtonText: 'Tutup'
+                        });
+                        return;
+                    }
+                    
+                    document.getElementById("selectedRecordsInput").value = JSON.stringify(selected);
+
+                    Swal.fire({
+                        title: 'Menyimpan...',
+                        text: 'Mohon tunggu, data sedang disimpan ke database.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        }
+                    });
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: new FormData(this)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: data.message,
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = "{{ url_for('dcap.upload_dcap') }}";
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal!',
+                                text: data.message,
+                                confirmButtonText: 'Tutup'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Terjadi Kesalahan',
+                            text: 'Tidak dapat terhubung ke server.',
+                            confirmButtonText: 'Tutup'
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload DCAP — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter"', 'sans-serif'] } } } }</script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 46px;
+            padding: 0 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: border 0.15s, box-shadow 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: #fb923c;
+            box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.15);
+            background: white;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            background: #f8fafc;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .drop-zone:hover {
+            border-color: #f97316;
+            background: #fff7ed;
+        }
+
+        .drop-zone.active {
+            border-color: #ea580c;
+            background: #ffedd5;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+        {% include 'components/sidebar.html' %}
+        <div id="content"
+            class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 p-6 overflow-y-auto">
+                <div class="max-w-xl mx-auto py-4">
+
+                    <!-- Page header -->
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-orange-500 flex items-center justify-center shadow-sm">
+                            <i class="fas fa-file-excel text-white text-base"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-bold text-gray-900">Upload Data DCAP</h1>
+                            <p class="text-xs text-gray-500">Unggah file Excel DCAP untuk memulai proses absensi</p>
+                        </div>
+                    </div>
+
+                    <!-- Step indicator -->
+                    <div class="flex items-center gap-1.5 mb-6">
+                        <div class="flex items-center gap-1.5">
+                            <div
+                                class="w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold">
+                                1</div>
+                            <span class="text-xs font-bold text-orange-600">Upload</span>
+                        </div>
+                        <div class="flex-1 h-0.5 bg-gray-200 mx-1"></div>
+                        <div class="flex items-center gap-1.5">
+                            <div
+                                class="w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold">
+                                2</div>
+                            <span class="text-xs font-semibold text-gray-400">Preview</span>
+                        </div>
+                        <div class="flex-1 h-0.5 bg-gray-200 mx-1"></div>
+                        <div class="flex items-center gap-1.5">
+                            <div
+                                class="w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold">
+                                3</div>
+                            <span class="text-xs font-semibold text-gray-400">Konversi</span>
+                        </div>
+                        <div class="flex-1 h-0.5 bg-gray-200 mx-1"></div>
+                        <div class="flex items-center gap-1.5">
+                            <div
+                                class="w-7 h-7 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold">
+                                4</div>
+                            <span class="text-xs font-semibold text-gray-400">Simpan ke DB</span>
+                        </div>
+                    </div>
+
+                    <!-- Info notice -->
+                    <div
+                        class="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3 mb-6 text-sm text-orange-900">
+                        <i class="fas fa-info-circle shrink-0 mt-0.5 text-orange-400"></i>
+                        <div>
+                            <p class="font-semibold">Format: <span class="font-bold">.xls</span> atau <span
+                                    class="font-bold">.xlsx</span></p>
+                            <p class="text-orange-700 mt-0.5 text-xs">File akan diproses dan dikonversi ke format
+                                absensi. Data baru dimasukkan ke Data Absen setelah tahap review aturan.</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                        style="box-shadow: 0 4px 24px rgba(0,0,0,0.06);">
+                        <div class="px-6 py-5 border-b border-gray-100 bg-slate-50/60">
+                            <h2 class="text-sm font-bold text-gray-900">Pilih File Excel DCAP</h2>
+                            <p class="text-xs text-gray-500 mt-0.5">Unggah file laporan absensi dari mesin DCAP</p>
+                        </div>
+                        <form id="upload-form" action="{{ url_for('dcap.upload_dcap') }}" method="post"
+                            enctype="multipart/form-data" class="p-6 space-y-5">
+                            <!-- Drop Zone -->
+                            <div class="drop-zone p-8 text-center" id="dropZone"
+                                onclick="document.getElementById('file').click()">
+                                <div
+                                    class="w-14 h-14 bg-orange-50 border-2 border-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-file-excel text-orange-500 text-2xl"></i>
+                                </div>
+                                <p class="text-gray-900 font-semibold text-sm mb-1">Klik untuk pilih file Excel</p>
+                                <p class="text-gray-400 text-xs" id="file-name">.xls, .xlsx — Maks. 10 MB</p>
+                                <input type="file" name="file" id="file" accept=".xls,.xlsx" class="sr-only" required>
+                            </div>
+                            <!-- Submit -->
+                            <button type="submit"
+                                class="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow">
+                                <i class="fas fa-upload"></i> Upload & Preview Data
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('file');
+        const fileNameEl = document.getElementById('file-name');
+        fileInput.addEventListener('change', function () {
+            if (this.files[0]) {
+                fileNameEl.textContent = this.files[0].name;
+                fileNameEl.classList.add('text-orange-700', 'font-semibold');
+                dropZone.classList.add('active');
+            }
+        });
+        ['dragenter', 'dragover'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('active'); }));
+        ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, ev => {
+            ev.preventDefault(); dropZone.classList.remove('active');
+            if (ev.type === 'drop' && ev.dataTransfer.files[0]) {
+                fileInput.files = ev.dataTransfer.files;
+                fileNameEl.textContent = ev.dataTransfer.files[0].name;
+                fileNameEl.classList.add('text-orange-700', 'font-semibold');
+                dropZone.classList.add('active');
+            }
+        }));
+    </script>
+</body>
+
+</html>

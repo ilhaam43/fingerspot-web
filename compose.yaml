@@ -1,0 +1,69 @@
+name: fingerspot-local
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:8000"
+    environment: &app_environment
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: fin_pro
+      DB_USER: fingerspot
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      UPLOAD_FOLDER: uploads
+      WKHTMLTOPDF_PATH: /usr/bin/wkhtmltopdf
+      TZ: Asia/Jakarta
+      SMTP_EMAIL: ${SMTP_EMAIL:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      INITIAL_EMPLOYEE_PASSWORD: ${INITIAL_EMPLOYEE_PASSWORD:-DemoUser123!}
+    volumes:
+      - ./uploads:/app/uploads
+      - ./reports:/app/reports
+      - ./examples/personil-dcap.xlsx:/app/personil-dcap.xlsx:ro
+      - ./examples/lembur.xlsx:/app/lembur.xlsx:ro
+      - ./config/shift_mappings.json:/app/shift_mappings.json
+      - ./config/mapping_nip_old_absen_to_real_nip.json:/app/mapping_nip_old_absen_to_real_nip.json
+      - ./files:/app/files:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/login', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    restart: unless-stopped
+  seed:
+    profiles: ["tools"]
+    image: fingerspot-local-web
+    environment:
+      <<: *app_environment
+      DEMO_SEED_ENABLED: "1"
+    volumes:
+      - ./database:/seed:ro
+    command: ["python", "/seed/seed_demo.py"]
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: fin_pro
+      MARIADB_USER: fingerspot
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+      TZ: Asia/Jakarta
+    command: ["--character-set-server=utf8", "--collation-server=utf8_general_ci"]
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 10
+    restart: unless-stopped
+volumes:
+  db_data:

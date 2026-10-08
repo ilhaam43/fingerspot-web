@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Mesin Lama — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 46px;
+            padding: 0 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: border 0.15s, box-shadow 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+            background: white;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 6px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            background: #f8fafc;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .drop-zone:hover {
+            border-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .drop-zone.active {
+            border-color: #d97706;
+            background: #fef3c7;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        {% include 'components/sidebar.html' %}
+
+        <div id="content"
+            class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 p-6 overflow-y-auto">
+                <div class="max-w-xl mx-auto py-4">
+
+                    <!-- Page header -->
+                    <div class="mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center shadow-sm">
+                                <i class="fas fa-history text-white text-base"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-900">Upload Mesin Lama</h1>
+                                <p class="text-xs text-gray-500">Unggah file log absensi dari mesin fingerprint lama</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info notice -->
+                    <div
+                        class="bg-amber-50 border border-amber-100 rounded-xl p-4 flex gap-3 mb-6 text-sm text-amber-900">
+                        <i class="fas fa-info-circle shrink-0 mt-0.5 text-amber-500"></i>
+                        <div>
+                            <p class="font-semibold">Format file yang didukung: <span class="font-bold">.csv</span>,
+                                <span class="font-bold">.txt</span>
+                            </p>
+                            <p class="text-amber-700 mt-0.5 text-xs">Data log dari mesin absensi lama akan diparsing
+                                secara otomatis</p>
+                            <p class="font-semibold">Data langsung disimpan ke database</p>
+                            <p class="text-amber-700 mt-0.5 text-xs">Begitu file diproses, data scan in/out akan
+                                langsung diperbarui di tabel <span class="font-semibold">Data Absen</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                        style="box-shadow: 0 4px 24px rgba(0,0,0,0.06);">
+                        <div class="px-6 py-5 border-b border-gray-100 bg-slate-50/60">
+                            <h2 class="text-sm font-bold text-gray-900">Konfigurasi Upload</h2>
+                            <p class="text-xs text-gray-500 mt-0.5">Pilih divisi dan file log yang akan diproses</p>
+                        </div>
+
+                        <form id="formUploadCsv" action="{{ url_for('upload_mesin_lama.upload_csv_mesin_lama') }}" method="POST"
+                            enctype="multipart/form-data" class="p-6 space-y-5">
+
+                            <!-- Division Select -->
+                            <div>
+                                <label class="form-label">Divisi Target</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-building absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                                    <select name="division" id="division" required
+                                        class="form-input pl-10 pr-10 appearance-none">
+                                        <option value="" disabled selected>Pilih divisi...</option>
+                                        <option value="HDTI">HDTI</option>
+                                        <option value="HDBS">HDBS</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- File Drop Zone -->
+                            <div>
+                                <label class="form-label">File Log Absensi</label>
+                                <div class="drop-zone p-8 text-center" id="dropZone"
+                                    onclick="document.getElementById('file').click()">
+                                    <div id="drop-content">
+                                        <div
+                                            class="w-14 h-14 bg-amber-50 border-2 border-amber-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                            <i class="fas fa-file-csv text-amber-500 text-2xl"></i>
+                                        </div>
+                                        <p class="text-gray-900 font-semibold text-sm mb-1">Klik untuk pilih file log
+                                        </p>
+                                        <p class="text-gray-400 text-xs" id="file-name">.csv, .txt, .xls, .xlsx — Maks.
+                                            10 MB</p>
+                                    </div>
+                                    <input id="file" name="file" type="file" accept=".csv,.txt,.xls,.xlsx"
+                                        class="sr-only" required>
+                                </div>
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="pt-1">
+                                <button type="submit"
+                                    class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow">
+                                    <i class="fas fa-upload"></i> Proses File Log
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('file');
+        const fileNameEl = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', function () {
+            if (this.files[0]) {
+                fileNameEl.textContent = this.files[0].name;
+                fileNameEl.classList.add('text-amber-700', 'font-semibold');
+                dropZone.classList.add('active');
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('active');
+            });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('active');
+                if (e.type === 'drop' && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileNameEl.textContent = e.dataTransfer.files[0].name;
+                    fileNameEl.classList.add('text-amber-700', 'font-semibold');
+                    dropZone.classList.add('active');
+                }
+            });
+        });
+
+        document.getElementById('formUploadCsv').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('file');
+            if (!fileInput.files.length) {
+                return;
+            }
+
+            let formData = new FormData(this);
+            
+            Swal.fire({
+                title: 'Memproses...',
+                text: 'Mohon tunggu, file log sedang diproses dan jadwal sedang disimpan.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                redirect: 'follow'
+            })
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: 'Jadwal shift berhasil dieksekusi dan disimpan.',
+                        confirmButtonText: 'Lihat Hasil'
+                    }).then(() => {
+                        response.text().then(html => {
+                            document.open();
+                            document.write(html);
+                            document.close();
+                            if (response.url) {
+                                history.pushState(null, '', response.url);
+                            }
+                        });
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: 'Terjadi kesalahan saat memproses data.',
+                        confirmButtonText: 'Tutup'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan Sistem',
+                    text: 'Tidak dapat terhubung ke server.',
+                    confirmButtonText: 'Tutup'
+                });
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+
+</html>

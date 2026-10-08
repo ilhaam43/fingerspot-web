@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+        <meta charset="UTF-8">
+        <title>Dasbor Pegawai — APBI</title>
+        <meta name="description" content="Dasbor absensi pegawai Lintasarta Project BI">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+        <style>
+            *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+            html, body { height: 100%; font-family: 'Inter', sans-serif; }
+
+            /* ══ BACKGROUND ══ */
+            body {
+                min-height: 100vh;
+                background: #eef4ff;
+                position: relative;
+                overflow-x: hidden;
+            }
+            body::before {
+                content: '';
+                position: fixed; inset: 0;
+                background:
+                    radial-gradient(ellipse 80% 60% at 15% 0%, rgba(59,130,246,0.15) 0%, transparent 55%),
+                    radial-gradient(ellipse 60% 50% at 85% 100%, rgba(99,102,241,0.12) 0%, transparent 50%),
+                    linear-gradient(180deg, #eef4ff 0%, #f0f5ff 100%);
+                z-index: 0; pointer-events: none;
+            }
+            body::after {
+                content: '';
+                position: fixed; inset: 0;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='rgba(59,130,246,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+                z-index: 0; pointer-events: none;
+            }
+
+            /* ══ LAYOUT ══ */
+            .page-content {
+                position: relative; z-index: 1;
+                padding: 0 0 104px;
+                min-height: 100vh;
+            }
+
+            /* ══ TOPBAR ══ */
+            .topbar {
+                position: sticky; top: 0; z-index: 40;
+                background: rgba(238,244,255,0.85);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255,255,255,0.6);
+                padding: 14px 20px;
+                display: flex; align-items: center; justify-content: space-between;
+                gap: 12px;
+            }
+            .topbar-left { display: flex; align-items: center; gap: 12px; }
+            .topbar-icon {
+                width: 40px; height: 40px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 4px 14px rgba(37,99,235,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+                flex-shrink: 0;
+            }
+            .topbar-icon i { color: #fff; font-size: 16px; }
+            .topbar-title { font-size: 16px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+            .topbar-sub { font-size: 11px; color: #94a3b8; font-weight: 500; margin-top: 1px; }
+
+            /* ══ PROFILE CARD ══ */
+            .profile-card {
+                margin: 20px 16px 0;
+                background: rgba(255,255,255,0.7);
+                border: 1px solid rgba(255,255,255,0.95);
+                border-radius: 20px;
+                padding: 18px 18px;
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                box-shadow: 0 4px 20px rgba(37,99,235,0.08), inset 0 1px 0 #fff;
+                display: flex; align-items: center; gap: 14px;
+                position: relative; overflow: hidden;
+            }
+            .profile-card::before {
+                content: '';
+                position: absolute; top: 0; left: 0; right: 0; height: 2px;
+                background: linear-gradient(90deg, transparent, #3b82f6, #6366f1, transparent);
+            }
+            .profile-avatar {
+                width: 50px; height: 50px;
+                border-radius: 14px;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                display: flex; align-items: center; justify-content: center;
+                box-shadow: 0 6px 18px rgba(37,99,235,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+                flex-shrink: 0;
+            }
+            .profile-avatar i { color: #fff; font-size: 20px; }
+            .profile-name { font-size: 16px; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; line-height: 1.2; }
+            .profile-sub { font-size: 12px; color: #64748b; margin-top: 3px; font-weight: 500; }
+            .profile-badge {
+                margin-left: auto;
+                background: rgba(59,130,246,0.1);
+                border: 1px solid rgba(59,130,246,0.2);
+                border-radius: 100px;
+                padding: 4px 12px;
+                font-size: 11px; font-weight: 700;
+                color: #2563eb; white-space: nowrap;
+            }
+
+            /* ══ CONTROLS BAR ══ */
+            .controls {
+                margin: 16px 16px 0;
+                display: flex; align-items: center; justify-content: space-between; gap: 10px;
+            }
+            .view-toggle {
+                background: rgba(255,255,255,0.75);
+                border: 1px solid rgba(255,255,255,0.95);
+                border-radius: 12px;
+                padding: 4px;
+                display: flex; gap: 2px;
+                backdrop-filter: blur(12px);
+                box-shadow: 0 2px 10px rgba(37,99,235,0.07), inset 0 1px 0 #fff;
+            }
+            .view-btn {
+                padding: 8px 16px;
+                border-radius: 9px;
+                border: none; background: none;
+                font-size: 13px; font-weight: 600;
+                color: #94a3b8; cursor: pointer;
+                display: flex; align-items: center; gap: 6px;
+                transition: all 0.2s; font-family: 'Inter', sans-serif;
+            }
+            .view-btn.active {
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                color: #fff;
+                box-shadow: 0 3px 10px rgba(37,99,235,0.3);
+            }
+            .filter-btn {
+                display: flex; align-items: center; gap: 7px;
+                padding: 10px 16px;
+                background: rgba(255,255,255,0.75);
+                border: 1px solid rgba(255,255,255,0.95);
+                border-radius: 12px;
+                font-size: 13px; font-weight: 700;
+                color: #2563eb; cursor: pointer;
+                backdrop-filter: blur(12px);
+                box-shadow: 0 2px 10px rgba(37,99,235,0.07), inset 0 1px 0 #fff;
+                font-family: 'Inter', sans-serif;
+                transition: all 0.2s;
+            }
+            .filter-btn:active { transform: scale(0.97); }
+
+            /* ══ CARD VIEW ══ */
+            .card-list { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+
+            .record-card {
+                background: rgba(255,255,255,0.72);
+                border: 1px solid rgba(255,255,255,0.95);
+                border-radius: 18px;
+                padding: 14px 16px;
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                box-shadow: 0 2px 12px rgba(37,99,235,0.06), inset 0 1px 0 #fff;
+                position: relative; overflow: hidden;
+                animation: fadeIn 0.25s ease-out;
+            }
+            @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+
+            /* Left color stripe */
+            .stripe {
+                position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+                border-radius: 18px 0 0 18px;
+            }
+            .stripe-H { background: linear-gradient(180deg, #10b981, #059669); }
+            .stripe-TL { background: linear-gradient(180deg, #f59e0b, #d97706); }
+            .stripe-TP { background: linear-gradient(180deg, #f97316, #ea580c); }
+            .stripe-other { background: linear-gradient(180deg, #94a3b8, #64748b); }
+            .stripe-A { background: linear-gradient(180deg, #f43f5e, #e11d48); }
+
+            .card-header {
+                display: flex; align-items: center; justify-content: space-between;
+                margin-bottom: 12px; padding-left: 10px;
+            }
+            .card-date { font-size: 14px; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
+
+            /* Status badge */
+            .status-badge {
+                padding: 3px 10px;
+                border-radius: 100px;
+                font-size: 10px; font-weight: 800;
+                letter-spacing: 0.07em; text-transform: uppercase;
+                border: 1px solid;
+            }
+            .badge-H { background: rgba(16,185,129,0.1); color: #059669; border-color: rgba(16,185,129,0.25); }
+            .badge-TL { background: rgba(245,158,11,0.1); color: #b45309; border-color: rgba(245,158,11,0.25); }
+            .badge-TP { background: rgba(249,115,22,0.1); color: #c2410c; border-color: rgba(249,115,22,0.25); }
+            .badge-A { background: rgba(244,63,94,0.1); color: #be123c; border-color: rgba(244,63,94,0.25); }
+            .badge-other { background: rgba(148,163,184,0.1); color: #475569; border-color: rgba(148,163,184,0.25); }
+
+            .card-times {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+                padding-left: 10px; margin-bottom: 10px;
+            }
+            .time-box {
+                background: rgba(241,245,249,0.7);
+                border: 1px solid rgba(226,232,240,0.6);
+                border-radius: 12px;
+                padding: 10px 8px;
+                text-align: center;
+            }
+            .time-label { font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+            .time-val { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+            .time-val-active { color: #2563eb; }
+            .time-val-empty { color: #cbd5e1; }
+
+            .card-footer {
+                display: flex; align-items: center; justify-content: space-between;
+                padding-left: 10px;
+                padding-top: 10px;
+                border-top: 1px solid rgba(226,232,240,0.4);
+            }
+            .card-footer-left { font-size: 11px; color: #64748b; display: flex; align-items: center; gap: 5px; font-weight: 500; }
+            .card-footer-left i { color: #94a3b8; font-size: 10px; }
+            .shift-tag {
+                font-size: 10px; font-weight: 700;
+                background: rgba(59,130,246,0.08);
+                color: #2563eb;
+                border: 1px solid rgba(59,130,246,0.15);
+                border-radius: 100px;
+                padding: 3px 10px;
+            }
+
+            /* ══ TABLE VIEW ══ */
+            .table-wrap {
+                margin: 14px 16px 0;
+                background: rgba(255,255,255,0.72);
+                border: 1px solid rgba(255,255,255,0.95);
+                border-radius: 18px;
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                box-shadow: 0 2px 12px rgba(37,99,235,0.06), inset 0 1px 0 #fff;
+                overflow: hidden;
+            }
+            .table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
+            .table-wrap thead tr { background: rgba(241,245,249,0.7); border-bottom: 1px solid rgba(226,232,240,0.5); }
+            .table-wrap th { padding: 12px 14px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; color: #64748b; white-space: nowrap; }
+            .table-wrap td { padding: 12px 14px; color: #1e293b; font-weight: 500; white-space: nowrap; border-bottom: 1px solid rgba(241,245,249,0.6); }
+            .table-wrap tbody tr:last-child td { border-bottom: none; }
+            .table-wrap tbody tr:hover td { background: rgba(239,246,255,0.5); }
+
+            /* ══ EMPTY STATE ══ */
+            .empty-state {
+                margin: 20px 16px 0;
+                background: rgba(255,255,255,0.65);
+                border: 1px dashed rgba(203,213,225,0.7);
+                border-radius: 20px;
+                padding: 48px 24px;
+                text-align: center;
+                backdrop-filter: blur(16px);
+            }
+            .empty-icon {
+                width: 64px; height: 64px;
+                border-radius: 20px;
+                background: rgba(239,246,255,0.8);
+                display: flex; align-items: center; justify-content: center;
+                margin: 0 auto 16px;
+            }
+            .empty-icon i { font-size: 26px; color: #93c5fd; }
+            .empty-title { font-size: 15px; font-weight: 700; color: #334155; margin-bottom: 6px; }
+            .empty-sub { font-size: 13px; color: #94a3b8; font-weight: 500; }
+
+            /* ══ FILTER MODAL ══ */
+            .modal-overlay {
+                position: fixed; inset: 0;
+                background: rgba(15,23,42,0.35);
+                backdrop-filter: blur(6px);
+                z-index: 60;
+                display: none;
+                align-items: flex-end;
+                justify-content: center;
+            }
+            .modal-overlay.open { display: flex; }
+
+            .modal-sheet {
+                width: 100%; max-width: 480px;
+                background: rgba(255,255,255,0.92);
+                border: 1px solid rgba(255,255,255,0.95);
+                border-radius: 26px 26px 0 0;
+                padding: 24px 24px calc(80px + env(safe-area-inset-bottom));
+                backdrop-filter: blur(32px);
+                -webkit-backdrop-filter: blur(32px);
+                box-shadow: 0 -8px 40px rgba(37,99,235,0.12), inset 0 1px 0 #fff;
+                animation: slideUp 0.3s ease-out;
+            }
+            @media (min-width: 600px) {
+                .modal-overlay { align-items: center; }
+                .modal-sheet { border-radius: 22px; max-width: 400px; padding: 28px; margin: 20px; }
+            }
+            @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+            .modal-handle {
+                width: 36px; height: 4px;
+                background: rgba(203,213,225,0.7);
+                border-radius: 2px;
+                margin: 0 auto 20px;
+            }
+            .modal-title { font-size: 18px; font-weight: 800; color: #0f172a; margin-bottom: 4px; letter-spacing: -0.02em; }
+            .modal-sub { font-size: 13px; color: #94a3b8; font-weight: 500; margin-bottom: 22px; }
+
+            .form-label-modal {
+                display: block; font-size: 11px; font-weight: 800;
+                color: #475569; text-transform: uppercase;
+                letter-spacing: 0.08em; margin-bottom: 7px;
+            }
+            .form-input-modal {
+                width: 100%; height: 46px;
+                padding: 0 14px;
+                background: rgba(248,250,252,0.9);
+                border: 1.5px solid rgba(203,213,225,0.7);
+                border-radius: 12px;
+                font-size: 14px; font-family: 'Inter', sans-serif;
+                color: #0f172a; outline: none;
+                transition: all 0.2s;
+            }
+            .form-input-modal:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 4px rgba(59,130,246,0.1);
+                background: #fff;
+            }
+
+            .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+            .mb-14 { margin-bottom: 14px; }
+
+            .btn-apply {
+                width: 100%; height: 50px;
+                margin-top: 20px;
+                background: linear-gradient(135deg, #2563eb, #4f46e5);
+                color: #fff; border: none;
+                border-radius: 14px;
+                font-size: 15px; font-family: 'Inter', sans-serif;
+                font-weight: 700; cursor: pointer;
+                display: flex; align-items: center; justify-content: center; gap: 8px;
+                box-shadow: 0 6px 20px rgba(37,99,235,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+                transition: all 0.2s; position: relative; overflow: hidden;
+            }
+            .btn-apply::before {
+                content: '';
+                position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+                transform: skewX(-20deg); transition: left 0.5s;
+            }
+            .btn-apply:hover::before { left: 160%; }
+            .btn-apply:active { transform: scale(0.98); }
+
+            /* ══ BOTTOM NAV ══ */
+            .bottom-nav {
+                position: fixed; bottom: 0; left: 0; right: 0;
+                background: rgba(255,255,255,0.85);
+                border-top: 1px solid rgba(226,232,240,0.6);
+                backdrop-filter: blur(24px);
+                -webkit-backdrop-filter: blur(24px);
+                z-index: 50;
+                box-shadow: 0 -4px 24px rgba(37,99,235,0.07);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); height: 68px; }
+            .nav-item {
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
+                text-decoration: none; color: #94a3b8; font-family: 'Inter', sans-serif;
+                transition: color 0.2s; position: relative; gap: 3px;
+            }
+            .nav-item.active { color: #2563eb; }
+            .nav-item-icon {
+                width: 40px; height: 40px;
+                border-radius: 12px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 18px; transition: all 0.2s;
+            }
+            .nav-item.active .nav-item-icon {
+                background: rgba(37,99,235,0.1);
+                color: #2563eb;
+            }
+            .nav-item:not(.active):hover .nav-item-icon { background: rgba(241,245,249,0.8); color: #64748b; }
+            .nav-label { font-size: 10px; font-weight: 700; }
+
+            /* Active top bar */
+            .nav-item.active::before {
+                content: '';
+                position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+                width: 24px; height: 3px;
+                background: linear-gradient(90deg, #2563eb, #4f46e5);
+                border-radius: 0 0 4px 4px;
+            }
+
+            /* Milkshake tooltip bubble */
+            #milkshake-bubble {
+                position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+                margin-bottom: 10px; z-index: 60; width: 210px;
+            }
+            #milkshake-bubble .bubble-inner {
+                background: linear-gradient(135deg, #1e293b, #0f172a);
+                color: #fff; border-radius: 14px;
+                padding: 12px 14px;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+                border: 1px solid rgba(255,255,255,0.08);
+                position: relative; text-align: center;
+                animation: bobble 1.5s ease-in-out infinite;
+            }
+            #milkshake-bubble .bubble-inner::after {
+                content: '';
+                position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+                border: 6px solid transparent;
+                border-top-color: #0f172a;
+            }
+            @keyframes bobble { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+            .bubble-title { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+            .bubble-sub { font-size: 11px; color: rgba(148,163,184,0.9); line-height: 1.5; }
+
+            /* hide scrollbar */
+            ::-webkit-scrollbar { display: none; }
+            * { -ms-overflow-style: none; scrollbar-width: none; }
+
+
+        </style>
+
+        <style>
+            .submenu {
+                padding-left: 2.5rem;
+                display: none;
+            }
+
+            .submenu-item {
+                display: flex;
+                align-items: center;
+                padding: 8px 0;
+                color: inherit;
+                text-decoration: none;
+                font-size: 0.9em;
+            }
+
+            .submenu-icon {
+                margin-right: 10px;
+                width: 16px;
+            }
+
+            .nav-arrow {
+                margin-left: auto;
+                transition: transform 0.3s ease;
+            }
+
+            /* Container pembungkus item bottom navbar */
+            .nav-item-dropdown {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* Kartu Submenu Melayang */
+            .dropup-popover {
+                display: none;
+                position: absolute;
+                bottom: calc(100% + 12px); /* Melayang 12px tepat di atas navbar */
+                left: 50%;
+                transform: translateX(-50%); /* Mengetengahkan menu persis di atas tombol */
+                min-width: 170px;
+                background-color: #ffffff;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+                border: 1px solid #e2e8f0;
+                padding: 6px;
+                z-index: 1000;
+            }
+
+            /* Arrow/Segitiga Kecil Penunjuk ke Bawah */
+            .dropup-popover::after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border-width: 6px;
+                border-style: solid;
+                border-color: #ffffff transparent transparent transparent;
+            }
+
+            .dropup-popover.show {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            /* Item Menu Di Dalam Popover */
+            .popover-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 14px;
+                color: #334155;
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: 500;
+                border-radius: 8px;
+                white-space: nowrap;
+                transition: background-color 0.2s, color 0.2s;
+            }
+
+            .popover-item:hover {
+                background-color: #f1f5f9;
+                color: #2563eb;
+            }
+
+            .popover-icon {
+                font-size: 1rem;
+                width: 18px;
+                text-align: center;
+            }
+
+            /* Style Parent Utama saat Aktif */
+            .nav-item.active {
+                color: #2563eb !important; /* Warna teks & ikon jadi biru */
+            }
+
+            .nav-item.active .nav-item-icon i {
+                color: #2563eb !important;
+            }
+
+            /* Style Submenu Item (Child) saat Aktif */
+            .popover-item.active-child {
+                background-color: #eff6ff !important; /* Background biru muda */
+                color: #2563eb !important;             /* Teks & ikon biru utama */
+                font-weight: 600;
+            }
+
+            .popover-item.active-child .popover-icon {
+                color: #2563eb !important;
+            }
+        </style>
+
+    </head>
+    
+    <body>
+        <div class="page-content">
+            <!-- ══ PROFILE CARD ══ -->
+            {% if pegawai %}
+            
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div class="profile-name">{{ pegawai.pegawai_nama }}</div>
+                    <div class="profile-sub">{{ pegawai.divisi or '-' }} &bull; {{ pegawai.jabatan or '-' }}</div>
+                </div>
+                <div class="profile-badge">Pegawai</div>
+            </div>
+
+            {% else %}
+            
+            <div style="padding: 20px 16px 0;">
+                <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-0.03em;">Data Absen</div>
+            </div>
+
+            {% endif %}
+
+            <!-- ══ CONTROLS ══ -->
+            <div class="controls">
+                <div class="view-toggle">
+                    <button class="view-btn active" id="btn-card" onclick="switchView('card')">
+                        <i class="fas fa-th-large" style="font-size:11px;"></i> Kartu
+                    </button>
+                    <button class="view-btn" id="btn-table" onclick="switchView('table')">
+                        <i class="fas fa-table" style="font-size:11px;"></i> Tabel
+                    </button>
+                </div>
+                <button class="filter-btn" onclick="toggleFilter()">
+                    <i class="fas fa-sliders-h"></i> Filter
+                </button>
+            </div>
+
+            <!-- ══ FILTER MODAL ══ -->
+            <div class="modal-overlay" id="filterModal" onclick="handleOverlayClick(event)">
+                <div class="modal-sheet">
+                    <div class="modal-handle"></div>
+                    <div class="modal-title">Filter Data</div>
+                    <div class="modal-sub">Atur rentang tanggal dan status kehadiran</div>
+
+                    <form method="get">
+                        <div class="grid-2">
+                            <div>
+                                <label class="form-label-modal">Mulai</label>
+                                <input type="date" name="start_date" class="form-input-modal" value="{{ start_date }}" min="2025-05-06">
+                            </div>
+                            <div>
+                                <label class="form-label-modal">Sampai</label>
+                                <input type="date" name="end_date" class="form-input-modal" value="{{ end_date }}" min="2025-05-06">
+                            </div>
+                        </div>
+                        <div class="mb-14">
+                            <label class="form-label-modal">Status Kehadiran</label>
+                            <select name="keterangan" class="form-input-modal">
+                                <option value="">Semua Status</option>
+                                {% for option in ['H', 'TL', 'TP', 'LB', 'CT', 'D', 'S', 'LDL', 'LD', 'Libur', 'Belum Diketahui'] %}
+                                    <option value="{{ option }}" {% if keterangan == option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-apply">
+                            <i class="fas fa-check"></i> Terapkan Filter
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ══ RECORDS ══ -->
+            {% if records %}
+
+                <!-- CARD VIEW -->
+                <div id="cardView" class="card-list">
+                    {% for record in records %}
+                    {% set ket = record.keterangan %}
+                    <div class="record-card">
+                        <div class="stripe
+                            {% if ket == 'H' %}stripe-H
+                            {% elif ket == 'TL' %}stripe-TL
+                            {% elif ket == 'TP' %}stripe-TP
+                            {% elif ket == 'A' %}stripe-A
+                            {% else %}stripe-other{% endif %}">
+                        </div>
+
+                        <div class="card-header">
+                            <span class="card-date">{{ record.tgl_formatted }}</span>
+                            <span class="status-badge
+                                {% if ket == 'H' %}badge-H
+                                {% elif ket == 'TL' %}badge-TL
+                                {% elif ket == 'TP' %}badge-TP
+                                {% elif ket == 'A' %}badge-A
+                                {% else %}badge-other{% endif %}">
+                                {{ ket }}
+                            </span>
+                        </div>
+
+                        <div class="card-times">
+                            <div class="time-box">
+                                <div class="time-label">Masuk</div>
+                                <div class="time-val {% if record.scan_in %}time-val-active{% else %}time-val-empty{% endif %}">
+                                    {{ record.scan_in or '--:--' }}
+                                </div>
+                            </div>
+                            <div class="time-box">
+                                <div class="time-label">Pulang</div>
+                                <div class="time-val {% if record.scan_out %}time-val-active{% else %}time-val-empty{% endif %}">
+                                    {{ record.scan_out or '--:--' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <div class="card-footer-left">
+                                <i class="far fa-clock"></i>
+                                Jadwal: <strong>{{ record.jk_bcin }} – {{ record.jk_ecout }}</strong>
+                            </div>
+                            <span class="shift-tag">{{ record.jk_name or '-' }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- TABLE VIEW -->
+                <div id="tableView" class="table-wrap" style="display:none;">
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th style="text-align:center;">Jadwal</th>
+                                    <th style="text-align:center;">Masuk</th>
+                                    <th style="text-align:center;">Pulang</th>
+                                    <th style="text-align:center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in records %}
+                                {% set ket = record.keterangan %}
+                                <tr>
+                                    <td style="font-weight:700;color:#0f172a;">{{ record.tgl_formatted }}</td>
+                                    <td style="text-align:center;">
+                                        <span style="font-size:11px;background:rgba(241,245,249,0.9);border:1px solid rgba(226,232,240,0.6);border-radius:8px;padding:3px 10px;font-weight:600;color:#475569;">
+                                            {{ record.jk_bcin }} – {{ record.jk_ecout }}
+                                        </span>
+                                    </td>
+                                    <td style="text-align:center;font-size:14px;font-weight:800;{% if record.scan_in %}color:#2563eb{% else %}color:#cbd5e1{% endif %};">
+                                        {{ record.scan_in or '-' }}
+                                    </td>
+                                    <td style="text-align:center;font-size:14px;font-weight:800;{% if record.scan_out %}color:#2563eb{% else %}color:#cbd5e1{% endif %};">
+                                        {{ record.scan_out or '-' }}
+                                    </td>
+                                    <td style="text-align:center;">
+                                        <span class="status-badge
+                                            {% if ket == 'H' %}badge-H
+                                            {% elif ket == 'TL' %}badge-TL
+                                            {% elif ket == 'TP' %}badge-TP
+                                            {% elif ket == 'A' %}badge-A
+                                            {% else %}badge-other{% endif %}">
+                                            {{ ket }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="far fa-calendar-times"></i>
+                    </div>
+                    <div class="empty-title">Tidak ada data absen</div>
+                    <div class="empty-sub">Coba ubah rentang tanggal atau filter status.</div>
+                </div>
+            {% endif %}
+
+            <!-- ══ BOTTOM NAVIGATION ══ -->
+            <nav class="bottom-nav">
+                <!-- Menambahkan inline style grid-template-columns untuk 6 kolom -->
+                <div class="nav-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); width: 100%;">
+
+                    <a href="{{ url_for('dashboard_pegawai.dasbor_pegawai') }}" class="nav-item active">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <span class="nav-label">Dasbor</span>
+                    </a>
+
+                    <div class="nav-item" style="position:relative;">
+                        <!-- Milkshake Bubble -->
+                        <div id="milkshake-bubble" style="display:none;">
+                            <div class="bubble-inner">
+                                <div class="bubble-title">Butuh Form?</div>
+                                <div class="bubble-sub">Akses form & layanan lewat Milkshake.</div>
+                            </div>
+                        </div>
+
+                        <a href="https://msha.ke/personilhdti#links" target="_blank" id="btn-milkshake"
+                            style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;height:100%;text-decoration:none;color:#94a3b8;">
+                            <div class="nav-item-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <span class="nav-label">Milkshake</span>
+                        </a>
+                    </div>
+
+                    <a href="{{ url_for('dashboard_pegawai.akun_pegawai') }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="nav-label">Akun</span>
+                    </a>
+
+                    <a href="{{ url_for('dashboard_pegawai.tukar_shift_page') }}" class="nav-item">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <span class="nav-label">Tukar Shift</span>
+                    </a>
+
+                    <!-- Parent Menu -->
+                    <div class="nav-item-dropdown">
+
+                        <div class="dropup-popover" id="submenu-pengajuan">
+
+                            <a href="{{ url_for('view_kalender_ketersediaan_cuti.view_data') }}" 
+                            class="popover-item {% if request.endpoint == 'view_kalender_ketersediaan_cuti.view_data' %}active-child{% endif %}">
+                                <i class="fas fa-calendar-check popover-icon"></i>
+                                <span>Lihat Pengajuan</span>
+                            </a>
+
+                            
+                            <a href="{{ url_for('form_pengajuan_tidakhadir.form_pengajuan') }}" 
+                            class="popover-item {% if request.endpoint == 'form_pengajuan_tidakhadir.form_pengajuan' %}active-child{% endif %}">
+                                <i class="fas fa-user-times popover-icon"></i>
+                                <span>Tidak Hadir</span>
+                            </a>
+                            
+                            <a href="{{ url_for('form_pengajuan_cuti.form_pengajuan') }}"
+                                class="popover-item {% if request.endpoint == 'form_pengajuan_cuti.form_pengajuan' %}active-child{% endif %}">
+                                <i class="fas fa-plane-departure popover-icon"></i>
+                                <span>Cuti</span>
+                            </a>
+                            
+                            <a href="#" class="popover-item">
+                                <i class="fas fa-business-time popover-icon"></i>
+                                <span>Lembur</span>
+                            </a>
+                        </div>
+
+                        <a href="#" class="nav-item {% if 'form_pengajuan' in request.endpoint %} active {% endif %}" onclick="toggleSubmenu(event, 'submenu-pengajuan', this)">
+                            <div class="nav-item-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <span class="nav-label">Form Pengajuan</span>
+                        </a>
+                    </div>
+
+                    <a href="{{ url_for('auth.auth_logout') }}" class="nav-item"
+                        style="color:#f43f5e;" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e'">
+                        <div class="nav-item-icon" style="background:rgba(244,63,94,0.08);">
+                            <i class="fas fa-sign-out-alt" style="color:#f43f5e;"></i>
+                        </div>
+                        <span class="nav-label" style="color:#f43f5e;">Logout</span>
+                    </a>
+
+                </div>
+            </nav>
+
+            <script>
+                /* ══ View Toggle ══ */
+                function switchView(view) {
+                    const cardView = document.getElementById('cardView');
+                    const tableView = document.getElementById('tableView');
+                    const btnCard = document.getElementById('btn-card');
+                    const btnTable = document.getElementById('btn-table');
+
+                    if (view === 'card') {
+                        if (cardView) { cardView.style.display = 'flex'; cardView.style.flexDirection = 'column'; }
+                        if (tableView) tableView.style.display = 'none';
+                        btnCard.classList.add('active');
+                        btnTable.classList.remove('active');
+                    } else {
+                        if (cardView) cardView.style.display = 'none';
+                        if (tableView) tableView.style.display = 'block';
+                        btnTable.classList.add('active');
+                        btnCard.classList.remove('active');
+                    }
+                }
+
+                /* ══ Filter Modal ══ */
+                function toggleFilter() {
+                    const modal = document.getElementById('filterModal');
+                    modal.classList.toggle('open');
+                    document.body.style.overflow = modal.classList.contains('open') ? 'hidden' : '';
+                }
+
+                function handleOverlayClick(e) {
+                    if (e.target === document.getElementById('filterModal')) toggleFilter();
+                }
+
+                /* ══ Milkshake Bubble ══ */
+                document.addEventListener('DOMContentLoaded', () => {
+                    const bubbleWrapper = document.getElementById('milkshake-bubble');
+                    const btnMilkshake = document.getElementById('btn-milkshake');
+
+                    const hasSeenGuide = localStorage.getItem('seen_milkshake_guide');
+
+                    const dismissBubble = () => {
+                        if (bubbleWrapper && bubbleWrapper.style.display !== 'none') {
+                            bubbleWrapper.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                            bubbleWrapper.style.opacity = '0';
+                            setTimeout(() => { bubbleWrapper.style.display = 'none'; }, 400);
+                            localStorage.setItem('seen_milkshake_guide', 'true');
+                        }
+                    };
+
+                    if (!hasSeenGuide && bubbleWrapper) {
+                        bubbleWrapper.style.display = 'block';
+                        const autoHide = setTimeout(dismissBubble, 10000);
+                        btnMilkshake.addEventListener('click', () => { clearTimeout(autoHide); dismissBubble(); });
+                    }
+                });
+            </script>
+
+            <script>
+                function toggleSubmenu(event, submenuId) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    
+                    const submenu = document.getElementById(submenuId);
+                    
+                    // Tutup menu lain jika sedang terbuka
+                    document.querySelectorAll('.dropup-popover').forEach(el => {
+                        if (el.id !== submenuId) el.classList.remove('show');
+                    });
+
+                    submenu.classList.toggle('show');
+                }
+
+                // Tutup popover otomatis jika mengeklik di luar menu
+                document.addEventListener('click', function(e) {
+                    const popover = document.getElementById('submenu-pengajuan');
+                    if (popover && !popover.contains(e.target)) {
+                        popover.classList.remove('show');
+                    }
+                });
+            </script>
+        </div>
+    </body>
+</html>

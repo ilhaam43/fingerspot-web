@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Jadwal Shift — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 46px;
+            padding: 0 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: border 0.15s, box-shadow 0.15s;
+        }
+
+        .form-input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+            background: white;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            margin-bottom: 6px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            background: #f8fafc;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .drop-zone:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .drop-zone.active {
+            border-color: #2563eb;
+            background: #dbeafe;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        {% include 'components/sidebar.html' %}
+
+        <div id="content"
+            class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 p-6 overflow-y-auto">
+                <div class="max-w-xl mx-auto py-4">
+
+                    <!-- Page header -->
+                    <div class="mb-6">
+                        <div class="flex items-center gap-3 mb-1">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center shadow-sm">
+                                <i class="fas fa-calendar-alt text-white text-base"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-xl font-bold text-gray-900">Upload Jadwal Shift</h1>
+                                <p class="text-xs text-gray-500">Unggah file Excel untuk memperbarui jadwal shift
+                                    personil</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info notice -->
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 mb-6 text-sm text-blue-800">
+                        <i class="fas fa-info-circle shrink-0 mt-0.5 text-blue-500"></i>
+                        <div>
+                            <p class="font-semibold">Format file yang didukung: <span class="font-bold">.xlsx</span> dan
+                                <span class="font-bold">.xls</span></p>
+                            <p class="text-blue-600 mt-0.5 text-xs">Pastikan kolom header sesuai template yang telah
+                                ditentukan.</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Card -->
+                    <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden"
+                        style="box-shadow: 0 4px 24px rgba(0,0,0,0.06);">
+                        <div class="px-6 py-5 border-b border-gray-100 bg-slate-50/60">
+                            <h2 class="text-sm font-bold text-gray-900">Konfigurasi Upload</h2>
+                            <p class="text-xs text-gray-500 mt-0.5">Lengkapi semua field sebelum memproses data</p>
+                        </div>
+
+                        <form action="{{ url_for('upload_jadwal_shift.upload_jadwal_shift') }}" method="POST"
+                            enctype="multipart/form-data" class="p-6 space-y-5" onsubmit="return prepareStartDate()">
+
+                            <!-- Month Picker -->
+                            <div>
+                                <label class="form-label">Bulan Jadwal</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                                    <input type="month" id="monthPicker" name="monthPicker" required
+                                        class="form-input pl-10">
+                                </div>
+                            </div>
+                            <input type="hidden" id="startDate" name="startDate">
+
+                            <!-- Division Select -->
+                            <div>
+                                <label class="form-label">Divisi Target</label>
+                                <div class="relative">
+                                    <i
+                                        class="fas fa-building absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                                    <select name="division" id="division" required
+                                        class="form-input pl-10 pr-10 appearance-none">
+                                        <option value="" disabled selected>Pilih divisi...</option>
+                                        <option value="ALL">Semua Divisi</option>
+                                        <option value="HDTI">HDTI</option>
+                                        <option value="HDBS">HDBS</option>
+                                        <option value="QAQC">QAQC</option>
+                                        <option value="TA">TA</option>
+                                        <option value="HDTI-HDBS">HDTI - HDBS</option>
+                                        <option value="QAQC-TA">QAQC - TA</option>
+                                    </select>
+                                    <i
+                                        class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- File Drop Zone -->
+                            <div>
+                                <label class="form-label">File Excel</label>
+                                <div class="drop-zone p-8 text-center" id="dropZone"
+                                    onclick="document.getElementById('file').click()">
+                                    <div id="drop-idle">
+                                        <div
+                                            class="w-14 h-14 bg-emerald-50 border-2 border-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                            <i class="fas fa-file-excel text-emerald-600 text-2xl"></i>
+                                        </div>
+                                        <p class="text-gray-900 font-semibold text-sm mb-1">Klik untuk pilih file Excel
+                                        </p>
+                                        <p class="text-gray-400 text-xs" id="file-name">.xlsx, .xls — Maks. 10 MB</p>
+                                    </div>
+                                    <input id="file" name="file" type="file" accept=".xlsx,.xls" class="sr-only"
+                                        required>
+                                </div>
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="pt-1">
+                                <button type="submit"
+                                    class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm hover:shadow">
+                                    <i class="fas fa-upload"></i> Proses & Preview Data
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set default month to current
+        document.addEventListener('DOMContentLoaded', function () {
+            const monthPicker = document.getElementById('monthPicker');
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            monthPicker.value = `${year}-${month}`;
+        });
+
+        function prepareStartDate() {
+            const monthPicker = document.getElementById('monthPicker');
+            const startDateInput = document.getElementById('startDate');
+            const [year, month] = monthPicker.value.split('-');
+            startDateInput.value = `${year}-${month}-01`;
+            return true;
+        }
+
+        // File drag & drop handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('file');
+        const fileNameEl = document.getElementById('file-name');
+
+        fileInput.addEventListener('change', function () {
+            if (this.files[0]) {
+                fileNameEl.textContent = this.files[0].name;
+                fileNameEl.classList.add('text-emerald-700', 'font-semibold');
+                dropZone.classList.add('active');
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('active');
+            });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('active');
+                if (e.type === 'drop' && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileNameEl.textContent = e.dataTransfer.files[0].name;
+                    fileNameEl.classList.add('text-emerald-700', 'font-semibold');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

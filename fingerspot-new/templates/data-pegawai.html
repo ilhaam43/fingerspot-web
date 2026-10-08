@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pegawai — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50:'#ecfeff',100:'#cffafe',500:'#06b6d4',600:'#0891b2',700:'#0e7490' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .scrollbar-styled::-webkit-scrollbar { width: 5px; height: 5px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* SweetAlert Customization */
+        .swal2-popup { border-radius: 1rem; font-family: 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .swal2-title { font-size: 1.25rem; font-weight: 700; color: #111827; }
+        .swal2-confirm { background-color: #0891b2 !important; border-radius: 0.5rem !important; font-weight: 600; }
+        .swal2-cancel { border-radius: 0.5rem !important; font-weight: 600; }
+
+        /* Table Styling */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; white-space: nowrap; }
+        .data-table thead { background: #f8fafc; position: sticky; top: 0; z-index: 10; }
+        .data-table th { padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 2px solid #e2e8f0; }
+        .data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; background: white; }
+        .data-table tbody tr:nth-child(even) { background: #fafafa; }
+        .data-table tbody tr:hover { background: #ecfeff !important; }
+        /* Active highlight for row that was just edited */
+        .data-table tbody tr.highlighted-row { background: #cffafe !important; }
+        .data-table td { padding: 10px 16px; color: #111827; font-weight: 500; }
+        
+        /* Action buttons */
+        .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
+        .btn-edit { background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
+        .btn-edit:hover { background: #14b8a6; color: white; border-color: #14b8a6; }
+        .btn-delete { background: #fff1f2; color: #be123c; border: 1px solid #ffe4e6; }
+        .btn-delete:hover { background: #f43f5e; color: white; border-color: #f43f5e; }
+    </style>
+</head>
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        {% include 'components/sidebar.html' %}
+
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 p-4 md:p-6 overflow-hidden flex flex-col gap-4">
+                
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 24px rgba(0,0,0,0.04);">
+                    
+                    <!-- Header Section -->
+                    <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50 shrink-0">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-cyan-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Manajemen Pegawai</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">Kelola data identitas, divisi, dan status akun semua pegawai.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0 flex-wrap">
+
+                            <a href="{{ url_for('pegawai.tambah_pegawai') }}" class="px-5 py-2.5 bg-cyan-600 text-white font-bold rounded-xl hover:bg-cyan-700 transition-all flex items-center gap-2 shadow-sm hover:shadow text-sm">
+                                <i class="fas fa-plus"></i> Tambah Pegawai
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Table Section -->
+                    <div class="overflow-auto scrollbar-styled flex-1 relative">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center w-12">ID</th>
+                                    <th class="text-center">PIN</th>
+                                    <th class="text-center">NIP</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Alias</th>
+                                    <th class="text-center">NIK</th>
+                                    <th>Divisi</th>
+                                    <th>Fungsi</th>
+                                    <th class="text-center">Status</th>
+                                    <th>Tim</th>
+                                    <th class="text-center w-24">Sisa Cuti</th>
+                                    <th class="text-center w-28">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for peg in pegawai %}
+                                <tr data-row-id="{{ peg.pegawai_id }}">
+                                    <td class="text-center font-mono text-gray-500">{{ peg.pegawai_id }}</td>
+                                    <td class="text-center font-mono text-gray-500">{{ peg.pegawai_pin }}</td>
+                                    <td class="text-center font-mono font-bold text-cyan-700">{{ peg.pegawai_nip }}</td>
+                                    <td class="font-bold text-gray-900">{{ peg.pegawai_nama }}</td>
+                                    <td class="text-gray-500">{{ peg.pegawai_alias or '-' }}</td>
+                                    <td class="text-center font-mono text-gray-500">{{ peg.pegawai_nik_lintas or '-' }}</td>
+                                    <td><span class="px-2 py-1 rounded bg-gray-100 text-[11px] font-semibold text-gray-600 border border-gray-200">{{ peg.pembagian1_nama or '-' }}</span></td>
+                                    <td><span class="text-[12px] font-medium text-gray-700">{{ peg.pembagian2_nama or '-' }}</span></td>
+                                    <td class="text-center">
+                                        {% if peg.pegawai_status == 1 %}
+                                            <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-emerald-100 text-emerald-700 border border-emerald-200">Aktif</span>
+                                        {% elif peg.pegawai_status == 3 %}
+                                            <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-amber-100 text-amber-700 border border-amber-200">Wait Reset</span>
+                                        {% elif peg.pegawai_status == 4 %}
+                                            <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-blue-100 text-blue-700 border border-blue-200">New Pass</span>
+                                        {% else %}
+                                            <span class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-rose-100 text-rose-700 border border-rose-200">Non-Aktif</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="text-[12px] font-medium text-gray-700">{{ peg.pembagian3_nama or '-' }}</span></td>
+                                    <td class="text-center">
+                                        <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-900 font-bold border border-gray-200">
+                                            {{ peg.sisa_cuti or '0' }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <a href="{{ url_for('pegawai.edit_pegawai', pegawai_id=peg.pegawai_id) }}" class="edit-button btn-action btn-edit" title="Edit Pegawai">
+                                                <i class="fas fa-pen text-xs"></i>
+                                            </a>
+                                            <form action="{{ url_for('pegawai.hapus_pegawai', pegawai_id=peg.pegawai_id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data pegawai ini secara permanen?')">
+                                                <button type="submit" class="btn-action btn-delete" title="Hapus Pegawai">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Footer Info (Optional, keeping it clean) -->
+                    <div class="px-6 py-3 border-t border-gray-100 bg-slate-50/50 shrink-0">
+                        <p class="text-xs font-semibold text-gray-500">Total: <span class="text-gray-900 font-bold">{{ pegawai|length }}</span> pegawai terdaftar.</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollableElement = document.querySelector('.scrollbar-styled');
+            const editButtons = document.querySelectorAll('.edit-button');
+            const resetPasswordBtn = document.getElementById('reset-password-btn');
+
+            // Handle scroll position and highlight persistence after edit
+            const savedScrollPosition = localStorage.getItem('pegawaiScrollPosition');
+            const highlightedRowIds = JSON.parse(localStorage.getItem('pegawaiHighlightedRowIds')) || [];
+
+            if (savedScrollPosition && scrollableElement) {
+                // Short delay to ensure rendering is complete before scrolling
+                setTimeout(() => {
+                    scrollableElement.scrollLeft = parseInt(savedScrollPosition, 10);
+                }, 50);
+                localStorage.removeItem('pegawaiScrollPosition');
+            }
+
+            highlightedRowIds.forEach(rowId => {
+                const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+                if (row) {
+                    row.classList.add('highlighted-row');
+                    // Remove highlight after a few seconds
+                    setTimeout(() => {
+                        row.classList.remove('highlighted-row');
+                        localStorage.removeItem('pegawaiHighlightedRowIds');
+                    }, 3000);
+                }
+            });
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const row = button.closest('tr');
+                    const rowId = row.getAttribute('data-row-id');
+                    
+                    localStorage.setItem('pegawaiHighlightedRowIds', JSON.stringify([rowId]));
+                    if(scrollableElement) {
+                        localStorage.setItem('pegawaiScrollPosition', scrollableElement.scrollLeft);
+                    }
+                    setTimeout(() => {
+                        window.location.href = button.href;
+                    }, 50);
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>

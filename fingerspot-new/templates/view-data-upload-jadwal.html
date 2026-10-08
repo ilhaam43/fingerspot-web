@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Jadwal Shift — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .scrollbar-styled {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .scrollbar-styled::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        .scrollbar-styled::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        tbody tr:hover {
+            background: #f0f7ff !important;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        {% include 'components/sidebar.html' %}
+
+        <div id="content"
+            class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 px-4 py-3 overflow-hidden flex flex-col">
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col"
+                    style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+
+                    <!-- Header -->
+                    <div
+                        class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/60 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center shrink-0">
+                                <i class="fas fa-eye text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-gray-900">Preview Data Shift Personil</h2>
+                                <p class="text-xs text-gray-500 mt-0.5">Periksa data sebelum di simpan</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <form action="{{ url_for('upload_jadwal_shift.upload_jadwal_shift') }}" method="get">
+                                <button type="submit"
+                                    class="px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                                    <i class="fas fa-arrow-left text-xs"></i> Kembali
+                                </button>
+                            </form>
+                            <form id="formSimpanJadwal" method="POST" action="{{ url_for('upload_jadwal_shift.update_jadwal_shift') }}">
+                                <button type="button" onclick="submitSimpanJadwal()"
+                                    class="px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow">
+                                    <i class="fas fa-database text-xs"></i> Simpan Jadwal
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Row count banner -->
+                    <div class="px-6 py-2.5 border-b border-gray-100 bg-white flex items-center gap-2 shrink-0">
+                        <i class="fas fa-table text-gray-400 text-xs"></i>
+                        <span class="text-xs text-gray-900 font-semibold">{{ records|length }} baris data siap
+                            diproses</span>
+                        <span
+                            class="ml-auto text-xs text-amber-600 font-semibold bg-amber-50 border border-amber-100 px-2.5 py-0.5 rounded-lg">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> Belum tersimpan di DB
+                        </span>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="overflow-auto scrollbar-styled flex-1 relative">
+                        <table class="w-full text-sm text-left text-gray-900 whitespace-nowrap">
+                            <thead class="sticky top-0 z-10">
+                                <tr
+                                    class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    {% for header in headers %}
+                                    <th class="px-4 py-3.5 text-left">{{ header }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                {% for record in records %}
+                                <tr class="bg-white">
+                                    {% for value in record.values() %}
+                                    <td class="px-4 py-3 text-gray-900 font-medium">{{ value }}</td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function submitSimpanJadwal() {
+            Swal.fire({
+                title: 'Menyimpan...',
+                text: 'Mohon tunggu, jadwal sedang disimpan ke database.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading()
+                }
+            });
+
+            fetch("{{ url_for('upload_jadwal_shift.update_jadwal_shift') }}", {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = "{{ url_for('upload_jadwal_shift.upload_jadwal_shift') }}";
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: data.message,
+                        confirmButtonText: 'Tutup'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    text: 'Tidak dapat terhubung ke server.',
+                    confirmButtonText: 'Tutup'
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

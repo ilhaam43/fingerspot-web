@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Upload DCAP</title>
+</head>
+<body class="bg-gray-100">
+    <div class="relative flex min-h-screen">
+        <div id="content" class="flex-1 flex flex-col">
+            <div class="flex-grow flex items-center justify-center p-4 bg-white">
+                <div class="w-full max-w-xl">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800">Upload Data DCAP</h1>
+                        <p class="text-gray-500 mt-2">Upload file excel DCAP di sini</p>
+                    </div>
+
+                    <form id="upload-form" action="{{ url_for('upload_dcap') }}" method="post" enctype="multipart/form-data" class="space-y-6">
+                        <div>
+                            <label for="file" class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-file-excel mr-2 text-green-500"></i>Pilih File Excel (.xlsx)
+                            </label>
+                            <input 
+                                type="file" 
+                                name="file" 
+                                id="file" 
+                                accept=".xls, .xlsx"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition" required>
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            class="w-full bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg hover:from-green-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center text-base">
+                            <i class="fas fa-upload mr-2"></i>Upload Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jam Kerja Khusus — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50:'#ecfeff',100:'#cffafe',500:'#06b6d4',600:'#0891b2',700:'#0e7490' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .scrollbar-styled::-webkit-scrollbar { width: 5px; height: 5px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* SweetAlert Customization */
+        .swal2-popup { border-radius: 1rem; font-family: 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .swal2-title { font-size: 1.25rem; font-weight: 700; color: #111827; }
+        .swal2-confirm { background-color: #0891b2 !important; border-radius: 0.5rem !important; font-weight: 600; }
+        .swal2-cancel { border-radius: 0.5rem !important; font-weight: 600; }
+
+        /* Table Styling */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; white-space: nowrap; }
+        .data-table thead { background: #f8fafc; position: sticky; top: 0; z-index: 10; }
+        .data-table th { padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 2px solid #e2e8f0; }
+        .data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; background: white; }
+        .data-table tbody tr:nth-child(even) { background: #fafafa; }
+        .data-table tbody tr:hover { background: #ecfeff !important; }
+        .data-table td { padding: 10px 16px; color: #111827; font-weight: 500; }
+        
+        /* Action buttons */
+        .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
+        .btn-edit { background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
+        .btn-edit:hover { background: #14b8a6; color: white; border-color: #14b8a6; }
+        .btn-delete { background: #fff1f2; color: #be123c; border: 1px solid #ffe4e6; }
+        .btn-delete:hover { background: #f43f5e; color: white; border-color: #f43f5e; }
+
+        /* Input Styling for SweetAlert Form */
+        .swal-input-group { margin-bottom: 15px; text-align: left; }
+        .swal-input-group label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .swal-input-group input, .swal-input-group select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #1e293b; background-color: #f8fafc; outline: none; transition: all 0.2s; box-sizing: border-box; }
+        .swal-input-group input:focus, .swal-input-group select:focus { border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); background-color: #ffffff; }
+    </style>
+</head>
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden relative">
+
+            <!-- Topbar -->
+            {% include 'components/topbar.html' %}
+
+            <!-- Page Header -->
+            <div class="px-6 py-5 bg-white border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">Jam Kerja Khusus</h1>
+                    <p class="text-sm text-gray-500 mt-1">Kelola jam masuk dan jam pulang khusus per shift & tanggal.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="openModal()" class="h-10 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm shadow-primary-500/30 flex items-center gap-2 whitespace-nowrap">
+                        <i class="fas fa-plus"></i> Tambah Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="flex-1 p-6 overflow-hidden flex flex-col">
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+                    <div class="overflow-auto scrollbar-styled flex-1">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="w-16 text-center">No</th>
+                                    <th>Tanggal</th>
+                                    <th>Shift / Jam Kerja</th>
+                                    <th class="text-center">Masuk Khusus</th>
+                                    <th class="text-center">Pulang Khusus</th>
+                                    <th class="text-center w-24">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if data %}
+                                    {% for row in data %}
+                                    <tr data-id="{{ row['id'] }}">
+                                        <td class="text-center text-gray-500">{{ loop.index }}</td>
+                                        <td class="font-bold text-gray-900" data-tanggal="{{ row['tanggal'].strftime('%Y-%m-%d') }}">
+                                            {{ row['tanggal'].strftime('%d %B %Y') }}
+                                        </td>
+                                        <td data-jk-id="{{ row['jk_id'] }}">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
+                                                    {{ row['jk_name'][:2] }}
+                                                </div>
+                                                <span>{{ row['jk_name'] }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="text-center font-mono text-emerald-600 font-bold" data-masuk="{{ (row['jam_masuk_khusus']|string)[:5] if row['jam_masuk_khusus'] else '' }}">
+                                            {{ (row['jam_masuk_khusus']|string)[:5] if row['jam_masuk_khusus'] else '-' }}
+                                        </td>
+                                        <td class="text-center font-mono text-rose-600 font-bold" data-pulang="{{ (row['jam_pulang_khusus']|string)[:5] if row['jam_pulang_khusus'] else '' }}">
+                                            {{ (row['jam_pulang_khusus']|string)[:5] if row['jam_pulang_khusus'] else '-' }}
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center justify-center gap-2">
+                                                <button onclick="editData(this)" class="btn-action btn-edit" title="Edit Data">
+                                                    <i class="fas fa-edit text-xs"></i>
+                                                </button>
+                                                <button onclick="deleteData({{ row['id'] }})" class="btn-action btn-delete" title="Hapus Data">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-10 text-gray-500">
+                                            <i class="fas fa-inbox text-3xl mb-3 text-gray-300 block"></i>
+                                            Belum ada data jam kerja khusus.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data for JS -->
+    <script>
+        const jamKerjaList = {{ jam_kerja_list | tojson }};
+
+        function getFormHtml(tanggal = '', jk_id = '', masuk = '', pulang = '') {
+            let selectHtml = '<select id="swal-jk_id" class="swal-input-group">\n<option value="">-- Pilih Shift --</option>\n';
+            jamKerjaList.forEach(jk => {
+                selectHtml += `<option value="${jk.jk_id}" ${jk.jk_id == jk_id ? 'selected' : ''}>${jk.jk_name}</option>\n`;
+            });
+            selectHtml += '</select>';
+
+            return `
+                <div class="swal-input-group mt-2">
+                    <label>Tanggal</label>
+                    <input type="date" id="swal-tanggal" value="${tanggal}">
+                </div>
+                <div class="swal-input-group">
+                    <label>Shift / Jam Kerja</label>
+                    ${selectHtml}
+                </div>
+                <div class="swal-input-group">
+                    <label>Jam Masuk Khusus <span class="text-xs text-gray-400 font-normal lowercase">(kosongkan jika tidak ada)</span></label>
+                    <input type="time" id="swal-masuk" value="${masuk}">
+                </div>
+                <div class="swal-input-group">
+                    <label>Jam Pulang Khusus <span class="text-xs text-gray-400 font-normal lowercase">(kosongkan jika tidak ada)</span></label>
+                    <input type="time" id="swal-pulang" value="${pulang}">
+                </div>
+            `;
+        }
+
+        function openModal(id = null, tanggal = '', jk_id = '', masuk = '', pulang = '') {
+            Swal.fire({
+                title: id ? 'Edit Jam Kerja Khusus' : 'Tambah Jam Kerja Khusus',
+                html: getFormHtml(tanggal, jk_id, masuk, pulang),
+                showCancelButton: true,
+                confirmButtonText: 'Simpan Data',
+                cancelButtonText: 'Batal',
+                reverseButtons: true,
+                focusConfirm: false,
+                preConfirm: () => {
+                    const tgl = document.getElementById('swal-tanggal').value;
+                    const jk = document.getElementById('swal-jk_id').value;
+                    if (!tgl || !jk) {
+                        Swal.showValidationMessage('Tanggal dan Shift wajib diisi');
+                        return false;
+                    }
+                    return {
+                        id: id,
+                        tanggal: tgl,
+                        jk_id: jk,
+                        jam_masuk_khusus: document.getElementById('swal-masuk').value,
+                        jam_pulang_khusus: document.getElementById('swal-pulang').value
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    saveData(result.value);
+                }
+            });
+        }
+
+        function editData(btn) {
+            const tr = btn.closest('tr');
+            const id = tr.getAttribute('data-id');
+            const tanggal = tr.querySelector('td[data-tanggal]').getAttribute('data-tanggal');
+            const jk_id = tr.querySelector('td[data-jk-id]').getAttribute('data-jk-id');
+            const masuk = tr.querySelector('td[data-masuk]').getAttribute('data-masuk');
+            const pulang = tr.querySelector('td[data-pulang]').getAttribute('data-pulang');
+            
+            openModal(id, tanggal, jk_id, masuk, pulang);
+        }
+
+        function saveData(data) {
+            Swal.fire({
+                title: 'Menyimpan...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch('{{ url_for("jam_kerja_khusus.simpan") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: response.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire('Gagal!', response.message, 'error');
+                }
+            })
+            .catch(err => {
+                Swal.fire('Kesalahan Server', 'Gagal menghubungi server.', 'error');
+            });
+        }
+
+        function deleteData(id) {
+            Swal.fire({
+                title: 'Hapus Data?',
+                text: "Data jam kerja khusus ini akan dihapus permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e11d48',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+                    fetch('{{ url_for("jam_kerja_khusus.hapus") }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: id })
+                    })
+                    .then(res => res.json())
+                    .then(response => {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Terhapus!',
+                                text: response.message,
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Gagal!', response.message, 'error');
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire('Kesalahan Server', 'Gagal menghubungi server.', 'error');
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

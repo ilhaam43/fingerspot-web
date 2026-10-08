@@ -1,0 +1,232 @@
+<!-- ===== TOPBAR ===== -->
+{% set topbar_title = 'Data Pengajuan Tidak Hadir' %}
+{% set topbar_subtitle = 'Kelola data pengajuan tidak hadir karyawan' %}
+{% set topbar_icon = 'fa-file-alt' %}
+{% set topbar_color = 'bg-blue-500' %}
+
+{% if request.endpoint %}
+    {% if 'upload_jadwal_shift' in request.endpoint %}
+        {% set topbar_title = 'Upload Jadwal Shift' %}
+        {% set topbar_subtitle = 'Upload jadwal shift personil' %}
+        {% set topbar_icon = 'fa-calendar-alt' %}
+        {% set topbar_color = 'bg-emerald-500' %}
+    {% elif 'upload_mesin_lama' in request.endpoint %}
+        {% set topbar_title = 'Mesin Lama' %}
+        {% set topbar_subtitle = 'Upload data absensi mesin lama' %}
+        {% set topbar_icon = 'fa-history' %}
+        {% set topbar_color = 'bg-amber-500' %}
+    {% elif 'data_absen_fingerspot' in request.endpoint %}
+        {% set topbar_title = 'Fingerspot' %}
+        {% set topbar_subtitle = 'Data absen mesin Fingerspot' %}
+        {% set topbar_icon = 'fa-fingerprint' %}
+        {% set topbar_color = 'bg-violet-500' %}
+    {% elif 'dcap' in request.endpoint %}
+        {% set topbar_title = 'DCAP' %}
+        {% set topbar_subtitle = 'Upload & Konversi data DCAP' %}
+        {% set topbar_icon = 'fa-mobile-alt' %}
+        {% set topbar_color = 'bg-orange-500' %}
+    {% elif 'ito' in request.endpoint %}
+        {% set topbar_title = 'Absen ITO' %}
+        {% set topbar_subtitle = 'Upload data keterlambatan ITO' %}
+        {% set topbar_icon = 'fa-mobile' %}
+        {% set topbar_color = 'bg-indigo-500' %}
+    {% elif 'pegawai' in request.endpoint %}
+        {% set topbar_title = 'Data Pegawai' %}
+        {% set topbar_subtitle = 'Manajemen akun & identitas' %}
+        {% set topbar_icon = 'fa-users' %}
+        {% set topbar_color = 'bg-cyan-500' %}
+    {% elif 'jam_kerja_khusus' in request.endpoint %}
+        {% set topbar_title = 'Jam Kerja Khusus' %}
+        {% set topbar_subtitle = 'Override jam masuk & pulang per tanggal' %}
+        {% set topbar_icon = 'fa-clock' %}
+        {% set topbar_color = 'bg-fuchsia-500' %}
+    {% elif 'pengaturan_shift' in request.endpoint %}
+        {% set topbar_title = 'Pengaturan Shift' %}
+        {% set topbar_subtitle = 'Kelola tipe & jam kerja shift' %}
+        {% set topbar_icon = 'fa-user-clock' %}
+        {% set topbar_color = 'bg-sky-500' %}
+    {% elif 'pengaturan_organisasi' in request.endpoint %}
+        {% set topbar_title = 'Pengaturan Organisasi' %}
+        {% set topbar_subtitle = 'Kelola Divisi, Fungsi & Tim' %}
+        {% set topbar_icon = 'fa-sitemap' %}
+        {% set topbar_color = 'bg-teal-500' %}
+    {% elif 'aturan_puasa' in request.endpoint %}
+        {% set topbar_title = 'Aturan Puasa' %}
+        {% set topbar_subtitle = 'Periode & potongan jam pulang' %}
+        {% set topbar_icon = 'fa-moon' %}
+        {% set topbar_color = 'bg-rose-500' %}
+    {% elif 'jadwal_bulanan' in request.endpoint %}
+        {% set topbar_title = 'Jadwal Bulanan' %}
+        {% set topbar_subtitle = 'Rekap jadwal kerja per bulan' %}
+        {% set topbar_icon = 'fa-table' %}
+        {% set topbar_color = 'bg-indigo-500' %}
+    {% endif %}
+{% endif %}
+
+<header class="bg-white/95 backdrop-blur-sm px-5 py-3 flex flex-wrap items-center sticky top-0 z-30 border-b border-gray-100 gap-3"
+    style="box-shadow: 0 1px 12px rgba(0,0,0,0.06);">
+
+    <!-- Left: Hamburger + Page Title -->
+    <div class="flex items-center gap-3 shrink-0">
+        <button onclick="toggleSidebar()"
+            class="w-9 h-9 flex items-center justify-center rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all lg:hidden focus:outline-none">
+            <i class="fas fa-bars text-lg"></i>
+        </button>
+        <div class="hidden md:flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg {{ topbar_color }} flex items-center justify-center">
+                <i class="fas {{ topbar_icon }} text-white text-sm"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold text-gray-900 leading-tight">{{ topbar_title }}</h1>
+                <p class="text-[10px] text-gray-400 leading-tight">{{ topbar_subtitle }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Center: Stats Chips (only on main page) -->
+    {% if stats is defined and records is defined %}
+    <div class="flex items-center gap-1.5 overflow-x-auto flex-1 scrollbar-none min-w-0 py-0.5">
+
+        <div class="stat-chip bg-gray-100 text-gray-700 border-gray-200">
+            <span class="stat-val">{{ records|length }}</span>
+            <span class="stat-lbl">Total</span>
+        </div>
+        <div class="stat-chip bg-emerald-50 text-emerald-700 border-emerald-200">
+            <span class="stat-val">{{ stats.get('H', 0) }}</span>
+            <span class="stat-lbl">H</span>
+        </div>
+        <div class="stat-chip bg-amber-50 text-amber-700 border-amber-200">
+            <span class="stat-val">{{ stats.get('TL', 0) }}</span>
+            <span class="stat-lbl">TL</span>
+        </div>
+        <div class="stat-chip bg-orange-50 text-orange-700 border-orange-200">
+            <span class="stat-val">{{ stats.get('TP', 0) }}</span>
+            <span class="stat-lbl">TP</span>
+        </div>
+        <div class="stat-chip bg-red-50 text-red-700 border-red-200">
+            <span class="stat-val">{{ stats.get('A', 0) }}</span>
+            <span class="stat-lbl">A</span>
+        </div>
+        <div class="stat-chip bg-blue-50 text-blue-700 border-blue-200">
+            <span class="stat-val">{{ stats.get('D', 0) }}</span>
+            <span class="stat-lbl">D</span>
+        </div>
+        <div class="stat-chip bg-violet-50 text-violet-700 border-violet-200">
+            <span class="stat-val">{{ stats.get('CT', 0) }}</span>
+            <span class="stat-lbl">CT</span>
+        </div>
+        <div class="stat-chip bg-purple-50 text-purple-700 border-purple-200">
+            <span class="stat-val">{{ stats.get('S', 0) }}</span>
+            <span class="stat-lbl">S</span>
+        </div>
+        <div class="stat-chip bg-slate-100 text-slate-600 border-slate-200">
+            <span class="stat-val">{{ stats.get('Libur', 0) }}</span>
+            <span class="stat-lbl">Libur</span>
+        </div>
+        <div class="stat-chip bg-slate-100 text-slate-600 border-slate-200">
+            <span class="stat-val">{{ stats.get('LDL', 0) }}</span>
+            <span class="stat-lbl">LDL</span>
+        </div>
+        <div class="stat-chip bg-teal-50 text-teal-700 border-teal-200">
+            <span class="stat-val">{{ stats.get('OT', 0) }}</span>
+            <span class="stat-lbl">OT</span>
+        </div>
+
+    </div>
+    {% else %}
+    <div class="flex-1"></div>
+    {% endif %}
+
+    <!-- Right: Action Buttons -->
+    {% if stats is defined and records is defined %}
+    <div class="flex items-center gap-2 shrink-0">
+
+        <!-- PM Toggle -->
+        <div class="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">PM</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="pmToggle" class="sr-only peer" {% if request.args.get('show_pm', 'off') == 'on' %}checked{% endif %}>
+                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer
+                    peer-checked:after:translate-x-full peer-checked:after:border-white
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                    after:bg-white after:border-gray-300 after:border after:rounded-full
+                    after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600">
+                </div>
+            </label>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="flex items-center gap-1.5">
+            <button onclick="toggleModal(true, 'filterModal')"
+                class="topbar-btn group"
+                title="Filter">
+                <i class="fas fa-filter text-gray-500 group-hover:text-blue-600 transition-colors"></i>
+                <span class="hidden xl:inline text-gray-600 group-hover:text-blue-600 transition-colors font-medium text-sm">Filter</span>
+            </button>
+
+            <button onclick="toggleModal(true, 'exportModal')"
+                class="topbar-btn group"
+                title="Export">
+                <i class="fas fa-file-export text-gray-500 group-hover:text-blue-600 transition-colors"></i>
+                <span class="hidden xl:inline text-gray-600 group-hover:text-blue-600 transition-colors font-medium text-sm">Export</span>
+            </button>
+
+            <button onclick="toggleModal(true, 'reloadModal')"
+                class="topbar-btn group"
+                title="Reload">
+                <i class="fas fa-sync-alt text-gray-500 group-hover:text-blue-600 transition-colors"></i>
+                <span class="hidden xl:inline text-gray-600 group-hover:text-blue-600 transition-colors font-medium text-sm">Reload</span>
+            </button>
+
+        </div>
+
+    </div>
+    {% endif %}
+
+</header>
+
+<style>
+    .stat-chip {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 46px;
+        padding: 4px 8px;
+        border-radius: 10px;
+        border-width: 1px;
+        border-style: solid;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+    .stat-val {
+        font-weight: 700;
+        font-size: 13px;
+        line-height: 1.2;
+    }
+    .stat-lbl {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.7;
+    }
+    .topbar-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        transition: all 0.15s;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        cursor: pointer;
+    }
+    .topbar-btn:hover {
+        background: #f0f7ff;
+        border-color: #bfdbfe;
+    }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+</style>

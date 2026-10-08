@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Absensi Project BI</title>
+    <meta name="description" content="Halaman masuk sistem absensi Project BI Lintasarta.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ══════════════════════════════
+           BACKGROUND  
+        ══════════════════════════════ */
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: stretch;
+            background: #eef4ff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Large blue radial base */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 70% at 20% 10%, rgba(59, 130, 246, 0.18) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 60% at 80% 90%, rgba(99, 102, 241, 0.15) 0%, transparent 55%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(219, 234, 254, 0.6) 0%, #eef4ff 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Subtle mesh grid */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='rgba(59,130,246,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ══════════════════════════════
+           FLOATING DECORATIVE BLOBS  
+        ══════════════════════════════ */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 520px;
+            height: 520px;
+            top: -180px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 65%);
+            filter: blur(40px);
+            animation: blob-drift 12s ease-in-out infinite;
+        }
+
+        .blob-2 {
+            width: 420px;
+            height: 420px;
+            bottom: -120px;
+            right: -80px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 65%);
+            filter: blur(40px);
+            animation: blob-drift 15s ease-in-out infinite reverse;
+        }
+
+        .blob-3 {
+            width: 280px;
+            height: 280px;
+            top: 40%;
+            right: 15%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.14) 0%, transparent 65%);
+            filter: blur(30px);
+            animation: blob-drift 10s ease-in-out infinite 3s;
+        }
+
+        @keyframes blob-drift {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(20px, -30px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-15px, 20px) scale(0.97);
+            }
+        }
+
+        /* ══════════════════════════════
+           MAIN LAYOUT  
+        ══════════════════════════════ */
+        .page-wrapper {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* ──── Left Illustration Panel ──── */
+        .illus-panel {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            width: 50%;
+            padding: 72px 64px;
+            position: relative;
+        }
+
+        .illus-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #2563eb;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        .illus-badge span.dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+            animation: pulse-green 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-green {
+
+            0%,
+            100% {
+                box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+            }
+
+            50% {
+                box-shadow: 0 0 16px rgba(16, 185, 129, 0.8);
+            }
+        }
+
+        .illus-heading {
+            font-size: 44px;
+            font-weight: 900;
+            line-height: 1.12;
+            letter-spacing: -0.03em;
+            color: #0f172a;
+            margin-bottom: 18px;
+        }
+
+        .illus-heading .highlight {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .illus-desc {
+            font-size: 15px;
+            color: #64748b;
+            line-height: 1.75;
+            max-width: 380px;
+            margin-bottom: 44px;
+        }
+
+        /* Stat cards row */
+        .illus-stats {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            padding: 18px 22px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+            min-width: 120px;
+        }
+
+        .stat-card-val {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1e40af;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-card-lbl {
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-top: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Decorative floating cards */
+        .deco-card {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px rgba(37, 99, 235, 0.1), inset 0 1px 0 #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            animation: deco-float 6s ease-in-out infinite;
+        }
+
+        .deco-card-1 {
+            top: 14%;
+            right: -20px;
+            animation-delay: 0s;
+        }
+
+        .deco-card-2 {
+            bottom: 20%;
+            right: 10px;
+            animation-delay: -3s;
+        }
+
+        @keyframes deco-float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .deco-card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .deco-card-text-main {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .deco-card-text-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-top: 1px;
+        }
+
+        /* ──── Right Form Panel ──── */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+        }
+
+        /* ──── Glass Card ──── */
+        .glass-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 28px;
+            padding: 48px 44px;
+            backdrop-filter: blur(32px);
+            -webkit-backdrop-filter: blur(32px);
+            box-shadow:
+                0 0 0 1px rgba(255, 255, 255, 0.6),
+                0 24px 60px rgba(37, 99, 235, 0.12),
+                0 4px 16px rgba(37, 99, 235, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+            position: relative;
+        }
+
+        /* Thin blue top accent bar */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 32px;
+            right: 32px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #6366f1, transparent);
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* ──── Brand ──── */
+        .brand {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-logo-wrap {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .brand-logo-wrap i {
+            font-size: 28px;
+            color: #fff;
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+            margin-bottom: 6px;
+        }
+
+        .brand-sub {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Divider with label */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(203, 213, 225, 0.6), transparent);
+        }
+
+        .divider span {
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+        }
+
+        /* ──── Error Alert ──── */
+        .alert-error {
+            display: none;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(254, 242, 242, 0.9);
+            border: 1px solid rgba(252, 165, 165, 0.5);
+            border-left: 3px solid #f87171;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(8px);
+        }
+
+        .alert-error.visible {
+            display: flex;
+        }
+
+        .alert-error-icon {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        .alert-error-text {
+            flex: 1;
+            font-size: 13px;
+            color: #dc2626;
+            font-weight: 500;
+        }
+
+        .alert-error-close {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* ──── Form ──── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 7px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 13px;
+            pointer-events: none;
+            transition: color 0.2s;
+            z-index: 1;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 50px;
+            padding: 0 16px 0 44px;
+            background: rgba(248, 250, 252, 0.8);
+            border: 1.5px solid rgba(203, 213, 225, 0.7);
+            border-radius: 14px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.22s;
+            backdrop-filter: blur(8px);
+        }
+
+        .form-input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .form-input:focus {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1), 0 2px 8px rgba(59, 130, 246, 0.08);
+        }
+
+        .form-input:focus~.input-icon,
+        .input-wrapper:focus-within .input-icon {
+            color: #3b82f6;
+        }
+
+        .form-input.has-right {
+            padding-right: 48px;
+        }
+
+        .input-action {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .input-action:hover {
+            color: #64748b;
+        }
+
+        /* ──── Row ──── */
+        .form-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            margin-top: 4px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: #3b82f6;
+            cursor: pointer;
+        }
+
+        .checkbox-label span {
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        /* ──── Submit Button ──── */
+        .btn-submit {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.22s;
+            box-shadow: 0 6px 24px rgba(37, 99, 235, 0.35), 0 2px 6px rgba(37, 99, 235, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.01em;
+        }
+
+        /* Shine effect */
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s;
+        }
+
+        .btn-submit:hover:not(:disabled)::before {
+            left: 160%;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(37, 99, 235, 0.4), 0 4px 12px rgba(37, 99, 235, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        /* ──── Footer ──── */
+        .form-footer {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(203, 213, 225, 0.4);
+        }
+
+        .form-footer p {
+            font-size: 11.5px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* ──── Typewriter ──── */
+        .tw-cursor {
+            display: inline-block;
+            color: #2563eb;
+            animation: tw-blink 0.9s step-end infinite;
+        }
+
+        @keyframes tw-blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* ══════════════════════════════
+           RESPONSIVE  
+        ══════════════════════════════ */
+        @media (min-width: 900px) {
+            .illus-panel {
+                display: flex;
+            }
+
+            .form-panel {
+                padding: 60px 48px;
+            }
+
+            .glass-card {
+                max-width: 440px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .glass-card {
+                border-radius: 22px;
+                padding: 36px 24px;
+            }
+
+            .brand-name {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="page-wrapper">
+
+        <!-- ══ Left Illustration Panel (Desktop only) ══ -->
+        <aside class="illus-panel">
+
+            <!-- Floating deco cards -->
+            <div class="deco-card deco-card-1">
+                <div class="deco-card-icon" style="background: linear-gradient(135deg,#2563eb,#4f46e5);">
+                    <i class="fas fa-fingerprint"></i>
+                </div>
+                <div>
+                    <div class="deco-card-text-main">Pantau Kehadiran</div>
+                    <div class="deco-card-text-sub">Pegawai Lintasarta</div>
+                </div>
+            </div>
+            <div class="deco-card deco-card-2">
+                <div class="deco-card-icon" style="background: linear-gradient(135deg,#0ea5e9,#2563eb);">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div>
+                    <div class="deco-card-text-main">Rekap Absen</div>
+                    <div class="deco-card-text-sub">Sistem Versi 3</div>
+                </div>
+            </div>
+
+            <div class="illus-badge">
+                <span class="dot"></span>
+                Version 3.0
+            </div>
+
+            <h1 class="illus-heading">
+                Sistem<br>
+                <span class="highlight">Absensi</span><br>
+                Project BI
+            </h1>
+
+            <p class="illus-desc">
+                Sistem absensi untuk memantau, mengecek, dan merekap absen pegawai Lintasarta Project BI.
+            </p>
+
+            <div class="illus-stats">
+                <div class="stat-card">
+                    <div class="stat-card-val">Pantau</div>
+                    <div class="stat-card-lbl">Absen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-val">Cek</div>
+                    <div class="stat-card-lbl">Absen</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-val">Rekap</div>
+                    <div class="stat-card-lbl">Absen</div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- ══ Right Form Panel ══ -->
+        <main class="form-panel">
+            <div class="glass-card">
+
+                <!-- Brand -->
+                <div class="brand">
+                    <div class="brand-logo-wrap">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <h2 class="brand-name">
+                        <span id="tw-text"></span><span class="tw-cursor">|</span>
+                    </h2>
+                    <p class="brand-sub">Masuk ke Sistem Absensi Project BI</p>
+                </div>
+
+                <div class="divider"><span>Silakan Login</span></div>
+
+                <!-- Error Alert -->
+                <div class="alert-error" id="error-toast" role="alert" aria-live="assertive">
+                    <i class="fas fa-exclamation-circle alert-error-icon"></i>
+                    <span class="alert-error-text" id="error-message"></span>
+                    <button class="alert-error-close" id="close-toast" aria-label="Tutup pesan error">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" action="{{ url_for('auth.auth_login') }}" method="POST" novalidate>
+
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username / NIK</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" id="username" name="username" class="form-input"
+                                placeholder="Masukkan username atau NIK" autocomplete="username" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="password" name="password" class="form-input has-right"
+                                placeholder="Masukkan password" autocomplete="current-password" required>
+                            <button type="button" id="togglePassword" class="input-action"
+                                aria-label="Tampilkan atau sembunyikan password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe" name="rememberMe">
+                            <span>Ingat Saya</span>
+                        </label>
+                        <a href="#" id="forgot-password" class="forgot-link">Lupa Password?</a>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn-submit" disabled>
+                        <span id="button-text">Masuk ke Sistem</span>
+                        <span id="button-loading" style="display:none;">Memproses...</span>
+                        <i id="button-icon" class="fas fa-arrow-right" style="font-size:13px;"></i>
+                    </button>
+
+                </form>
+
+                <div class="form-footer">
+                    <p>&copy; 2026 Lintasarta &bull; Project BI &bull; All Rights Reserved</p>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const rememberMeChk = document.getElementById('rememberMe');
+            const submitBtn = document.getElementById('submitBtn');
+            const buttonText = document.getElementById('button-text');
+            const buttonLoading = document.getElementById('button-loading');
+            const buttonIcon = document.getElementById('button-icon');
+            const errorToast = document.getElementById('error-toast');
+            const errorMessage = document.getElementById('error-message');
+            const closeToast = document.getElementById('close-toast');
+            const forgotLink = document.getElementById('forgot-password');
+            const togglePassword = document.getElementById('togglePassword');
+
+            /* ── Typewriter ── */
+            (function () {
+                const phrases = ['Selamat Datang', 'Absensi Project BI', 'Pantau Kehadiran', 'Jangan Sampai Lupa Absen', 'Datang Jangan Lupa Absen', 'Pulang Jangan Lupa Absen', 'Hadir Tepat Waktu', 'Terima Kasih Telah Hadir'];
+                const target = document.getElementById('tw-text');
+                if (!target) return;
+                let phraseIdx = 0, charIdx = 0, deleting = false;
+                const TYPING_SPEED = 60, DELETE_SPEED = 30, PAUSE_END = 2200, PAUSE_START = 400;
+                function tick() {
+                    const current = phrases[phraseIdx];
+                    if (!deleting) {
+                        charIdx++;
+                        target.textContent = current.slice(0, charIdx);
+                        if (charIdx === current.length) { deleting = true; setTimeout(tick, PAUSE_END); return; }
+                        setTimeout(tick, TYPING_SPEED);
+                    } else {
+                        charIdx--;
+                        target.textContent = current.slice(0, charIdx);
+                        if (charIdx === 0) { deleting = false; phraseIdx = (phraseIdx + 1) % phrases.length; setTimeout(tick, PAUSE_START); return; }
+                        setTimeout(tick, DELETE_SPEED);
+                    }
+                }
+                setTimeout(tick, PAUSE_START);
+            })();
+
+            /* ── Enable / disable submit ── */
+            function updateSubmitBtn() {
+                submitBtn.disabled = !(usernameInput.value.trim().length > 0 && passwordInput.value.length > 0);
+            }
+
+            /* ── Error handling ── */
+            function showError(msg) { errorMessage.textContent = msg; errorToast.classList.add('visible'); }
+            function hideError() { errorToast.classList.remove('visible'); }
+
+            {% if error %}
+            showError("{{ error }}");
+            {% endif %}
+
+            usernameInput.addEventListener('input', () => { updateSubmitBtn(); hideError(); });
+            passwordInput.addEventListener('input', () => { updateSubmitBtn(); hideError(); });
+            closeToast.addEventListener('click', hideError);
+
+            /* ── Remember Me ── */
+            const savedUser = localStorage.getItem('rememberedUsername');
+            const savedPass = localStorage.getItem('rememberedPassword');
+            if (savedUser) {
+                usernameInput.value = savedUser;
+                if (savedPass) passwordInput.value = savedPass;
+                rememberMeChk.checked = true;
+                updateSubmitBtn();
+            }
+            rememberMeChk.addEventListener('change', function () {
+                if (!this.checked) { localStorage.removeItem('rememberedUsername'); localStorage.removeItem('rememberedPassword'); }
+            });
+
+            /* ── Toggle password ── */
+            togglePassword.addEventListener('click', function () {
+                const isPass = passwordInput.type === 'password';
+                passwordInput.type = isPass ? 'text' : 'password';
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye', !isPass);
+                icon.classList.toggle('fa-eye-slash', isPass);
+            });
+
+            /* ── Submit ── */
+            form.addEventListener('submit', function (e) {
+                const errors = [];
+                if (usernameInput.value.trim().length < 3) errors.push('Username minimal 4 karakter.');
+                if (passwordInput.value.length < 6) errors.push('Password minimal 6 karakter.');
+                if (errors.length > 0) { e.preventDefault(); showError(errors.join(' ')); return; }
+                if (rememberMeChk.checked) {
+                    localStorage.setItem('rememberedUsername', usernameInput.value);
+                    localStorage.setItem('rememberedPassword', passwordInput.value);
+                }
+                buttonText.style.display = 'none';
+                buttonLoading.style.display = 'inline';
+                buttonIcon.style.display = 'none';
+                submitBtn.disabled = true;
+            });
+
+            /* ── Lupa Password ── */
+            forgotLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Lupa Password?',
+                    html: `
+                    <div style="margin-top:16px;display:flex;flex-direction:column;gap:14px;text-align:left;">
+                        <div>
+                            <label style="display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px;">4 Digit Belakang NIP Lintasarta</label>
+                            <input type="text" id="nip" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-family:Inter,sans-serif;outline:none;" placeholder="Contoh: 1234">
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:13px;font-weight:600;color:#334155;margin-bottom:6px;">NIP Lengkap Lintasarta</label>
+                            <input type="text" id="card_id" style="width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-family:Inter,sans-serif;outline:none;" placeholder="Contoh: 99123456">
+                        </div>
+                    </div>`,
+                    showCancelButton: true,
+                    confirmButtonText: 'Kirim Permintaan',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#94a3b8',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const nip = Swal.getPopup().querySelector('#nip').value;
+                        const card_id = Swal.getPopup().querySelector('#card_id').value;
+                        if (!nip || !card_id) { Swal.showValidationMessage('Mohon isi semua kolom.'); return false; }
+                        return { nip, card_id };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const { nip, card_id } = result.value;
+                        fetch("{{ url_for('auth.auth_forgot_password') }}", {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nip, card_id })
+                        }).then(r => r.json()).then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Perbarui Password kamu',
+                                    allowOutsideClick: false,
+                                    html: `
+                                    <p style="font-size:13.5px;color:#64748b;margin-bottom:20px;line-height:1.6;">Silakan masukkan password baru untuk NIP: ${nip}.<br><span style="font-size:12px;color:#ef4444;">*Minimal 6 karakter, 1 huruf besar, 1 angka & 1 karakter khusus.</span></p>
+                                    <div style="display:flex;flex-direction:column;gap:14px;text-align:left;">
+                                        <div style="position:relative;"><input type="password" id="forgot_new_password" style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-family:Inter,sans-serif;outline:none;" placeholder="Password Baru"><button type="button" class="toggle-swal-pass" data-target="forgot_new_password" style="position:absolute;right:0;top:0;height:100%;width:44px;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;"><i class="fas fa-eye"></i></button></div>
+                                        <div style="position:relative;"><input type="password" id="forgot_confirm_password" style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-family:Inter,sans-serif;outline:none;" placeholder="Konfirmasi Password Baru"><button type="button" class="toggle-swal-pass" data-target="forgot_confirm_password" style="position:absolute;right:0;top:0;height:100%;width:44px;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;"><i class="fas fa-eye"></i></button></div>
+                                    </div>`,
+                                    showCancelButton: true, confirmButtonText: 'Simpan Password', cancelButtonText: 'Batal', confirmButtonColor: '#2563eb', cancelButtonColor: '#94a3b8',
+                                    didOpen: () => {
+                                        const popup = Swal.getPopup();
+                                        popup.querySelectorAll('.toggle-swal-pass').forEach(btn => {
+                                            btn.addEventListener('click', function (e) {
+                                                e.preventDefault();
+                                                const input = popup.querySelector('#' + this.getAttribute('data-target'));
+                                                const icon = this.querySelector('i');
+                                                const isPass = input.type === 'password';
+                                                input.type = isPass ? 'text' : 'password';
+                                                icon.classList.toggle('fa-eye', !isPass);
+                                                icon.classList.toggle('fa-eye-slash', isPass);
+                                            });
+                                        });
+                                    },
+                                    preConfirm: () => {
+                                        const newPwd = Swal.getPopup().querySelector('#forgot_new_password').value;
+                                        const confirmPwd = Swal.getPopup().querySelector('#forgot_confirm_password').value;
+                                        if (!newPwd || !confirmPwd) { Swal.showValidationMessage('Semua field harus diisi.'); return false; }
+                                        if (newPwd.length < 6 || !/[A-Z]/.test(newPwd) || !/[0-9]/.test(newPwd) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPwd)) { Swal.showValidationMessage('Password harus minimal 6 karakter, 1 huruf besar, 1 angka dan 1 karakter khusus.'); return false; }
+                                        if (newPwd !== confirmPwd) { Swal.showValidationMessage('Password tidak cocok.'); return false; }
+                                        return newPwd;
+                                    }
+                                }).then((pwdResult) => {
+                                    if (pwdResult.isConfirmed) {
+                                        fetch("{{ url_for('auth.auth_direct_reset_password') }}", {
+                                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ nip, card_id, new_password: pwdResult.value })
+                                        }).then(r2 => r2.json()).then(data2 => {
+                                            Swal.fire({ icon: data2.success ? 'success' : 'error', title: data2.success ? 'Berhasil!' : 'Gagal', text: data2.message || data2.error, confirmButtonColor: '#2563eb' });
+                                        });
+                                    }
+                                });
+                            } else {
+                                Swal.fire({ icon: 'error', title: 'Gagal', text: data.error, confirmButtonColor: '#2563eb' });
+                            }
+                        });
+                    }
+                });
+            });
+
+            /* ── Force Reset Password ── */
+            {% if force_reset %}
+            Swal.fire({
+                title: 'Perbarui Password kamu',
+                allowOutsideClick: false,
+                html: `
+                <p style="font-size:13.5px;color:#64748b;margin-bottom:20px;line-height:1.6;">Demi keamanan akun, silakan perbarui password kamu sebelum melanjutkan.<br><span style="font-size:12px;color:#ef4444;">*Minimal 6 karakter, 1 huruf besar, 1 angka & 1 karakter khusus.</span></p>
+                <div style="display:flex;flex-direction:column;gap:14px;text-align:left;">
+                    <div style="position:relative;"><input type="password" id="new_password" style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-family:Inter,sans-serif;outline:none;" placeholder="Password Baru"><button type="button" class="toggle-swal-pass" data-target="new_password" style="position:absolute;right:0;top:0;height:100%;width:44px;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;"><i class="fas fa-eye"></i></button></div>
+                    <div style="position:relative;"><input type="password" id="confirm_password" style="width:100%;padding:10px 44px 10px 14px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;font-family:Inter,sans-serif;outline:none;" placeholder="Konfirmasi Password"><button type="button" class="toggle-swal-pass" data-target="confirm_password" style="position:absolute;right:0;top:0;height:100%;width:44px;background:none;border:none;color:#94a3b8;cursor:pointer;font-size:14px;"><i class="fas fa-eye"></i></button></div>
+                </div>`,
+                confirmButtonText: 'Simpan Password',
+                confirmButtonColor: '#2563eb',
+                didOpen: () => {
+                    Swal.getPopup().querySelectorAll('.toggle-swal-pass').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const input = Swal.getPopup().querySelector('#' + btn.dataset.target);
+                            const icon = btn.querySelector('i');
+                            const isPass = input.type === 'password';
+                            input.type = isPass ? 'text' : 'password';
+                            icon.classList.toggle('fa-eye', !isPass);
+                            icon.classList.toggle('fa-eye-slash', isPass);
+                        });
+                    });
+                },
+                preConfirm: () => {
+                    const new_pass = Swal.getPopup().querySelector('#new_password').value;
+                    const conf_pass = Swal.getPopup().querySelector('#confirm_password').value;
+                    if (!new_pass || !conf_pass) { Swal.showValidationMessage('Kolom password wajib diisi.'); return false; }
+                    if (new_pass !== conf_pass) { Swal.showValidationMessage('Konfirmasi password tidak cocok.'); return false; }
+                    return { new_password: new_pass, confirm_password: conf_pass };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch("{{ url_for('auth.auth_set_new_password') }}", {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(result.value)
+                    }).then(r => r.json()).then(data => {
+                        if (data.success && data.redirect) {
+                            Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Password berhasil diperbarui. Mengalihkan...', timer: 1500, showConfirmButton: false })
+                                .then(() => { window.location.href = data.redirect; });
+                        } else {
+                            Swal.fire('Error', data.error || data.message, 'error');
+                        }
+                    });
+                }
+            });
+            {% endif %}
+        });
+    </script>
+</body>
+
+</html>

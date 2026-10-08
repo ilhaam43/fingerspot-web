@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cek Data Fingerspot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen p-6">
+
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6 text-center">📋 Cek Data Fingerspot</h1>
+
+    <form method="get" action="{{ url_for('cek_fingerspot') }}" class="bg-white p-6 rounded-xl shadow-md mb-8 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <div>
+        <label class="block text-sm font-medium mb-1">Tanggal Awal</label>
+        <input type="date" name="tanggal_awal" required
+               value="{{ request.args.get('tanggal_awal', '') }}"
+               class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Tanggal Akhir</label>
+        <input type="date" name="tanggal_akhir" required
+               value="{{ request.args.get('tanggal_akhir', '') }}"
+               class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Nama Pegawai</label>
+        <input type="text" name="nama" list="nama-list"
+               placeholder="Cari Nama..."
+               value="{{ request.args.get('nama', '') }}"
+               class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+        <datalist id="nama-list">
+          {% for n in daftar_nama %}
+            <option value="{{ n }}">
+          {% endfor %}
+        </datalist>
+      </div>
+
+      <div>
+        <button type="submit"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow">
+          🔍 Cari
+        </button>
+      </div>
+    </form>
+
+  
+    {% if filter_aktif %}
+      {% if data %}
+        <div class="bg-white rounded-xl shadow-md overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">NIP</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Scan Date</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Verify Mode</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {% for row in data %}
+              <tr>
+                <td class="px-4 py-2 whitespace-nowrap">{{ row.nama or '—' }}</td>
+                <td class="px-4 py-2 whitespace-nowrap">{{ row.nip or '—' }}</td>
+                <td class="px-4 py-2 whitespace-nowrap">{{ row.scan_date }}</td>
+                <td class="px-4 py-2 whitespace-nowrap">{{ row.verifymode }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-center text-red-500 font-semibold mt-4">⚠️ Tidak ada data ditemukan untuk filter yang dipilih.</p>
+      {% endif %}
+    {% else %}
+      <p class="text-center text-gray-500 italic">💡 Silakan pilih tanggal dan nama pegawai untuk menampilkan data.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

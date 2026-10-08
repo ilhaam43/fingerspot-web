@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Pengajuan Cuti - APBI</title>
+    <style>
+        .dropdown-container {
+            position: relative;
+        }
+        .dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+        .dropdown-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+        input[type="date"]:disabled {
+            background-color: #f9fafb;
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-2xl w-full space-y-8">
+            <div class="text-center">
+                <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Form Cuti</h2>
+                <p class="mt-2 text-sm text-gray-600">Silakan isi form  cuti di bawah ini</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-4 py-3 rounded">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="bg-white shadow-xl rounded-lg p-8">
+                <form method="POST" class="space-y-6">
+                    <div>
+                        <label for="nomor_surat" class="block text-sm font-medium text-gray-700">Nomor Surat</label>
+                        <input type="text" name="nomor_surat" id="nomor_surat" readonly value="{{ nomor_surat_preview }}" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500">
+                        <p class="text-xs text-gray-500 mt-1">Nomor surat akan dibuat auto</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="kategori_cuti" class="block text-sm font-medium text-gray-700">Kategori Cuti</label>
+                            <select name="kategori_cuti" id="kategori_cuti" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Kategori Cuti</option>
+                                <option value="CT">Cuti Tahunan (CT)</option>
+                                <option value="CTD">Cuti Mendadak (CTD)</option>
+                                <option value="CTX">Cuti Extra (CTX)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="tim" class="block text-sm font-medium text-gray-700">Tim</label>
+                            <select name="tim" id="tim" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Tim ({{ divisi_user }})</option>
+                                {% for tim in tim_list %}
+                                    <option value="{{ tim.tim_nama }}">{{ tim.tim_nama }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="personil_backup" class="block text-sm font-medium text-gray-700">Personil Backup</label>
+                        <div class="dropdown-container">
+                            <input type="text" name="personil_backup" id="personil_backup" required autocomplete="off" placeholder="Ketik nama buat mencari..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <div id="personil_dropdown" class="dropdown-list">
+                                {% for pegawai in pegawai_list %}
+                                    <div class="dropdown-item" data-value="{{ pegawai.pegawai_nama }}">{{ pegawai.pegawai_nama }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="alasan" class="block text-sm font-medium text-gray-700">Alasannya <span class="text-xs text-gray-500">(maksimal 90 karakter)</span></label>
+                        <textarea name="alasan" id="alasan" rows="3" maxlength="90" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Jelasin alasan pengajuan cuti"></textarea>
+                        <div class="text-xs text-gray-500 mt-1"><span id="char_count">0</span>/90 karakter</div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="nama_mengetahui" class="block text-sm font-medium text-gray-700">Nama yang Mengetahui (SPV/Pimpinan BI)</label>
+                            <select name="nama_mengetahui" id="nama_mengetahui" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Nama yang Mengetahui</option>
+                                {% for nama in nama_mengetahui_list %}
+                                    <option value="{{ nama.nama }}">{{ nama.nama }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label for="nama_menyetujui" class="block text-sm font-medium text-gray-700">Nama yang Menyetujui (PM)</label>
+                            <select name="nama_menyetujui" id="nama_menyetujui" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">Pilih Nama yang Menyetujui</option>
+                                {% for nama in nama_menyetujui_list %}
+                                    <option value="{{ nama.nama }}">{{ nama.nama }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="tanggal_cuti_mulai" class="block text-sm font-medium text-gray-700">Tanggal Mulai Cuti</label>
+                            <input type="date" name="tanggal_cuti_mulai" id="tanggal_cuti_mulai" required disabled max="2026-07-06" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-xs text-gray-500 mt-1" id="start_date_help">Pilih kategori cuti terlebih dahulu</p>
+                            <div id="start_date_info" class="text-xs text-blue-600 mt-1" style="display: none;"></div>
+                        </div>
+                        <div>
+                            <label for="tanggal_cuti_akhir" class="block text-sm font-medium text-gray-700">Tanggal Akhir Cuti</label>
+                            <input type="date" name="tanggal_cuti_akhir" id="tanggal_cuti_akhir" required disabled max="2026-07-06" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-xs text-gray-500 mt-1" id="end_date_help">Pilih kategori cuti terlebih dahulu</p>
+                            <div id="end_date_info" class="text-xs text-blue-600 mt-1" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Sisa Cuti Tersedia</label>
+                                <p class="text-lg font-semibold text-gray-900" id="sisa_cuti_display">{{ sisa_cuti }} hari</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Cuti Yang Diambil</label>
+                                <p class="text-lg font-semibold text-gray-900" id="hari_cuti_display">0 hari</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Sisa Setelah Cuti</label>
+                                <p class="text-lg font-semibold" id="sisa_setelah_cuti_display">{{ sisa_cuti }} hari</p>
+                            </div>
+                        </div>
+                        <div id="warning_message" class="mt-3 text-red-600 text-sm font-medium" style="display: none;">Peringatan: Cuti yang diambil melebihi sisa cuti yang tersedia</div>
+                        {% if is_special_employee %}
+                        <div class="mt-3 text-blue-600 text-sm font-medium">Info: Sebagai pegawai BI-FAST, libur khusus kamu enggak akan dihitung sebagai hari cuti</div>
+                        {% else %}
+                        <div class="mt-3 text-blue-600 text-sm font-medium">Info: Libur kamu enggak akan dihitung sebagai hari cuti</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="flex items-center justify-between pt-6">
+                        <a href="/kalender-cuti" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Kembali</a>
+                        <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="text-center">
+                <p class="text-sm text-gray-500">Pastiin semua data sudah benar sebelum submit</p>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal Popup untuk Email setelah Submit Pengajuan -->
+<div id="emailModalPengajuan" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <div class="text-center mb-4">
+            <div class="mx-auto w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                <i class="fas fa-check text-green-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Pengajuan Berhasil</h3>
+            <p class="text-sm text-gray-600 mt-2">Mau kirim file form cuti PDF ini ke email? (biasanya pada buat print dikantor)</p>
+        </div>
+        
+        <div class="mb-4">
+            <label for="emailPengajuanInput" class="block text-sm font-medium text-gray-700 mb-2">Email Tujuan :</label>
+            <input type="email" id="emailPengajuanInput" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                   placeholder="demo@example.com">
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+            <button onclick="skipEmailPengajuan()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors">
+                Enggak Usah
+            </button>
+            <button onclick="kirimEmailPengajuan()" id="kirimEmailPengajuanBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                <span id="kirimEmailPengajuanText">Kirim Email</span>
+                <i id="kirimEmailPengajuanLoadingIcon" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+{% if pengajuan_berhasil %}
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        Buat form berhasil, sisa cuti kamu sekarang : {{ sisa_cuti_baru }} hari
+    </div>
+{% endif %}
+
+    <script>
+        const sisaCutiAwal = {{ sisa_cuti }};
+        const liburNasionalData = {{ libur_nasional_data | tojson }};
+        const isSpecialEmployee = {{ is_special_employee | tojson }};
+        const specialLiburData = {{ special_libur_data | tojson }};
+        const regularLiburData = {{ regular_libur_data | tojson }};
+        let kategoriCutiSelected = '';
+        
+        function isLiburNasional(dateString) {
+            return dateString in liburNasionalData;
+        }
+        
+        function isSpecialLibur(dateString) {
+            return dateString in specialLiburData;
+        }
+        
+        function isRegularLibur(dateString) {
+            return dateString in regularLiburData;
+        }
+        
+        function getDateInfo(dateString) {
+            const selectedDate = new Date(dateString);
+            const dayOfWeek = selectedDate.getDay();
+            let info = '';
+            
+            if (isSpecialEmployee && isSpecialLibur(dateString)) {
+                info = 'Hari: ' + specialLiburData[dateString];
+            } else if (!isSpecialEmployee && isRegularLibur(dateString)) {
+                info = 'Hari: ' + regularLiburData[dateString];
+            } else if (dayOfWeek === 0) {
+                info = 'Hari: Minggu';
+            } else if (dayOfWeek === 6) {
+                info = 'Hari: Sabtu';
+            } else if (isLiburNasional(dateString)) {
+                info = 'Hari: ' + liburNasionalData[dateString];
+            }
+            
+            return info;
+        }
+        
+        document.getElementById('kategori_cuti').addEventListener('change', function() {
+            kategoriCutiSelected = this.value;
+            const startDateInput = document.getElementById('tanggal_cuti_mulai');
+            const endDateInput = document.getElementById('tanggal_cuti_akhir');
+            const startDateHelp = document.getElementById('start_date_help');
+            const endDateHelp = document.getElementById('end_date_help');
+            
+            if (kategoriCutiSelected) {
+                startDateInput.disabled = false;
+                endDateInput.disabled = false;
+                startDateInput.classList.remove('bg-gray-50', 'text-gray-400');
+                endDateInput.classList.remove('bg-gray-50', 'text-gray-400');
+                
+                if (kategoriCutiSelected === 'CT' || kategoriCutiSelected === 'CTD') {
+                    startDateHelp.textContent = 'Bebas untuk kategori CTX (enggak mengurangi sisa cuti)';
+                    endDateHelp.textContent = 'Bebas untuk kategori CTX (enggak mengurangi sisa cuti)';
+                }
+            } else {
+                startDateInput.disabled = true;
+                endDateInput.disabled = true;
+                startDateInput.value = '';
+                endDateInput.value = '';
+                startDateInput.classList.add('bg-gray-50', 'text-gray-400');
+                endDateInput.classList.add('bg-gray-50', 'text-gray-400');
+                startDateHelp.textContent = 'Pilih kategori cuti terlebih dahulu';
+                endDateHelp.textContent = 'Pilih kategori cuti terlebih dahulu';
+                document.getElementById('start_date_info').style.display = 'none';
+                document.getElementById('end_date_info').style.display = 'none';
+                updateCutiInfo();
+            }
+        });
+        
+        function highlightWeekends() {
+            const dateInputs = [
+                {id: 'tanggal_cuti_mulai', infoId: 'start_date_info'},
+                {id: 'tanggal_cuti_akhir', infoId: 'end_date_info'}
+            ];
+            
+            dateInputs.forEach(function(inputObj) {
+                const input = document.getElementById(inputObj.id);
+                const infoDiv = document.getElementById(inputObj.infoId);
+                
+                input.addEventListener('input', function() {
+                    const selectedDate = new Date(this.value);
+                    const dayOfWeek = selectedDate.getDay();
+                    const dateString = this.value;
+                    const dateInfo = getDateInfo(dateString);
+                    
+                    if (dateInfo) {
+                        if (isSpecialEmployee && isSpecialLibur(dateString)) {
+                            this.style.backgroundColor = '#dcfce7';
+                            this.style.borderColor = '#16a34a';
+                            infoDiv.textContent = dateInfo + ' (enggak dihitung sebagai cuti)';
+                            infoDiv.style.display = 'block';
+                            this.title = 'Libur BI-FAST - enggak dihitung sebagai hari cuti';
+                        } else if (!isSpecialEmployee && isRegularLibur(dateString)) {
+                            this.style.backgroundColor = '#dcfce7';
+                            this.style.borderColor = '#16a34a';
+                            infoDiv.textContent = dateInfo + ' (enggak dihitung sebagai cuti)';
+                            infoDiv.style.display = 'block';
+                            this.title = 'Libur - enggak dihitung sebagai hari cuti';
+                        } else if (!isSpecialEmployee && (dayOfWeek === 0 || dayOfWeek === 6 || isLiburNasional(dateString))) {
+                            this.style.backgroundColor = '#fee2e2';
+                            this.style.borderColor = '#dc2626';
+                            infoDiv.textContent = dateInfo;
+                            infoDiv.style.display = 'block';
+                            
+                            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                                this.title = 'Weekend - enggak dihitung sebagai hari cuti';
+                            } else if (isLiburNasional(dateString)) {
+                                this.title = 'Hari libur/cuti nasional - enggak dihitung sebagai hari cuti';
+                            }
+                        } else if (isSpecialEmployee) {
+                            this.style.backgroundColor = '';
+                            this.style.borderColor = '';
+                            this.title = '';
+                            infoDiv.textContent = dateInfo + ' (tetap dihitung untuk pegawai BI-FAST)';
+                            infoDiv.style.display = 'block';
+                        } else {
+                            this.style.backgroundColor = '';
+                            this.style.borderColor = '';
+                            this.title = '';
+                            infoDiv.style.display = 'none';
+                        }
+                    } else {
+                        this.style.backgroundColor = '';
+                        this.style.borderColor = '';
+                        this.title = '';
+                        infoDiv.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        function validateMaxDays() {
+            const startDate = document.getElementById('tanggal_cuti_mulai').value;
+            const endDate = document.getElementById('tanggal_cuti_akhir').value;
+            
+            if (startDate && endDate && (kategoriCutiSelected === 'CT' || kategoriCutiSelected === 'CTD')) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                
+                if (end >= start) {
+                    let hariKerja = 0;
+                    const currentDate = new Date(start);
+                    
+                    while (currentDate <= end) {
+                        const dateString = currentDate.toISOString().split('T')[0];
+                        
+                        if (isSpecialEmployee) {
+                            if (!isSpecialLibur(dateString)) {
+                                hariKerja++;
+                            }
+                        } else {
+                            const dayOfWeek = currentDate.getDay();
+                            
+                            if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isLiburNasional(dateString) && !isRegularLibur(dateString)) {
+                                hariKerja++;
+                            }
+                        }
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                    
+                    if (hariKerja > 2) {
+                        alert('Kategori ' + kategoriCutiSelected + ' maksimal 2 hari kerja, kamu memilih ' + hariKerja + ' hari kerja');
+                        document.getElementById('tanggal_cuti_akhir').value = '';
+                        document.getElementById('end_date_info').style.display = 'none';
+                        updateCutiInfo();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function updateCutiInfo() {
+            const startDate = document.getElementById('tanggal_cuti_mulai').value;
+            const endDate = document.getElementById('tanggal_cuti_akhir').value;
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                
+                if (end >= start) {
+                    let hariCuti = 0;
+                    const currentDate = new Date(start);
+                    
+                    while (currentDate <= end) {
+                        const dateString = currentDate.toISOString().split('T')[0];
+                        
+                        if (isSpecialEmployee) {
+                            if (!isSpecialLibur(dateString)) {
+                                hariCuti++;
+                            }
+                        } else {
+                            const dayOfWeek = currentDate.getDay();
+                            
+                            if (dayOfWeek !== 0 && dayOfWeek !== 6 && !isLiburNasional(dateString) && !isRegularLibur(dateString)) {
+                                hariCuti++;
+                            }
+                        }
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                    
+                    let hariPengurangan = 0;
+                    if (kategoriCutiSelected === 'CT' || kategoriCutiSelected === 'CTD') {
+                        hariPengurangan = hariCuti;
+                    }
+                    
+                    const sisaSetelahCuti = sisaCutiAwal - hariPengurangan;
+                    
+                    document.getElementById('hari_cuti_display').textContent = hariCuti + ' hari';
+                    document.getElementById('sisa_setelah_cuti_display').textContent = sisaSetelahCuti + ' hari';
+                    
+                    const sisaDisplay = document.getElementById('sisa_setelah_cuti_display');
+                    const warningMessage = document.getElementById('warning_message');
+                    
+                    if (kategoriCutiSelected === 'CTX') {
+                        warningMessage.style.display = 'none';
+                        sisaDisplay.className = 'text-lg font-semibold text-gray-900';
+                    } else if (sisaSetelahCuti < 0) {
+                        sisaDisplay.className = 'text-lg font-semibold text-red-600';
+                        warningMessage.style.display = 'block';
+                    } else {
+                        sisaDisplay.className = 'text-lg font-semibold text-gray-900';
+                        warningMessage.style.display = 'none';
+                    }
+                } else {
+                    resetCutiDisplay();
+                }
+            } else {
+                resetCutiDisplay();
+            }
+        }
+        
+        function resetCutiDisplay() {
+            document.getElementById('hari_cuti_display').textContent = '0 hari';
+            document.getElementById('sisa_setelah_cuti_display').textContent = sisaCutiAwal + ' hari';
+            document.getElementById('sisa_setelah_cuti_display').className = 'text-lg font-semibold text-gray-900';
+            document.getElementById('warning_message').style.display = 'none';
+        }
+
+        document.getElementById('tanggal_cuti_mulai').addEventListener('change', function() {
+            const startDate = this.value;
+            const endDateInput = document.getElementById('tanggal_cuti_akhir');
+            endDateInput.min = startDate;
+            
+            if (endDateInput.value && endDateInput.value < startDate) {
+                endDateInput.value = startDate;
+            }
+            
+            updateCutiInfo();
+        });
+
+        document.getElementById('tanggal_cuti_akhir').addEventListener('change', function() {
+            if (!validateMaxDays()) {
+                return;
+            }
+            updateCutiInfo();
+        });
+
+        const alasanInput = document.getElementById('alasan');
+        const charCount = document.getElementById('char_count');
+        
+        alasanInput.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+
+        const personilInput = document.getElementById('personil_backup');
+        const personilDropdown = document.getElementById('personil_dropdown');
+        const dropdownItems = personilDropdown.querySelectorAll('.dropdown-item');
+
+        personilInput.addEventListener('focus', function() {
+            personilDropdown.style.display = 'block';
+        });
+
+        personilInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            let hasVisibleItems = false;
+
+            dropdownItems.forEach(function(item) {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    hasVisibleItems = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            personilDropdown.style.display = hasVisibleItems ? 'block' : 'none';
+        });
+
+        dropdownItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                personilInput.value = this.getAttribute('data-value');
+                personilDropdown.style.display = 'none';
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!personilInput.contains(e.target) && !personilDropdown.contains(e.target)) {
+                personilDropdown.style.display = 'none';
+            }
+        });
+        
+        highlightWeekends();
+
+        let idCutiTerbaru = null;
+
+        function showEmailModalPengajuan(idCuti) {
+            idCutiTerbaru = idCuti;
+            document.getElementById('emailModalPengajuan').classList.remove('hidden');
+            document.getElementById('emailPengajuanInput').focus();
+        }
+
+        function skipEmailPengajuan() {
+            document.getElementById('emailModalPengajuan').classList.add('hidden');
+            document.getElementById('emailPengajuanInput').value = '';
+            idCutiTerbaru = null;
+        }
+
+        function kirimEmailPengajuan() {
+            const email = document.getElementById('emailPengajuanInput').value.trim();
+            
+            if (!email) {
+                alert('Email tujuan harus diisi!');
+                return;
+            }
+            
+            if (!idCutiTerbaru) {
+                alert('ID cuti tidak ditemukan!');
+                return;
+            }
+            
+            const kirimBtn = document.getElementById('kirimEmailPengajuanBtn');
+            const kirimText = document.getElementById('kirimEmailPengajuanText');
+            const loadingIcon = document.getElementById('kirimEmailPengajuanLoadingIcon');
+            
+            kirimBtn.disabled = true;
+            kirimText.textContent = 'Mengirim...';
+            loadingIcon.classList.remove('hidden');
+            
+            fetch(`/kirim-email-pengajuan-cuti/${idCutiTerbaru}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    skipEmailPengajuan();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat mengirim email');
+            })
+            .finally(() => {
+                kirimBtn.disabled = false;
+                kirimText.textContent = 'Kirim Email';
+                loadingIcon.classList.add('hidden');
+            });
+        }
+
+        // Auto show modal jika pengajuan berhasil
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if pengajuan_berhasil and id_cuti_baru %}
+                setTimeout(function() {
+                    showEmailModalPengajuan({{ id_cuti_baru }});
+                }, 500);
+            {% endif %}
+        });
+
+    </script>
+</body>
+</html>

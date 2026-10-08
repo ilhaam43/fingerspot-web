@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Absensi - APBI</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2 class="text-center">Cek Absensi Pegawai</h2>
+
+     
+        <form method="POST" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="tanggal_awal" class="form-label">Tanggal Awal:</label>
+                    <input type="date" class="form-control" name="tanggal_awal">
+                </div>
+                <div class="col-md-4">
+                    <label for="tanggal_akhir" class="form-label">Tanggal Akhir:</label>
+                    <input type="date" class="form-control" name="tanggal_akhir">
+                </div>
+                <div class="col-md-4">
+                    <label for="nama_pegawai" class="form-label">Nama Pegawai:</label>
+                    <select class="form-control select2" name="nama_pegawai">
+                        <option value="">Pilih Nama Pegawai</option>
+                        {% for nama in nama_pegawai_list %}
+                            <option value="{{ nama }}">{{ nama }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Filter</button>
+        </form>
+
+        {% if data %}
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tanggal Absen</th>
+                        <th>Nama Pegawai</th>
+                        <th>Masuk</th>
+                        <th>Pulang</th>
+                        <th>Masuk Real</th>
+                        <th>Pulang Real</th>
+                        <th>TL</th>
+                        <th>TP</th>
+                        <th>Jumlah Jam Kerja</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in data %}
+                        <tr>
+                            <td>{{ row.id }}</td>
+                            <td>{{ row.tanggal_absen }}</td>
+                            <td>{{ row.nama_pegawai }}</td>
+                            <td>{{ row.masuk }}</td>
+                            <td>{{ row.pulang }}</td>
+                            <td>{{ row.masuk_real }}</td>
+                            <td>{{ row.pulang_real }}</td>
+                            <td>{{ row.tl }}</td>
+                            <td>{{ row.tp }}</td>
+                            <td>{{ row.jumlah_jam_kerja }}</td>
+                            <td>{{ row.keterangan }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-center">Silakan pilih filter untuk menampilkan data absensi.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: "Cari nama pegawai",
+                allowClear: true
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil Upload Mesin Lama — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .scrollbar-styled {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .scrollbar-styled::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        .scrollbar-styled::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* Injected pandas table — full override to black text, clean rows */
+        .injected-table {
+            width: 100%;
+        }
+
+        .injected-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+            color: #111827;
+            text-align: left;
+            white-space: nowrap;
+            table-layout: fixed;
+        }
+
+        .injected-table thead {
+            background: #f1f5f9;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .injected-table th,
+        .injected-table td {
+            padding: 11px 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .injected-table th {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #374151;
+        }
+
+        .injected-table tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.1s;
+            background: white;
+        }
+
+        .injected-table tbody tr:hover {
+            background: #f0f7ff !important;
+        }
+
+        .injected-table tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .injected-table td {
+            color: #111827;
+            font-weight: 500;
+        }
+
+        /* Column widths & alignment — col 1=NO, 2=NIP, 3=NAMA, 4=TGL, 5=SCAN IN, 6=SCAN OUT */
+        .injected-table th:nth-child(1),
+        .injected-table td:nth-child(1) {
+            width: 60px;
+            text-align: center;
+        }
+
+        .injected-table th:nth-child(2),
+        .injected-table td:nth-child(2) {
+            width: 90px;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .injected-table th:nth-child(3),
+        .injected-table td:nth-child(3) {
+            width: 220px;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .injected-table th:nth-child(4),
+        .injected-table td:nth-child(4) {
+            width: 130px;
+            text-align: center;
+        }
+
+        .injected-table th:nth-child(5),
+        .injected-table td:nth-child(5) {
+            width: 175px;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        .injected-table th:nth-child(6),
+        .injected-table td:nth-child(6) {
+            width: 175px;
+            text-align: center;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        {% include 'components/sidebar.html' %}
+
+        <div id="content"
+            class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 px-4 py-3 overflow-hidden flex flex-col gap-3">
+
+                <!-- Status banner — data sudah tersimpan -->
+                <div
+                    class="bg-emerald-50 border border-emerald-200 rounded-xl px-5 py-3 flex items-center gap-4 shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0">
+                        <i class="fas fa-check text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-bold text-emerald-900">Data berhasil tersimpan!</p>
+                        <p class="text-xs text-emerald-700 mt-0.5">
+                            File <span class="font-bold">{{ filename }}</span> sudah diproses dan disinkronkan ke tabel
+                            <span class="font-bold">Data Absen</span>.
+                        </p>
+                    </div>
+                    <!-- Stats pills -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <div class="bg-white border border-emerald-200 rounded-lg px-3 py-1.5 text-center">
+                            <p class="text-base font-black text-emerald-700">{{ total_rows }}</p>
+                            <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wide">Total Baris</p>
+                        </div>
+                        <div class="bg-white border border-blue-200 rounded-lg px-3 py-1.5 text-center">
+                            <p class="text-base font-black text-blue-700">{{ inserted }}</p>
+                            <p class="text-[10px] font-bold text-blue-500 uppercase tracking-wide">Insert Baru</p>
+                        </div>
+                        <div class="bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-center">
+                            <p class="text-base font-black text-amber-700">{{ updated }}</p>
+                            <p class="text-[10px] font-bold text-amber-500 uppercase tracking-wide">Diperbarui</p>
+                        </div>
+                        {% if skipped > 0 %}
+                        <div class="bg-white border border-red-200 rounded-lg px-3 py-1.5 text-center">
+                            <p class="text-base font-black text-red-600">{{ skipped }}</p>
+                            <p class="text-[10px] font-bold text-red-400 uppercase tracking-wide">NIP Skip</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Table card -->
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col"
+                    style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+
+                    <!-- Header -->
+                    <div
+                        class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/60 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center shrink-0">
+                                <i class="fas fa-table text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-gray-900">Data Scan Absensi yang Diproses</h2>
+                                <p class="text-xs text-gray-500 mt-0.5">
+                                    <span class="font-semibold text-blue-700">{{ filename }}</span>
+                                    &nbsp;·&nbsp; {{ total_rows }} baris data
+                                </p>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('upload_mesin_lama.upload_csv_mesin_lama') }}"
+                            class="px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all flex items-center gap-2 shadow-sm shrink-0">
+                            <i class="fas fa-upload text-xs"></i> Upload File Lain
+                        </a>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="overflow-auto scrollbar-styled flex-1 relative">
+                        <div class="injected-table">
+                            {{ tables|safe }}
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div
+                        class="px-6 py-2.5 border-t border-gray-100 bg-emerald-50/50 shrink-0 rounded-b-2xl flex items-center gap-2">
+                        <i class="fas fa-check-circle text-emerald-500 text-xs"></i>
+                        <p class="text-sm text-gray-700 font-medium">
+                            <span class="text-emerald-700 font-bold">{{ inserted }}</span> record baru ditambahkan
+                            &nbsp;·&nbsp;
+                            <span class="text-amber-700 font-bold">{{ updated }}</span> record diperbarui &nbsp;·&nbsp;
+                            Data sudah tersimpan permanen di database.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

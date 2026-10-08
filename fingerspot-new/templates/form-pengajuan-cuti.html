@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Form Pengajuan Cuti - APBI</title>
+    <meta name="description" content="Leave Request Form">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" type="text/css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<link href="https://cdn.0-rc.0/dist/css/select2.min.css">
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+<link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ══ BACKGROUND ══ */
+        body {
+            min-height: 100vh;
+            background: #eef4ff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 50% at 85% 100%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+                linear-gradient(180deg, #eef4ff 0%, #f0f5ff 100%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='rgba(59,130,246,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ══ LAYOUT ══ */
+        .page-content {
+            position: relative;
+            z-index: 1;
+            padding: 0 0 104px;
+            min-height: 100vh;
+        }
+
+        /* ══ PAGE HEADER ══ */
+        .page-header {
+            padding: 20px 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .page-header-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+        }
+
+        .page-header-icon i {
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .page-header-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+        }
+
+        .page-header-sub {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* ══ SECTION ══ */
+        .section {
+            padding: 0 16px;
+            margin-bottom: 14px;
+        }
+
+        /* ══ GLASS CARD ══ */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 16px rgba(37, 99, 235, 0.07), inset 0 1px 0 #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            right: 24px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f59e0b, #f97316, transparent);
+        }
+
+        .card-body {
+            padding: 22px 18px;
+        }
+
+        /* ══ INFO BANNER ══ */
+        .info-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 18px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #92400e;
+            line-height: 1.55;
+        }
+
+        .info-banner i {
+            color: #f59e0b;
+            font-size: 14px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        /* ══ FORM ELEMENTS ══ */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 800;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 7px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .select-chevron {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            height: 48px;
+            padding: 0 40px 0 14px;
+            background: #ffffff;
+            border: 1.5px solid rgba(203, 213, 225, 0.6);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: #0f172a;
+            outline: none;
+            transition: all 0.2s;
+            appearance: none;
+        }
+
+        .form-input {
+            padding: 0 14px;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            background: #ffffff;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+        }
+
+        /* Grid 2 cols */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* ══ BUTTONS ══ */
+        .btn-check {
+            width: 100%;
+            height: 50px;
+            margin-top: 6px;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-check::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s;
+        }
+
+        .btn-check:hover:not(:disabled)::before {
+            left: 160%;
+        }
+
+        .btn-check:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .btn-check:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .btn-swap {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-swap::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: skewX(-20deg);
+            transition: left 0.5s;
+        }
+
+        .btn-swap:hover::before {
+            left: 160%;
+        }
+
+        .btn-swap:active {
+            transform: scale(0.98);
+        }
+
+        /* ══ PREVIEW SECTION ══ */
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .preview-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+        }
+
+        .preview-range {
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            background: rgba(241, 245, 249, 0.8);
+            border: 1px solid rgba(226, 232, 240, 0.6);
+            border-radius: 100px;
+            padding: 3px 10px;
+        }
+
+        /* Schedule day card */
+        .day-card {
+            background: rgba(255, 255, 255, 0.75);
+            border: 1.5px solid rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            padding: 0;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 2px 12px rgba(37, 99, 235, 0.06), inset 0 1px 0 #fff;
+            margin-bottom: 10px;
+            animation: fadeIn 0.2s ease-out;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hari aktif: garis tepi kiri ijo */
+        .day-card.active-card {
+            border-left: 4px solid #f59e0b;
+        }
+
+        /* Hari non-aktif: visual redup */
+        .day-card.disabled {
+            border-left: 4px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .day-card.disabled .day-card-content {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .day-status-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
+        }
+
+        .badge-swap {
+            background: rgba(245, 158, 11, 0.12);
+            color: #d97706;
+        }
+
+        .badge-oneway {
+            background: rgba(99, 102, 241, 0.12);
+            color: #4f46e5;
+        }
+
+        .badge-skip {
+            background: rgba(226, 232, 240, 0.6);
+            color: #94a3b8;
+        }
+
+        .day-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 16px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        .day-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            flex-grow: 1;
+        }
+
+        .day-name span {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .day-card-body {
+            padding: 12px 16px;
+        }
+
+        /* Shift comparison table */
+        .shift-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .shift-table-head {
+            display: grid;
+            grid-template-columns: 46px 1fr 28px 1fr;
+            gap: 6px;
+            padding-bottom: 7px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+        }
+
+        .col-head {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        .shift-table-row {
+            display: grid;
+            grid-template-columns: 46px 1fr 28px 1fr;
+            gap: 6px;
+            align-items: center;
+            padding: 4px 0;
+        }
+
+        .shift-table-sep {
+            height: 1px;
+            background: rgba(226, 232, 240, 0.35);
+            margin: 3px 0;
+        }
+
+        .person-tag {
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 3px 0;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .mine-tag {
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+        }
+
+        .partner-tag {
+            background: rgba(245, 158, 11, 0.1);
+            color: #d97706;
+        }
+
+        .shift-cell {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            padding: 5px 10px;
+            background: rgba(241, 245, 249, 0.8);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .shift-cell.shift-changed {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .shift-cell.shift-same {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .table-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        /* Warning text */
+        .swap-warning {
+            font-size: 11px;
+            text-align: center;
+            color: #94a3b8;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        /* ══ ERROR BANNER ══ */
+        .alert-error {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(254, 242, 242, 0.9);
+            border: 1px solid rgba(252, 165, 165, 0.4);
+            border-left: 3px solid #f87171;
+            border-radius: 14px;
+            padding: 14px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #dc2626;
+            margin-bottom: 14px;
+        }
+
+        .alert-error i {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 1px;
+            flex-shrink: 0;
+        }
+
+        /* ══ BOTTOM NAV ══ */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.85);
+            border-top: 1px solid rgba(226, 232, 240, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            z-index: 50;
+            box-shadow: 0 -4px 24px rgba(37, 99, 235, 0.07);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            height: 68px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #94a3b8;
+            font-family: 'Inter', sans-serif;
+            transition: color 0.2s;
+            position: relative;
+            gap: 3px;
+        }
+
+        .nav-item.active {
+            color: #f59e0b;
+        }
+
+        .nav-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .nav-item.active .nav-item-icon {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-item:not(.active):hover .nav-item-icon {
+            background: rgba(241, 245, 249, 0.8);
+            color: #64748b;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* hide scrollbar */
+    </style>
+
+    <style>
+        .submenu {
+            padding-left: 2.5rem;
+            display: none;
+        }
+
+        .submenu-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            color: inherit;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .submenu-icon {
+            margin-right: 10px;
+            width: 16px;
+        }
+
+        .nav-arrow {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        /* Container pembungkus item bottom navbar */
+        .nav-item-dropdown {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Kartu Submenu Melayang */
+        .dropup-popover {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 12px); /* Melayang 12px tepat di atas navbar */
+            left: 50%;
+            transform: translateX(-50%); /* Mengetengahkan menu persis di atas tombol */
+            min-width: 170px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            padding: 6px;
+            z-index: 1000;
+        }
+
+        /* Arrow/Segitiga Kecil Penunjuk ke Bawah */
+        .dropup-popover::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+        }
+
+        .dropup-popover.show {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        /* Item Menu Di Dalam Popover */
+        .popover-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            color: #334155;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 8px;
+            white-space: nowrap;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .popover-item:hover {
+            background-color: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .popover-icon {
+            font-size: 1rem;
+            width: 18px;
+            text-align: center;
+        }
+
+        /* Style Parent Utama saat Aktif */
+        .nav-item.active {
+            color: #2563eb !important; /* Warna teks & ikon jadi biru */
+        }
+
+        .nav-item.active .nav-item-icon i {
+            color: #2563eb !important;
+        }
+
+        /* Style Submenu Item (Child) saat Aktif */
+        .popover-item.active-child {
+            background-color: #eff6ff !important; /* Background biru muda */
+            color: #2563eb !important;             /* Teks & ikon biru utama */
+            font-weight: 600;
+        }
+
+        .popover-item.active-child .popover-icon {
+            color: #2563eb !important;
+        }
+
+        /* Menghilangkan background kebiruan akibat Autofill Browser */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+            -webkit-text-fill-color: #334155 !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }  
+
+        /* Menargetkan semua state readonly pada Flatpickr */
+        #date_range,
+        .flatpickr-input,
+        .flatpickr-input[readonly],
+        .flatpickr-input:disabled,
+        input.form-input[readonly] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #ffffff !important;
+            background: #ffffff !important; /* Memaksa reset background shorthands */
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Styling warna merah untuk tanggal libur/tanggal merah */
+        .flatpickr-day.tanggal-merah {
+            color: #ef4444 !important;
+            font-weight: 600;
+        }
+
+        /* Jika tanggal merah tersebut juga di-disable, warnanya tetap dibuat kemerahan pudar */
+        .flatpickr-day.tanggal-merah.flatpickr-disabled {
+            color: #fca5a5 !important;
+            opacity: 0.7;
+        }
+    </style>
+
+
+<style>
+/* =========================
+   CHOICES.JS CUSTOM STYLE
+   ========================= */
+
+.choices {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+}
+
+.choices__inner {
+    min-height: 48px !important;
+    padding: 6px 12px !important;
+    border: 1.5px solid rgba(203, 213, 225, 0.6) !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    font-size: 14px !important;
+}
+
+/* Text value terpilih */
+.choices__list--single {
+    padding: 4px 0 !important;
+}
+
+.choices__list--single .choices__item {
+    font-size: 14px !important;
+    color: #334155 !important;
+}
+
+/* Search Box */
+.choices__input {
+    width: 100% !important;
+    font-size: 14px !important;
+
+    border: 1.5px solid #858d9a !important;
+    border-radius: 8px !important;
+
+    padding: 8px 12px !important;
+    background: #ffffff !important;
+
+    color: #858d9a !important;
+
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Dropdown */
+.choices__list--dropdown,
+.choices__list[aria-expanded] {
+    position: absolute !important;
+    left: 0 !important;
+
+    width: 100% !important;
+
+    z-index: 99999 !important;
+
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+
+    background: #ffffff !important;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+
+    overflow-y: auto !important;
+    max-height: 260px !important;
+}
+
+/* Item Dropdown */
+.choices__list--dropdown .choices__item,
+.choices__list[aria-expanded] .choices__item {
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+}
+
+/* Hover */
+.choices__item--selectable.is-highlighted {
+    background: #3b82f6 !important;
+    color: #ffffff !important;
+}
+
+/* Arrow */
+.choices[data-type*="select-one"]::after {
+    border-color: #64748b transparent transparent !important;
+}
+
+
+
+/* Scrollbar */
+.choices__list--dropdown::-webkit-scrollbar,
+.choices__list[aria-expanded]::-webkit-scrollbar {
+    width: 8px;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-thumb,
+.choices__list[aria-expanded]::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+}
+
+.choices__list--dropdown::-webkit-scrollbar-track,
+.choices__list[aria-expanded]::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+
+/* Placeholder */
+.choices__placeholder {
+    opacity: .6 !important;
+}
+
+/* Perbaikan Grid */
+.form-group {
+    position: relative;
+}
+
+
+.choices__list--dropdown,
+.choices__list[aria-expanded='false'] {
+    display: none !important;
+}
+
+.choices.is-open .choices__list--dropdown,
+.choices__list[aria-expanded='true'] {
+    display: block !important;
+    border: 2px solid #3b82f6 !important;
+    border-radius: 12px !important;
+}
+
+
+
+/* Sembunyikan item Choose saja */
+.choices__list--dropdown .choices__item--choice[data-value=""],
+.choices__list[aria-expanded] .choices__item--choice[data-value=""] {
+    display: none !important;
+}
+
+/* Warna tulisan Choose jadi hitam */
+.choices__placeholder {
+    color: #000 !important;
+    opacity: 1 !important;
+}
+
+/* Untuk memastikan tulisan value juga hitam */
+.choices__list--single .choices__item {
+    color: #000 !important;
+}
+
+.choices__input::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1 !important;
+}
+
+/* Supervisor dropdown buka ke atas */
+.supervisor-choices {
+    position: relative !important;
+}
+
+.supervisor-choices.is-open .choices__list--dropdown {
+    top: auto !important;
+    bottom: calc(100% + 4px) !important;
+    left: 0 !important;
+    width: 100% !important;
+}
+
+.supervisor-choices.is-flipped .choices__list--dropdown {
+    top: auto !important;
+    bottom: calc(100% + 4px) !important;
+    left: 0 !important;
+    width: 100% !important;
+}
+
+.supervisor-choices .choices__list--dropdown {
+    transform: translateY(0) !important;
+    max-height: 450px !important;
+}
+
+/* Search box tetap tampil */
+.supervisor-choices .choices__list--dropdown .choices__input,
+.supervisor-choices .choices__list[aria-expanded] .choices__input {
+    display: block !important;
+}
+
+/* Hilangkan Warna Focus Hitam */
+* {
+    outline: none !important;
+}
+</style>    
+
+</head>
+
+<body>
+
+    <div class="page-content">
+
+        <!-- ══ PAGE HEADER ══ -->
+        <div class="page-header">
+            <div class="page-header-icon">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div>
+                <div class="page-header-title">Form Pengajuan Cuti</div>
+                <div class="page-header-sub">Ajukan form untuk berbagai kebutuhan</div>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="section">
+            <div class="alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ error }}</span>
+            </div>
+        </div>
+
+        {% else %}
+
+        <!-- ══ FORM CARD ══ -->
+        <div class="section">
+            <div class="glass-card">
+                <div class="card-body">
+                    <div class="info-banner">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Pastikan sudah berkoordinasi dengan rekan yang bersangkutan sebelum melakukan pengajuan form.</span>
+                    </div>
+                    <form id="formPengajuan" action="/form-pengajuan-cuti" method="POST">
+                        <!-- Radio Button Tim Personil -->
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> TIM PERSONIL <span style="color: #ef4444;">*</span>
+                            </label>
+                            <div style="display: flex; gap: 16px; align-items: center;">
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: #334155;">
+                                    <input type="radio" name="tim_personil" value="HDTI" checked style="cursor: pointer;"> HDTI </label>
+                                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: #334155;">
+                                    <input type="radio" name="tim_personil" value="HDBS" style="cursor: pointer;"> HDBS </label>
+                            </div>
+                        </div>
+
+
+
+                        <!-- HDTI -->
+                        <div id="wrapper_hdti">
+
+                            <!-- ROW 1 -->
+                            <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+
+                                <!-- PERSONIL HDTI -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        PERSONIL HDTI (NAMA LENGKAP)
+                                        <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                    <select id="personil_hdti" name="personil_hdti" class="form-select">
+
+                                        <option value="" selected hidden>
+                                            Choose
+                                        </option>
+
+
+                                        {% for personil in data_personil_hdti %}
+                                        <option
+                                            value="{{ personil.pegawai_id }}"
+                                            data-nik="{{ personil.pegawai_nik_lintas }}"
+                                            data-sisa-cuti="{{ personil.sisa_cuti }}"
+                                        >
+                                            {{ personil.pegawai_nama }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- NIK LINTASARTA -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        NIK LINTASARTA <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                        id="nik_lintasarta_hdti"
+                                        name="nik_lintasarta_hdti"
+                                        class="form-input"
+                                        placeholder="Autofill NIK Lintasarta..."
+                                        readonly
+                                        required
+                                        style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff;color:#334155;outline:none;">
+                                </div>
+
+                            </div>
+
+                            <!-- ROW 2 -->
+                            <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+
+                                <!-- TIM HDTI -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        TIM HDTI <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                    <select id="tim_hdti" name="tim_hdti" class="form-select">
+                                        <option value="" selected hidden>Choose</option>
+                                        {% for item in data_tim_hdti %}
+                                        <option value="{{ item.pembagian3_id }}">
+                                            {{ item.pembagian3_nama }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!-- PERSONIL BACKUP HDTI -->
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        PERSONIL BACKUP HDTI (NAMA LENGKAP)
+                                        <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                        <select id="personil_backup_hdti"
+                                        name="personil_backup_hdti"
+                                        class="form-select">
+                                        
+                                        <option value="" selected hidden>
+                                        Choose
+                                        </option>
+
+                                        {% for personil in data_personil_hdti %}
+                                        <option value="{{ personil.pegawai_id }}"
+                                                data-sisa-cuti="{{ personil.sisa_cuti }}">
+                                            {{ personil.pegawai_nama }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- HDBS -->
+                        <div id="wrapper_hdbs" style="display:none;">
+
+                            <!-- ROW 1 -->
+                            <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        PERSONIL HDBS (NAMA LENGKAP)
+                                        <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                    <select id="personil_hdbs" name="personil_hdbs" class="form-select">
+
+                                        <option value="" selected hidden>
+                                        Choose
+                                        </option>
+
+                                        {% for personil in data_personil_hdbs %}
+                                        <option
+                                            value="{{ personil.pegawai_id }}"
+                                            data-nik="{{ personil.pegawai_nik_lintas }}"
+                                            data-sisa-cuti="{{ personil.sisa_cuti }}"
+                                        >
+                                            {{ personil.pegawai_nama }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        NIK LINTASARTA <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                    <input type="text"
+                                        id="nik_lintasarta_hdbs"
+                                        name="nik_lintasarta_hdbs"
+                                        class="form-input"
+                                        placeholder="Autofill NIK Lintasarta..."
+                                        readonly
+                                        required
+                                        style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff;color:#334155;outline:none;">
+                                </div>
+
+                            </div>
+
+                            <!-- ROW 2 -->
+                            <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        TIM HDBS 
+                                        <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                    <select id="tim_hdbs" name="tim_hdbs" class="form-select">
+                                        <option value="" selected hidden>Choose</option>
+                                        {% for item in data_tim_hdbs %}
+                                        <option value="{{ item.pembagian3_id }}">
+                                            {{ item.pembagian3_nama }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                        PERSONIL BACKUP HDBS (NAMA LENGKAP)
+                                        <span style="color:#ef4444">*</span>
+                                    </label>
+
+                                    <select id="personil_backup_hdbs"
+                                            name="personil_backup_hdbs"
+                                            class="form-select">
+                                        <option value="" selected hidden>Choose</option>
+
+                                        {% for personil in data_personil_hdbs %}
+                                        <option value="{{ personil.pegawai_id }}"
+                                                data-sisa-cuti="{{ personil.sisa_cuti }}">
+                                            {{ personil.pegawai_nama }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- ROW 3 : ALAMAT EMAIL & SISA CUTI -->
+                        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                    ALAMAT EMAIL <span style="color:#ef4444">*</span>
+                                </label>
+
+                                <input type="email"
+                                    name="email"
+                                    class="form-input"
+                                    placeholder="demo@example.com"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                    SISA CUTI <span style="color:#ef4444">*</span>
+                                </label>
+
+                                    <input
+                                        type="text"
+                                        id="sisa_cuti"
+                                        name="sisa_cuti"
+                                        class="form-input"
+                                        readonly
+                                        style="
+                                            width:100%;
+                                            padding:10px 14px;
+                                            border:1px solid #cbd5e1;
+                                            border-radius:8px;
+                                            font-size:14px;
+                                            background:#fff;
+                                            color:#334155;
+                                            outline:none;
+                                        ">
+                            </div>
+
+                        </div>
+
+                        <!-- ROW 4 : KATEGORI CUTI & PERIODE TANGGAL -->
+                        <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                    KATEGORI CUTI <span style="color:#ef4444">*</span>
+                                </label>
+
+                                <select id="kategori_cuti"
+                                        name="kategori_cuti"
+                                        class="form-select"
+                                        required>
+                                    <option value="" selected hidden>Choose</option>
+                                    <option value="Cuti Tahunan">Cuti Tahunan</option>
+                                    <option value="Cuti Mendadak">Cuti Mendadak</option>
+                                    <option value="Cuti Extra">Cuti Extra</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;">
+                                    PERIODE TANGGAL <span style="color:#ef4444">*</span>
+                                </label>
+
+                                <input type="text"
+                                    id="date_range"
+                                    name="periode_tanggal"
+                                    class="form-input"
+                                    placeholder="Pilih rentang tanggal..."
+                                    required
+                                    readonly>
+                            </div>
+
+                        </div>
+
+                        <!-- Project Manager & Pimpinan/Supervisor -->
+                        <div class="form-row" style="display: flex; gap: 16px; margin-top: 16px;">
+                            <!-- Project Manager (Dropdown) -->
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> PROJECT MANAGER (NAMA LENGKAP) <span style="color: #ef4444;">*</span>
+                                </label>
+                                <select id="project_manager" name="project_manager" class="form-select" required style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #ffffff; color: #334155; outline: none; cursor: pointer;">
+                                    <option value="" selected hidden>
+                                        Choose
+                                    </option>
+                                    {% for pm in data_project_manager %}
+                                    <option value="{{ pm.pegawai_id }}">
+                                        {{ pm.pegawai_nama }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <!-- Pimpinan/Supervisor -->
+                            <div class="form-group" style="flex: 1;">
+                                <label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> PIMPINAN / SUPERVISOR (NAMA LENGKAP) <span style="color: #ef4444;">*</span>
+                                </label>
+                                <select id="supervisor" name="supervisor" class="form-select" required style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #ffffff; color: #334155; outline: none; cursor: pointer;">
+                                    <option value="" selected hidden>Choose</option> 
+                                    {% for spv in data_supervisor %}
+                                    <option value="{{ spv.id }}">
+                                        {{ spv.nama }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Keterangan (Lebar Penuh) -->
+                        <div class="form-row" style="margin-top: 16px;">
+                            <div class="form-group" style="width: 100%;">
+                                <label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> Keterangan (Alasan) </label>
+                                <textarea name="keterangan" class="form-input" placeholder="Masukkan keterangan atau alasan..." style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #ffffff; color: #334155; outline: none; resize: vertical; min-height: 80px;"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Button Submit & Button Cancel -->
+                        <div class="section" style="margin-top: 20px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <!-- Tombol Submit -->
+                            <button id="btnSubmit" type="submit" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:44px; background:#3b82f6; border:none; border-radius:12px; font-weight:700; color:#ffffff; box-shadow:0 4px 12px rgba(59,130,246,0.3); cursor:pointer; font-size:14px; transition: all 0.2s;">
+                                <i class="fas fa-paper-plane"></i> Submit </button>
+                            <!-- Tombol Cancel -->
+                            <button type="button" onclick="history.back()" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; height:44px; background-color:#ef4444; border:none; border-radius:12px; font-weight:700; color:#ffffff; cursor:pointer; font-size:14px; transition: all 0.2s;">
+                                <i class="fas fa-times"></i> Cancel </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
+        <!-- ══ BOTTOM NAVIGATION ══ -->
+        <nav class="bottom-nav">
+            <!-- Menambahkan inline style grid-template-columns untuk 6 kolom -->
+            <div class="nav-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); width: 100%;">
+
+                <a href="{{ url_for('dashboard_pegawai.dasbor_pegawai') }}" class="nav-item">
+                    <div class="nav-item-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span class="nav-label">Dasbor</span>
+                </a>
+
+                <div class="nav-item" style="position:relative;">
+                    <!-- Milkshake Bubble -->
+                    <div id="milkshake-bubble" style="display:none;">
+                        <div class="bubble-inner">
+                            <div class="bubble-title">Butuh Form?</div>
+                            <div class="bubble-sub">Akses form & layanan lewat Milkshake.</div>
+                        </div>
+                    </div>
+
+                    <a href="https://msha.ke/personilhdti#links" target="_blank" id="btn-milkshake"
+                        style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;height:100%;text-decoration:none;color:#94a3b8;">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <span class="nav-label">Milkshake</span>
+                    </a>
+                </div>
+
+                <a href="{{ url_for('dashboard_pegawai.akun_pegawai') }}" class="nav-item">
+                    <div class="nav-item-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="nav-label">Akun</span>
+                </a>
+
+                <a href="{{ url_for('dashboard_pegawai.tukar_shift_page') }}" class="nav-item">
+                    <div class="nav-item-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <span class="nav-label">Tukar Shift</span>
+                </a>
+
+                <!-- Parent Menu -->
+                <div class="nav-item-dropdown">
+
+                    <div class="dropup-popover" id="submenu-pengajuan">
+
+                        <a href="{{ url_for('view_kalender_ketersediaan_cuti.view_data') }}" 
+                        class="popover-item {% if request.endpoint == 'view_kalender_ketersediaan_cuti.view_data' %}active-child{% endif %}">
+                            <i class="fas fa-calendar-check popover-icon"></i>
+                            <span>Lihat Pengajuan</span>
+                        </a>
+
+                        
+                        <a href="{{ url_for('form_pengajuan_tidakhadir.form_pengajuan') }}" 
+                        class="popover-item {% if request.endpoint == 'form_pengajuan_tidakhadir.form_pengajuan' %}active-child{% endif %}">
+                            <i class="fas fa-user-times popover-icon"></i>
+                            <span>Tidak Hadir</span>
+                        </a>
+                        
+                        <a href="{{ url_for('form_pengajuan_cuti.form_pengajuan') }}"
+                            class="popover-item {% if request.endpoint == 'form_pengajuan_cuti.form_pengajuan' %}active-child{% endif %}">
+                            <i class="fas fa-plane-departure popover-icon"></i>
+                            <span>Cuti</span>
+                        </a>
+                        
+                        <a href="#" class="popover-item">
+                            <i class="fas fa-business-time popover-icon"></i>
+                            <span>Lembur</span>
+                        </a>
+                    </div>
+
+                    <a href="#" class="nav-item {% if 'form_pengajuan' in request.endpoint %} active {% endif %}" onclick="toggleSubmenu(event, 'submenu-pengajuan', this)">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <span class="nav-label">Form Pengajuan</span>
+                    </a>
+                </div>
+
+                <a href="{{ url_for('auth.auth_logout') }}" class="nav-item"
+                    style="color:#f43f5e;" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e'">
+                    <div class="nav-item-icon" style="background:rgba(244,63,94,0.08);">
+                        <i class="fas fa-sign-out-alt" style="color:#f43f5e;"></i>
+                    </div>
+                    <span class="nav-label" style="color:#f43f5e;">Logout</span>
+                </a>
+
+            </div>
+        </nav>
+
+        <!-- JS Flatpickr Utama -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+        <!-- CDN Bahasa Indonesia Flatpickr -->
+        <script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+
+        <!-- CSS Flatpickr -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+
+                const urlParams = new URLSearchParams(window.location.search);
+
+                const status = urlParams.get("status");
+                const message =
+                    decodeURIComponent(
+                        urlParams.get("message") || ""
+                    );
+
+                if (status === "success")
+                {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Berhasil !",
+                        text: "Data pengajuan cuti berhasil diajukan dan disimpan"
+                    });
+                }
+                else if (status === "error")
+                {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Gagal !",
+                        text: message || "Terjadi kesalahan saat menyimpan data pengajuan."
+                    });
+                }
+
+            });
+
+            // Event Listener Submit Form
+            const formPengajuan = document.getElementById('formPengajuan');
+
+            if (formPengajuan) {
+                formPengajuan.addEventListener('submit', function (e) {
+                    console.log('SUBMIT MASUK');
+                    e.preventDefault();
+                    const form = this;
+
+                    const timPersonil = document.querySelector('input[name="tim_personil"]:checked')?.value || '-';
+                    const nikLintasarta = timPersonil === 'HDTI' ? (document.getElementById('nik_lintasarta_hdti')?.value || '-') : (document.getElementById('nik_lintasarta_hdbs')?.value || '-');
+                    const email = document.querySelector('input[name="email"]')?.value || '-';
+
+                    let timSelected = '-';
+                    let personilSelected = '-';
+                    let backupSelected = '-';
+
+                    if (timPersonil === 'HDTI') {
+                        const timElem = document.getElementById('tim_hdti');
+                        const personilElem = document.getElementById('personil_hdti');
+                        const backupElem = document.getElementById('personil_backup_hdti');
+
+                        timSelected = timElem?.options[timElem.selectedIndex]?.text || '-';
+                        personilSelected = personilElem?.options[personilElem.selectedIndex]?.text || '-';
+                        backupSelected = backupElem?.options[backupElem.selectedIndex]?.text || '-';
+                    }
+
+                    else if (timPersonil === 'HDBS') {
+                        const timElem = document.getElementById('tim_hdbs');
+                        const personilElem = document.getElementById('personil_hdbs');
+                        const backupElem = document.getElementById('personil_backup_hdbs');
+
+                        timSelected = timElem?.options[timElem.selectedIndex]?.text || '-';
+                        personilSelected = personilElem?.options[personilElem.selectedIndex]?.text || '-';
+                        backupSelected = backupElem?.options[backupElem.selectedIndex]?.text || '-';
+                    }
+
+                    const kategoriCuti = document.getElementById('kategori_cuti')?.value || '-';
+                    const pmElem = document.getElementById('project_manager') || document.querySelector('select[name="project_manager"]');
+                    const projectManager = pmElem?.options ? pmElem.options[pmElem.selectedIndex]?.text : (pmElem?.value || '-');
+                    const periodeVal = document.querySelector('input[name="periode_tanggal"]')?.value || '';
+                    const sisaCuti = document.getElementById('sisa_cuti')?.value || '-';
+
+                    let tanggalMulai = '-';
+                    let tanggalAkhir = '-';
+
+                    function formatTanggalIndonesia(tanggal) {
+
+                        if (!tanggal || tanggal === '-') {
+                            return '-';
+                        }
+
+                        const parts = tanggal.split('-');
+
+                        if (parts.length !== 3) {
+                            return tanggal;
+                        }
+
+                        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    }
+
+                    if (periodeVal) {
+
+                        const separator = periodeVal.includes(' s/d ')
+                            ? ' s/d '
+                            : ' - ';
+
+                        const splitDates = periodeVal.split(separator);
+
+                        tanggalMulai = splitDates[0]
+                            ? formatTanggalIndonesia(splitDates[0].trim())
+                            : '-';
+
+                        tanggalAkhir = splitDates[1]
+                            ? formatTanggalIndonesia(splitDates[1].trim())
+                            : tanggalMulai;
+                    }
+
+                    const spvElem = document.getElementById('supervisor') || document.querySelector('select[name="supervisor"]');
+                    const supervisor = spvElem?.options ? spvElem.options[spvElem.selectedIndex]?.text : (spvElem?.value || '-');
+                    const keterangan = document.querySelector('textarea[name="keterangan"]')?.value || '-';
+
+                    // VALIDASI BACKUP HDTI
+                    const personilHdti = document.getElementById('personil_hdti');
+                    const backupHdti = document.getElementById('personil_backup_hdti');
+
+                    // VALIDASI BACKUP HDBS
+                    const personilHdbs = document.getElementById('personil_hdbs');
+                    const backupHdbs = document.getElementById('personil_backup_hdbs');
+
+                    if (timPersonil === 'HDTI')
+                    {
+                        if (!personilHdti.value)
+                        {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops !',
+                                text: 'Personil HDTI wajib dipilih.'
+                            });
+                            return;
+                        }
+
+                        if (!backupHdti.value)
+                        {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops !',
+                                text: 'Personil Backup HDTI wajib dipilih.'
+                            });
+                            return;
+                        }
+
+                        if (personilHdti.value === backupHdti.value)
+                        {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops !',
+                                text: 'Personil Backup HDTI tidak boleh sama dengan Personil HDTI.'
+                            });
+                            return;
+                        }
+                    }
+
+                    if (timPersonil === 'HDBS')
+                    {
+                        if (!personilHdbs.value)
+                        {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops !',
+                                text: 'Personil HDBS wajib dipilih.'
+                            });
+                            return;
+                        }
+
+                        if (!backupHdbs.value)
+                        {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops !',
+                                text: 'Personil Backup HDBS wajib dipilih.'
+                            });
+                            return;
+                        }
+
+                        if (personilHdbs.value === backupHdbs.value)
+                        {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Oops !',
+                                text: 'Personil Backup HDBS tidak boleh sama dengan Personil HDBS.'
+                            });
+                            return;
+                        }
+                    }
+
+                    Swal.fire({
+                    title: 'Konfirmasi Pengajuan',
+                    html: `
+                    <div style="text-align:left; color:#334155;">
+                        <hr style="margin:10px 0; border:0; border-top:1px solid #e2e8f0;">
+                        <table style="width:100%; border-collapse:separate; border-spacing:0 4px; font-size:15px; line-height:1.6;">
+                            <tr>
+                                <td style="font-weight:600;width:180px;">Tim Personil</td>
+                                <td style="width:20px;">:</td>
+                                <td>${timPersonil}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">NIK Lintasarta</td>
+                                <td style="width:20px;">:</td>
+                                <td>${nikLintasarta}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Alamat Email</td>
+                                <td style="width:20px;">:</td>
+                                <td style="word-break:break-word;">${email}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Tim ${timPersonil}</td>
+                                <td style="width:20px;">:</td>
+                                <td>${timSelected}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Personil ${timPersonil}</td>
+                                <td style="width:20px;">:</td>
+                                <td>${personilSelected}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Personil Backup</td>
+                                <td style="width:20px;">:</td>
+                                <td>${backupSelected}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Kategori Cuti</td>
+                                <td style="width:20px;">:</td>
+                                <td>${kategoriCuti}</td>
+                            </tr>
+                            <tr> 
+                                <td style="font-weight:600;">Sisa Cuti</td>
+                                <td style="width:20px;">:</td>
+                                <td>${sisaCuti}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Tanggal Mulai</td>
+                                <td style="width:20px;">:</td>
+                                <td>${tanggalMulai}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Tanggal Akhir</td>
+                                <td style="width:20px;">:</td>
+                                <td>${tanggalAkhir}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Project Manager</td>
+                                <td style="width:20px;">:</td>
+                                <td>${projectManager}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Pimpinan / Supervisor</td>
+                                <td style="width:20px;">:</td>
+                                <td>${supervisor}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:600;">Keterangan (Alasan)</td>
+                                <td style="width:20px;">:</td>
+                                <td>${keterangan || '-'}</td>
+                            </tr>
+                        </table>
+                        <hr style="margin:10px 0; border:0; border-top:1px solid #e2e8f0;">
+                        </div>
+                    `,
+                    icon: 'question',
+                    width: '650px',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3b82f6',
+                    cancelButtonColor: '#ef4444',
+                    confirmButtonText: 'Ya, Submit',
+                    cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            }
+        </script>
+
+        <script>
+            function cekSisaCuti()
+            {
+                const val =
+                    document.getElementById("sisa_cuti").value;
+
+                if (val === "")
+                {
+                    return;
+                }
+
+                const sisaCuti = parseInt(val);
+
+                let namaPersonil = "";
+
+                const timPersonil =
+                    document.querySelector(
+                        'input[name="tim_personil"\]:checked'
+                    )?.value;
+
+                if (timPersonil === "HDTI")
+                {
+                    const select =
+                        document.getElementById("personil_hdti");
+
+                    namaPersonil =
+                        select.options[select.selectedIndex]?.text || "";
+                }
+                else
+                {
+                    const select =
+                        document.getElementById("personil_hdbs");
+
+                    namaPersonil =
+                        select.options[select.selectedIndex]?.text || "";
+                }
+
+                if (sisaCuti <= 0)
+                {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Sisa Cuti Habis",
+                        html: `
+                            <b>Hi ${namaPersonil}</b>
+                            <br><br>
+                            Untuk Sisa Cuti Anda sudah habis <b>0 Hari</b>. Pengajuan cuti tidak dapat dilakukan.
+                        `,
+                        confirmButtonText: "OK"
+                    });
+
+                    const btnSubmit =
+                        document.getElementById("btnSubmit");
+
+                    if (btnSubmit)
+                    {
+                        btnSubmit.disabled = true;
+                    }
+                }
+                else
+                {
+                    const btnSubmit =
+                        document.getElementById("btnSubmit");
+
+                    if (btnSubmit)
+                    {
+                        btnSubmit.disabled = false;
+                    }
+                }
+            }
+
+            document.getElementById("personil_hdbs").addEventListener("change", function() {
+
+                // isi data personil
+                document.getElementById("sisa_cuti").value = data.sisa_cuti;
+            });
+
+
+            document.getElementById("formPengajuan").addEventListener("submit", function(e) {
+
+                const sisaCuti = parseInt(document.getElementById("sisa_cuti").value || 0);
+
+                if (sisaCuti <= 0) 
+                {
+                    e.preventDefault();
+
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Sisa Cuti Habis",
+                        text: "Sisa cuti Anda sudah habis (0 hari)."
+                    });
+
+                    return false;
+                }
+            });
+        </script>
+
+
+        <script>
+
+            let choicesPersonilHDTI;
+            let choicesPersonilHDBS;
+            let choicesBackupHDTI;
+            let choicesBackupHDBS;
+            let choicesSupervisor;
+
+            document.addEventListener('DOMContentLoaded', function () 
+            {
+                const radioHDTI = document.querySelector('input[name="tim_personil"][value="HDTI"]');
+                const radioHDBS = document.querySelector('input[name="tim_personil"][value="HDBS"]');
+
+                const wrapperHDTI = document.getElementById('wrapper_hdti');
+                const wrapperHDBS = document.getElementById('wrapper_hdbs');
+
+                const timHDTI = document.getElementById('tim_hdti');
+                const personilHDTI = document.getElementById('personil_hdti');
+                const backupHDTI = document.getElementById('personil_backup_hdti');
+                const nikHDTI = document.getElementById('nik_lintasarta_hdti');
+
+                const timHDBS = document.getElementById('tim_hdbs');
+                const personilHDBS = document.getElementById('personil_hdbs');
+                const backupHDBS = document.getElementById('personil_backup_hdbs');
+                const nikHDBS = document.getElementById('nik_lintasarta_hdbs');
+                const kategoriCuti = document.getElementById('kategori_cuti');
+                const sisaCuti = document.getElementById('sisa_cuti');
+
+                function resetChoice(instance) {
+
+                    if (!instance) return;
+
+                    instance.removeActiveItems();
+
+                    instance.setChoiceByValue('');
+
+                }
+
+                function toggleTimPersonil()
+                {
+                    if (radioHDTI.checked)
+                    {
+                        wrapperHDTI.style.display = 'grid';
+                        wrapperHDBS.style.display = 'none';
+
+                        // Hanya field biasa yang pakai required
+                        timHDTI.required = true;
+
+                        // Choices.js => jangan required
+                        personilHDTI.required = false;
+                        backupHDTI.required = false;
+
+                        timHDBS.required = false;
+                        personilHDBS.required = false;
+                        backupHDBS.required = false;
+
+                        // RESET HDBS
+                        timHDBS.value = '';
+                        nikHDBS.value = '';
+
+                        resetChoice(choicesPersonilHDBS);
+                        resetChoice(choicesBackupHDBS);
+
+                        personilHDBS.value = '';
+                        backupHDBS.value = '';
+                    }
+                    else
+                    {
+                        wrapperHDTI.style.display = 'none';
+                        wrapperHDBS.style.display = 'grid';
+
+                        // Hanya field biasa yang pakai required
+                        timHDBS.required = true;
+
+                        // Choices.js => jangan required
+                        personilHDBS.required = false;
+                        backupHDBS.required = false;
+
+                        timHDTI.required = false;
+                        personilHDTI.required = false;
+                        backupHDTI.required = false;
+
+                        // RESET HDTI
+                        timHDTI.value = '';
+                        nikHDTI.value = '';
+
+                        resetChoice(choicesPersonilHDTI);
+                        resetChoice(choicesBackupHDTI);
+
+                        personilHDTI.value = '';
+                        backupHDTI.value = '';
+                    }
+
+                    document.getElementById('sisa_cuti').value = '';
+                }
+
+                document.querySelectorAll('input[name="tim_personil"]').forEach(radio => 
+                {
+                    radio.addEventListener('change', toggleTimPersonil);
+                });
+
+                toggleTimPersonil();
+            });
+        </script>
+
+        <script>
+            function toggleSubmenu(event, submenuId) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const submenu = document.getElementById(submenuId);
+                
+                // Tutup menu lain jika sedang terbuka
+                document.querySelectorAll('.dropup-popover').forEach(el => {
+                    if (el.id !== submenuId) el.classList.remove('show');
+                });
+
+                submenu.classList.toggle('show');
+            }
+
+            // Tutup popover otomatis jika mengeklik di luar menu
+            document.addEventListener('click', function(e) {
+                const popover = document.getElementById('submenu-pengajuan');
+                if (popover && !popover.contains(e.target)) {
+                    popover.classList.remove('show');
+                }
+            });
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // 1. Data Resmi Libur Nasional & Cuti Bersama 2026 (SKB 3 Menteri)
+                const tanggalMerah = [
+                    "2026-01-01", // Tahun Baru 2026
+                    "2026-01-16", // Isra Mikraj Nabi Muhammad SAW
+                    "2026-02-16", // Cuti Bersama Imlek
+                    "2026-02-17", // Tahun Baru Imlek 2577
+                    "2026-03-19", // Cuti Bersama Nyepi
+                    "2026-03-20", // Hari Raya Nyepi
+                    "2026-03-21", // Hari Raya Idul Fitri 1447 H
+                    "2026-03-22", // Hari Raya Idul Fitri 1447 H
+                    "2026-03-23", // Cuti Bersama Idul Fitri
+                    "2026-03-24", // Cuti Bersama Idul Fitri
+                    "2026-04-03", // Wafat Yesus Kristus
+                    "2026-04-05", // Hari Paskah
+                    "2026-05-01", // Hari Buruh Internasional
+                    "2026-05-14", // Kenaikan Yesus Kristus
+                    "2026-05-15", // Cuti Bersama Kenaikan Yesus Kristus
+                    "2026-05-27", // Hari Raya Idul Adha 1447 H
+                    "2026-05-28", // Cuti Bersama Idul Adha
+                    "2026-05-31", // Hari Raya Waisak
+                    "2026-06-01", // Hari Lahir Pancasila
+                    "2026-06-16", // Tahun Baru Islam 1448 H
+                    "2026-08-17", // Hari Kemerdekaan RI (HUT RI)
+                    "2026-08-25", // Maulid Nabi Muhammad SAW
+                    "2026-12-25"  // Hari Raya Natal
+                ];
+
+                // Jika pakai API eksternal, bisa gunakan kode berikut untuk fetch data libur nasional 2026. Namun, karena keterbatasan akses atau rate limit, disarankan tetap menggunakan data lokal di atas.
+                //try {
+                //const response = await fetch("https://api-hari-libur.vercel.app/api?year=2026");
+                //if (response.ok) {
+                //    const data = await response.json();
+                //    if (Array.isArray(data) && data.length > 0) {
+                //        tanggalMerah = data.map(item => item.holiday_date);
+                //    }
+                //}
+                //} catch (error) {
+                //console.warn("Menggunakan data lokal kalender nasional 2026:", error);
+                //}
+
+                // Helper konversi Date ke format YYYY-MM-DD lokal
+                function getLocalDateString(date) {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                }
+
+                // 2. Inisialisasi Flatpickr
+                flatpickr("#date_range", {
+                    mode: "range",
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d-m-Y",
+                    altInputClass: "form-input",
+                    //locale: flatpickr.l10ns.id,
+                    locale: "id",
+
+                    // Diubah dari onChange menjadi onClose
+                    onClose: function(selectedDates, dateStr, instance) {
+                        // Jika kalender ditutup dan user hanya memilih 1 tanggal, set tanggal akhir = tanggal mulai
+                        if (selectedDates.length === 1) {
+                            const singleDate = selectedDates[0];
+                            instance.setDate([singleDate, singleDate], true);
+                        }
+                    },
+                    
+                    onDayCreate: function(dObj, dStr, fp, dayElement) {
+                        const formattedDate = getLocalDateString(dayElement.dateObj);
+                        const dayOfWeek = dayElement.dateObj.getDay();
+
+                        // Tandai warna merah untuk tanggal merah & akhir pekan
+                        if (tanggalMerah.includes(formattedDate) || dayOfWeek === 0) 
+                        {
+                            dayElement.classList.add("tanggal-merah");
+                        }
+
+                    },
+                    onReady: function(selectedDates, dateStr, instance) {
+                        if (instance.altInput) {
+                            instance.altInput.style.setProperty("background-color", "#ffffff", "important");
+                        }
+                    }
+                });
+            });
+        </script>
+
+        <script>
+            function updateSisaCuti(selectId)
+            {
+                const select = document.getElementById(selectId);
+                if (!select || !select.value)
+                {
+                    document.getElementById('sisa_cuti').value = '';
+                    return;
+                }
+                const selectedOption = select.options[select.selectedIndex];
+                const sisaCuti = selectedOption.getAttribute('data-sisa-cuti');
+                document.getElementById('sisa_cuti').value = sisaCuti || '';
+                cekSisaCuti();
+            }
+
+            document.getElementById('personil_hdti').addEventListener('change', function () 
+            {
+                updateSisaCuti('personil_hdti');
+                updateNik(
+                    'personil_hdti',
+                    'nik_lintasarta_hdti'
+                );
+            });
+
+            document.getElementById('personil_hdbs').addEventListener('change', function () 
+            {
+                updateSisaCuti('personil_hdbs');
+                updateNik(
+                    'personil_hdbs',
+                    'nik_lintasarta_hdbs'
+                );
+            });
+
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+
+                const config = {
+                    searchEnabled: true,
+                    searchChoices: true,
+                    searchFloor: 1,
+                    shouldSort: false,
+                    itemSelectText: '',
+                    searchResultLimit: 9999,
+                    fuseOptions: {
+                        threshold: 0.2
+                    }
+                };
+
+                choicesPersonilHDTI =
+                    new Choices('#personil_hdti', {
+                        ...config,
+                        searchPlaceholderValue: 'Cari Nama Personil HDTI...'
+                    });
+
+                choicesPersonilHDBS =
+                    new Choices('#personil_hdbs', {
+                        ...config,
+                        searchPlaceholderValue: 'Cari Nama Personil HDBS...'
+                    });
+
+                choicesBackupHDTI =
+                    new Choices('#personil_backup_hdti', {
+                        ...config,
+                        searchPlaceholderValue: 'Cari Nama Personil Backup HDTI...'
+                    });
+
+                choicesBackupHDBS =
+                    new Choices('#personil_backup_hdbs', {
+                        ...config,
+                        searchPlaceholderValue: 'Cari Nama Personil Backup HDBS...'
+                });
+
+                choicesSupervisor = new Choices('#supervisor', {
+                    ...config,
+                    searchEnabled: true,
+                    searchChoices: true,
+                    searchFloor: 1,
+                    shouldSort: false,
+                    itemSelectText: '',
+                    searchResultLimit: 9999,
+                    searchPlaceholderValue: 'Cari Nama Pimpinan / Supervisor...',
+                    placeholder: true,
+                    placeholderValue: 'Choose'
+                });
+
+                // Jika Dropdown PIMPINAN / SUPERVISOR (NAMA LENGKAP) * posisinya akan keatas buka bagian dibawah yang diremark ini.
+                const supervisorChoices = document
+                .querySelector('#supervisor')
+                    .closest('.form-group')
+                    .querySelector('.choices')
+                    .classList.add('supervisor-choices');
+                    
+            });
+        </script>
+
+        <script>
+            function updateNik(selectId, nikInputId) {
+
+                const select = document.getElementById(selectId);
+                const nikInput = document.getElementById(nikInputId);
+
+                if (!select || !nikInput) return;
+
+                const selectedOption =
+                    select.options[select.selectedIndex];
+
+                const nik =
+                    selectedOption.getAttribute('data-nik') || '';
+
+                nikInput.value = nik;
+            }
+        </script>
+
+        <script>
+            function updatePersonilData(selectId, nikInputId) 
+            {
+                const select = document.getElementById(selectId);
+
+                if (!select || !select.value)
+                    return;
+
+                const option =
+                    select.options[select.selectedIndex];
+
+                document.getElementById(nikInputId).value =
+                    option.dataset.nik || '';
+
+                document.getElementById('sisa_cuti').value =
+                    option.dataset.sisaCuti || '';
+            }
+        </script>
+    </div>
+</body>
+</html> 

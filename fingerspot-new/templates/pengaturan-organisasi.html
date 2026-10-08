@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Organisasi — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50:'#ecfeff',100:'#cffafe',500:'#06b6d4',600:'#0891b2',700:'#0e7490' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .scrollbar-styled::-webkit-scrollbar { width: 5px; height: 5px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* SweetAlert Customization */
+        .swal2-popup { border-radius: 1rem; font-family: 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .swal2-title { font-size: 1.25rem; font-weight: 700; color: #111827; }
+        .swal2-confirm { background-color: #0891b2 !important; border-radius: 0.5rem !important; font-weight: 600; }
+        .swal2-cancel { border-radius: 0.5rem !important; font-weight: 600; }
+
+        /* Table Styling */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; white-space: nowrap; }
+        .data-table thead { background: #f8fafc; position: sticky; top: 0; z-index: 10; }
+        .data-table th { padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 2px solid #e2e8f0; }
+        .data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; background: white; }
+        .data-table tbody tr:nth-child(even) { background: #fafafa; }
+        .data-table tbody tr:hover { background: #ecfeff !important; }
+        .data-table td { padding: 10px 16px; color: #111827; font-weight: 500; }
+        
+        /* Action buttons */
+        .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
+        .btn-edit { background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
+        .btn-edit:hover { background: #14b8a6; color: white; border-color: #14b8a6; }
+        .btn-delete { background: #fff1f2; color: #be123c; border: 1px solid #ffe4e6; }
+        .btn-delete:hover { background: #f43f5e; color: white; border-color: #f43f5e; }
+
+        /* Input Styling for SweetAlert Form */
+        .swal-input-group { margin-bottom: 15px; text-align: left; }
+        .swal-input-group label { display: block; font-size: 12px; font-weight: 700; color: #475569; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .swal-input-group input, .swal-input-group select { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; color: #1e293b; background-color: #f8fafc; outline: none; transition: all 0.2s; box-sizing: border-box; }
+        .swal-input-group input:focus, .swal-input-group select:focus { border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); background-color: #ffffff; }
+    
+        /* Tabs */
+        .tab-btn { padding: 12px 24px; font-weight: 600; font-size: 14px; color: #64748b; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .tab-btn:hover { color: #0f172a; }
+        .tab-btn.active { color: #0891b2; border-bottom-color: #0891b2; background: rgba(8, 145, 178, 0.05); }
+        .tab-content { display: none; height: 100%; }
+        .tab-content.active { display: flex; flex-direction: column; }
+    </style>
+</head>
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden relative">
+
+            <!-- Topbar -->
+            {% include 'components/topbar.html' %}
+
+            <!-- Page Header -->
+            <div class="px-6 py-5 bg-white border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">Pengaturan Organisasi</h1>
+                    <p class="text-sm text-gray-500 mt-1">Kelola data Divisi (Pembagian 1), Fungsi (Pembagian 2), dan Tim (Pembagian 3).</p>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="px-6 pt-2 bg-white border-b border-gray-100 flex gap-2 shrink-0">
+                <button class="tab-btn active" onclick="switchTab('divisi')">Divisi</button>
+                <button class="tab-btn" onclick="switchTab('fungsi')">Fungsi</button>
+                <button class="tab-btn" onclick="switchTab('tim')">Tim</button>
+            </div>
+
+            <!-- Tab Content Container -->
+            <div class="flex-1 p-6 overflow-hidden">
+                
+                <!-- TAB DIVISI -->
+                <div id="tab-divisi" class="tab-content active h-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Daftar Divisi (Pembagian 1)</h2>
+                        <button onclick="openModal('divisi')" class="h-10 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm shadow-primary-500/30 flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Tambah Divisi
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+                        <div class="overflow-auto scrollbar-styled flex-1">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-16 text-center">ID</th>
+                                        <th>Nama Divisi</th>
+                                        <th>Keterangan</th>
+                                        <th class="text-center w-24">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if data_divisi %}
+                                        {% for row in data_divisi %}
+                                        <tr data-id="{{ row['id'] }}">
+                                            <td class="text-center font-bold text-gray-500">{{ row['id'] }}</td>
+                                            <td class="font-bold text-gray-900" data-nama="{{ row['nama'] }}">{{ row['nama'] }}</td>
+                                            <td data-ket="{{ row['ket'] or '' }}" class="text-gray-600">{{ row['ket'] or '-' }}</td>
+                                            <td>
+                                                <div class="flex items-center justify-center gap-2">
+                                                    <button onclick="editData(this, 'divisi')" class="btn-action btn-edit" title="Edit"><i class="fas fa-edit text-xs"></i></button>
+                                                    <button onclick="deleteData({{ row['id'] }}, 'divisi')" class="btn-action btn-delete" title="Hapus"><i class="fas fa-trash text-xs"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td colspan="4" class="text-center py-10 text-gray-500"><i class="fas fa-inbox text-3xl mb-3 text-gray-300 block"></i>Belum ada data.</td></tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB FUNGSI -->
+                <div id="tab-fungsi" class="tab-content h-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Daftar Fungsi (Pembagian 2)</h2>
+                        <button onclick="openModal('fungsi')" class="h-10 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm shadow-primary-500/30 flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Tambah Fungsi
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+                        <div class="overflow-auto scrollbar-styled flex-1">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-16 text-center">ID</th>
+                                        <th>Nama Fungsi</th>
+                                        <th>Keterangan</th>
+                                        <th class="text-center w-24">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if data_fungsi %}
+                                        {% for row in data_fungsi %}
+                                        <tr data-id="{{ row['id'] }}">
+                                            <td class="text-center font-bold text-gray-500">{{ row['id'] }}</td>
+                                            <td class="font-bold text-gray-900" data-nama="{{ row['nama'] }}">{{ row['nama'] }}</td>
+                                            <td data-ket="{{ row['ket'] or '' }}" class="text-gray-600">{{ row['ket'] or '-' }}</td>
+                                            <td>
+                                                <div class="flex items-center justify-center gap-2">
+                                                    <button onclick="editData(this, 'fungsi')" class="btn-action btn-edit" title="Edit"><i class="fas fa-edit text-xs"></i></button>
+                                                    <button onclick="deleteData({{ row['id'] }}, 'fungsi')" class="btn-action btn-delete" title="Hapus"><i class="fas fa-trash text-xs"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td colspan="4" class="text-center py-10 text-gray-500"><i class="fas fa-inbox text-3xl mb-3 text-gray-300 block"></i>Belum ada data.</td></tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB TIM -->
+                <div id="tab-tim" class="tab-content h-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Daftar Tim (Pembagian 3)</h2>
+                        <button onclick="openModal('tim')" class="h-10 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl transition-all shadow-sm shadow-primary-500/30 flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Tambah Tim
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+                        <div class="overflow-auto scrollbar-styled flex-1">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="w-16 text-center">ID</th>
+                                        <th>Nama Tim</th>
+                                        <th>Keterangan</th>
+                                        <th class="text-center w-24">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if data_tim %}
+                                        {% for row in data_tim %}
+                                        <tr data-id="{{ row['id'] }}">
+                                            <td class="text-center font-bold text-gray-500">{{ row['id'] }}</td>
+                                            <td class="font-bold text-gray-900" data-nama="{{ row['nama'] }}">{{ row['nama'] }}</td>
+                                            <td data-ket="{{ row['ket'] or '' }}" class="text-gray-600">{{ row['ket'] or '-' }}</td>
+                                            <td>
+                                                <div class="flex items-center justify-center gap-2">
+                                                    <button onclick="editData(this, 'tim')" class="btn-action btn-edit" title="Edit"><i class="fas fa-edit text-xs"></i></button>
+                                                    <button onclick="deleteData({{ row['id'] }}, 'tim')" class="btn-action btn-delete" title="Hapus"><i class="fas fa-trash text-xs"></i></button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr><td colspan="4" class="text-center py-10 text-gray-500"><i class="fas fa-inbox text-3xl mb-3 text-gray-300 block"></i>Belum ada data.</td></tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to handle CRUD & Tabs -->
+    <script>
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function openModal(tipe, editId = null, editData = {}) {
+            let title = editId ? `Edit ${capitalize(tipe)} (ID: ${editId})` : `Tambah ${capitalize(tipe)} Baru`;
+            let html = `
+                <div class="swal-input-group">
+                    <label>Nama ${capitalize(tipe)}</label>
+                    <input type="text" id="swal-nama" placeholder="Contoh: ${capitalize(tipe)} A" value="${editData.nama || ''}" autocomplete="off">
+                </div>
+                <div class="swal-input-group">
+                    <label>Keterangan</label>
+                    <input type="text" id="swal-ket" placeholder="Opsional" value="${editData.ket || ''}" autocomplete="off">
+                </div>
+            `;
+
+            Swal.fire({
+                title: title,
+                html: html,
+                showCancelButton: true,
+                confirmButtonText: 'Simpan',
+                cancelButtonText: 'Batal',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const nama = document.getElementById('swal-nama').value;
+                    const ket = document.getElementById('swal-ket').value;
+
+                    if (!nama) {
+                        Swal.showValidationMessage('Nama wajib diisi!');
+                        return false;
+                    }
+
+                    return { 
+                        id: editId, 
+                        nama: nama, 
+                        ket: ket
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    saveData(tipe, result.value);
+                }
+            });
+        }
+
+        function editData(btn, tipe) {
+            const tr = btn.closest('tr');
+            const id = tr.getAttribute('data-id');
+            const nama = tr.querySelector('[data-nama]').getAttribute('data-nama');
+            const ket = tr.querySelector('[data-ket]').getAttribute('data-ket');
+            
+            openModal(tipe, id, {
+                nama: nama,
+                ket: ket
+            });
+        }
+
+        function saveData(tipe, data) {
+            Swal.fire({
+                title: 'Menyimpan...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            fetch(`/api/organisasi/${tipe}/simpan`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: res.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', res.message || 'Terjadi kesalahan', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+            });
+        }
+
+        function deleteData(id, tipe) {
+            Swal.fire({
+                title: `Hapus ${capitalize(tipe)}?`,
+                text: 'Pastikan data ini tidak sedang digunakan oleh pegawai manapun!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f43f5e',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Menghapus...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    fetch(`/api/organisasi/${tipe}/hapus`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: id })
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        if(res.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: res.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', res.message || 'Gagal menghapus data', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+</html>

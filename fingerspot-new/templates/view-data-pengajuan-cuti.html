@@ -1,0 +1,2507 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Data Pengajuan Cuti - Lintasarta APBI</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<!-- Flatpickr CSS -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<!-- Flatpickr JS -->
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+	<!-- Bahasa Indonesia -->
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+
+	<script>
+		tailwind.config = {
+			theme: {
+				extend: {
+					fontFamily: {
+						sans: ['"Inter"', 'sans-serif']
+					},
+					colors: {
+						primary: {
+							50: '#ecfeff',
+							100: '#cffafe',
+							500: '#06b6d4',
+							600: '#0891b2',
+							700: '#0e7490'
+						}
+					}
+				}
+			}
+		}
+	</script>
+
+	<style>
+		body {
+			font-family: 'Inter', sans-serif;
+		}
+
+		.scrollbar-styled {
+			scrollbar-width: thin;
+			scrollbar-color: #cbd5e1 transparent;
+		}
+
+		.scrollbar-styled::-webkit-scrollbar {
+			width: 5px;
+			height: 5px;
+		}
+
+		.scrollbar-styled::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 10px;
+		}
+
+		/* SweetAlert Customization */
+		.swal2-popup {
+			border-radius: 1rem;
+			font-family: 'Inter', sans-serif;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+		}
+
+		.swal2-title {
+			font-size: 1.25rem;
+			font-weight: 700;
+			color: #111827;
+		}
+
+		.swal2-confirm {
+			background-color: #0891b2 !important;
+			border-radius: 0.5rem !important;
+			font-weight: 600;
+		}
+
+		.swal2-cancel {
+			border-radius: 0.5rem !important;
+			font-weight: 600;
+		}
+
+		/* Table Styling */
+		.data-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 13.5px;
+			text-align: left;
+			white-space: nowrap;
+		}
+
+		.data-table thead {
+			background: #f8fafc;
+			position: sticky;
+			top: 0;
+			z-index: 10;
+		}
+
+		.data-table th {
+			padding: 12px 16px;
+			font-weight: 700;
+			font-size: 11px;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			color: #475569;
+			border-bottom: 2px solid #e2e8f0;
+		}
+
+		.data-table tbody tr {
+			border-bottom: 1px solid #f1f5f9;
+			transition: background 0.1s;
+			background: white;
+		}
+
+		.data-table tbody tr:nth-child(even) {
+			background: #fafafa;
+		}
+
+		.data-table tbody tr:hover {
+			background: #ecfeff !important;
+		}
+
+		.data-table td {
+			padding: 10px 16px;
+			color: #111827;
+			font-weight: 500;
+		}
+
+		/* Action buttons */
+		.btn-action {
+			width: 32px;
+			height: 32px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 8px;
+			transition: all 0.2s;
+		}
+
+		.btn-edit {
+			background: #f0fdfa;
+			color: #0f766e;
+			border: 1px solid #ccfbf1;
+		}
+
+		.btn-edit:hover {
+			background: #14b8a6;
+			color: white;
+			border-color: #14b8a6;
+		}
+
+		.btn-delete {
+			background: #fff1f2;
+			color: #be123c;
+			border: 1px solid #ffe4e6;
+		}
+
+		.btn-delete:hover {
+			background: #f43f5e;
+			color: white;
+			border-color: #f43f5e;
+		}
+
+		/* Input Styling for SweetAlert Form */
+		.swal-input-group {
+			margin-bottom: 15px;
+			text-align: left;
+		}
+
+		.swal-input-group label {
+			display: block;
+			font-size: 12px;
+			font-weight: 700;
+			color: #475569;
+			margin-bottom: 6px;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		}
+
+		.swal-input-group input,
+		.swal-input-group select {
+			width: 100%;
+			height: 42px;
+			padding: 0 12px;
+			border: 1px solid #cbd5e1;
+			border-radius: 8px;
+			font-size: 14px;
+			color: #1e293b;
+			background-color: #f8fafc;
+			outline: none;
+			transition: all 0.2s;
+			box-sizing: border-box;
+		}
+
+		.swal-input-group input:focus,
+		.swal-input-group select:focus {
+			border-color: #06b6d4;
+			box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+			background-color: #ffffff;
+		}
+
+		/* Tabs */
+		.tab-btn {
+			padding: 12px 24px;
+			font-weight: 600;
+			font-size: 14px;
+			color: #64748b;
+			border-bottom: 2px solid transparent;
+			transition: all 0.2s;
+		}
+
+		.tab-btn:hover {
+			color: #0f172a;
+		}
+
+		.tab-btn.active {
+			color: #0891b2;
+			border-bottom-color: #0891b2;
+			background: rgba(8, 145, 178, 0.05);
+		}
+
+		.tab-content {
+			display: none;
+			height: 100%;
+		}
+
+		.tab-content.active {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.badge-silver {
+			background: #d9dfe8;
+			border: 1px solid #bcc6d3;
+			color: #334155;
+			min-width: 32px;
+			height: 28px;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 12px;
+			border-radius: 8px;
+			font-size: 13px;
+			font-weight: 500;
+			box-shadow: 0 1px 2px rgba(0,0,0,.08);
+		}
+	</style>
+
+	<style>
+		.swal2-popup {
+			border-radius: 20px !important;
+		}
+
+		.swal2-html-container {
+			overflow: visible !important;
+		}
+
+		.swal2-validation-message {
+			margin-top: 12px;
+			border-radius: 8px;
+		}
+	</style>
+	
+	<style>
+.filter-wrapper {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+.filter-input,
+.filter-select {
+    width: 100%;
+    height: 28px;
+    font-size: 12px;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #bfc7d1;
+    box-sizing: border-box;
+    outline: none;
+    box-shadow: none;
+}
+
+.filter-input {
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+}
+
+.filter-select {
+    border-radius: 4px;
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    border-color: #bfc7d1;
+    box-shadow: none;
+    outline: none;
+}
+
+.filter-input::placeholder {
+    color: #9ca3af;
+}
+
+.filter-clear-btn {
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f8fafc;
+    color: #ef4444;
+
+    border: 1px solid #bfc7d1;
+    border-radius: 0 4px 4px 0;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.filter-clear-btn:hover {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Hilangkan spinner input number Chrome */
+.filter-input[type="number"]::--webkit-outer-spin-button,
+.filter-input[type="number"\]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.filter-input[type="number"] {
+    -moz-appearance: textfield;
+}
+</style>
+
+
+
+</head>
+
+<body class="bg-slate-50 overflow-hidden">
+	<div class="flex h-screen w-full">
+		<!-- Sidebar --> {% include 'components/sidebar.html' %} <!-- Main Content Wrapper -->
+		<div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden relative">
+			<!-- Topbar --> {% include 'components/topbar-pengajuan-cuti.html' %} <!-- Main Area -->
+			<div class="flex-1 p-4 md:p-6 overflow-hidden flex flex-col gap-4">
+
+				
+
+				<!-- 1. Tombol Download / Export Data (Di Luar & Di Atas Card Tabel) -->
+				<div class="mb-4">
+					<button id="btnExport" type="button" onclick="exportPengajuan()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-cyan-600 text-white text-sm font-semibold rounded-xl hover:bg-cyan-700 transition-colors shadow-sm">
+						<i class="fas fa-download"></i> 
+						Download / Export Data 
+					</button>
+
+					|
+
+					<!-- Tombol Bulk Approve -->
+					<button id="btnBulkApprove" type="button" onclick="bulkApproveWithPassphrase()" class="inline-flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white text-sm font-semibold rounded-xl hover:bg-cyan-700 transition-colors shadow-sm">
+						<i class="fas fa-check"></i>
+						Bulk Approve
+					</button>
+				</div>
+				<!-- 2. Table Container Card -->
+				<div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col shadow-sm">
+					<!-- Header Section (Show Entries & Search) -->
+					<div class="px-6 py-4 border-b border-gray-100 bg-slate-50/50 shrink-0">
+						<div class="flex flex-col gap-3">
+							<!-- BARIS 1 -->
+							<div class="flex flex-col md:flex-row justify-between items-center gap-4">
+								<!-- Show Entries -->
+								<div class="flex items-center gap-2 text-xs text-gray-600 font-medium">
+									<span>Show</span>
+										<select id="entriesSelect" onchange="changeRowsPerPage(this.value)" class="px-2 py-1 bg-white border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none cursor-pointer">
+
+											<option value="5" selected>5</option>
+											<option value="10">10</option>
+											<option value="25">25</option>
+											<option value="50">50</option>
+											<option value="100">100</option>
+											<option value="all">All</option>
+
+										</select>
+									<span>entries</span>
+								</div>
+								<!-- Search Global -->
+								<div class="flex items-center gap-2 w-full md:w-auto justify-end" style="visibility :hidden;">
+									<label for="tableSearch" class="text-xs font-medium text-gray-600"> Search: </label>
+									<input type="text" id="tableSearch" onkeyup="filterTable()" class="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-cyan-500 focus:outline-none w-full md:w-56" placeholder="Ketik untuk mencari...">
+								</div>
+							</div>
+							<!-- BARIS 2 : FILTER KOLOM -->
+							<div class="overflow-x-auto">
+								<table class="w-full text-[13px] table-fixed">
+									<tr>
+									</tr>
+								</table>
+							</div>
+						</div>
+					</div>
+					<!-- Table Section -->
+					<div class="overflow-auto scrollbar-styled flex-1 relative">
+						<table class="data-table text-[13px] w-full">
+							<thead>
+								<tr class="bg-slate-50">
+									<th></th>
+									<th></th>
+
+									<!-- NIK LINTASARTA -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="number"
+												id="filterNik"
+												onkeyup="filterTable(); toggleClearButton('filterNik');"
+												placeholder="Cari NIK"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											<button
+												id="clearFilterNik"
+												type="button"
+												onclick="clearInput('filterNik')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- NAMA LENGKAP -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="text"
+												id="filterNama"
+												onkeyup="filterTable(); toggleClearButton('filterNama');"
+												placeholder="Cari Nama Lengkap"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+												<button
+													id="clearFilterNama"
+													type="button"
+													onclick="clearInput('filterNama')"
+													class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+													✕
+												</button>
+										</div>
+									</th>
+
+									<!-- PERSONIL BACKUP -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="text"
+												id="filterBackup"
+												onkeyup="filterTable(); toggleClearButton('filterBackup');"
+												placeholder="Cari Nama Personil Backup"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											<button
+												id="clearFilterBackup"
+												type="button"
+												onclick="clearInput('filterBackup')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- TIM -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="text"
+												id="filterTim"
+												onkeyup="filterTable(); toggleClearButton('filterTim');"
+												placeholder="Cari Tim Personil"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											<button
+												id="clearFilterTim"
+												type="button"
+												onclick="clearInput('filterTim')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- KATEGORI CUTI -->
+									<th>
+										<select id="filterKategori" 
+											onchange="handleSelectFilter('filterKategori')"
+											class="filter-input filter-select-placeholder w-full px-2 py-1 text-xs border rounded">
+											<option value="" selected hidden>Pilih</option>
+											<option value="">Semua</option>
+											<option value="Cuti Tahunan">Cuti Tahunan</option>
+											<option value="Cuti Mendadak">Cuti Mendadak</option>
+											<option value="Cuti Extra">Cuti Extra</option>
+										</select>
+									</th>
+
+									<!-- TANGGAL PENGAJUAN -->
+									<th>
+										<div class="relative flex">
+
+											<input
+												readonly
+												type="text"
+												id="filterTanggalPengajuan"
+												onchange="filterTable()"
+												data-tanggal="{{ tanggal_filter if tanggal_filter else '' }}"
+												placeholder="Pilih Tanggal"
+												class="filter-input w-full pr-8 px-2 py-1 rounded bg-white cursor-pointer">
+
+											{% if tanggal_filter %}
+											<button
+												type="button"
+												onclick="clearFilterRefresh(event)"
+												title="Hapus Filter Tanggal"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+											{% endif %}
+
+										</div>
+									</th>
+
+									<!-- PERIODE -->
+									<th>
+										<div class="relative flex">
+
+											<input
+												readonly
+												type="text"
+												id="filterPeriode"
+												onchange="filterTable()"
+												data-periode="{{ periode if periode else '' }}"
+												placeholder="Pilih Tanggal"
+												class="filter-input w-full pr-8 px-2 py-1 rounded bg-white cursor-pointer">
+
+											{% if periode %}
+											<button
+												type="button"
+												onclick="clearFilterRefresh(event)"
+												title="Hapus Filter Tanggal"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+											{% endif %}
+
+										</div>
+									</th>
+
+									<!-- SISA AWAL -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="number"
+												id="filterSisaAwal"
+												onkeyup="filterTable(); toggleClearButton('filterSisaAwal')"
+												placeholder="Cari Sisa Cuti (Awal)"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											<button
+												id="clearFilterSisaAwal"
+												type="button"
+												onclick="clearInput('filterSisaAwal')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- JUMLAH HARI -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="number"
+												id="filterJumlahHari"
+												onkeyup="filterTable(); toggleClearButton('filterJumlahHari');"
+												placeholder="Cari Jumlah Hari Cuti"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											<button
+												id="clearFilterJumlahHari"
+												type="button"
+												onclick="clearInput('filterJumlahHari')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- SISA AKHIR -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="number"
+												id="filterSisaAkhir"
+												onkeyup="filterTable(); toggleClearButton('filterSisaAkhir')"
+												placeholder="Cari Sisa Cuti (Akhir)"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											
+												<button
+												id="clearFilterSisaAkhir"
+												type="button"
+												onclick="clearInput('filterSisaAkhir')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- PROJECT MANAGER -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="text"
+												id="filterPM"
+												onkeyup="filterTable(); toggleClearButton('filterPM')"
+												placeholder="Cari Project Manager"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											
+												<button
+												id="clearFilterPM"
+												type="button"
+												onclick="clearInput('filterPM')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- PIMPINAN / SUPERVISOR -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="text"
+												id="filterSupervisor"
+												onkeyup="filterTable(); toggleClearButton('filterSupervisor')"
+												placeholder="Cari Atasan"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+
+											<button
+												id="clearFilterSupervisor"
+												type="button"
+												onclick="clearInput('filterSupervisor')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- KETERANGAN -->
+									<th>
+										<div class="relative flex">
+											<input
+												type="text"
+												id="filterKeterangan"
+												onkeyup="filterTable(); toggleClearButton('filterKeterangan')"
+												placeholder="Cari Keterangan (Alasan)"
+												class="filter-input w-full pr-8 px-2 py-1 rounded">
+											
+											<button
+												id="clearFilterKeterangan"
+												type="button"
+												onclick="clearInput('filterKeterangan')"
+												class="filter-clear-btn hidden absolute right-0 top-0 h-full border-l">
+												✕
+											</button>
+										</div>
+									</th>
+
+									<!-- STATUS -->
+									<th>
+										<select id="filterStatus" 
+										onchange="handleSelectFilter('filterStatus')"
+											class="filter-input filter-select-placeholder w-full px-2 py-1 text-xs border rounded">
+											<option value="" selected hidden>Pilih</option>
+											<option value="">Semua</option>
+											<option value="Approved">Approved</option>
+											<option value="Rejected">Rejected</option>
+											<option value="Received">Received</option>
+											<option value="Pending">Pending</option>
+										</select>
+									</th>
+
+									<th></th>
+								</tr>
+								<tr class="text-[13px]">
+									<th width="40">
+										{% if data_pengajuan_cuti
+
+											| selectattr('Status_Pengajuan', 'equalto', 'Pending')
+											| list
+											| length > 0 %}
+
+											<input type="checkbox" id="checkAll" ClientIDMode="Static">
+
+										{% endif %}
+									</th>
+									<th class="text-center w-12">NO</th>
+									<th class="text-center">NIK LINTASARTA</th>
+									<th class="text-center">NAMA LENGKAP</th>
+									<th class="text-center">NAMA PERSONIL BACKUP</th>
+									<th class="text-center">TIM PERSONIL</th>
+									<th class="text-center">JENIS PENGAJUAN</th>
+									<th class="text-center">TANGGAL PENGAJUAN</th>
+									<th class="text-center">PERIODE PENGAJUAN</th>
+									<th class="text-center">SISA CUTI (AWAL)</th>
+									<th class="text-center">JUMLAH HARI CUTI</th>
+									<th class="text-center">SISA CUTI (AKHIR)</th>
+									<th class="text-center">PROJECT MANAGER</th>
+									<th class="text-center">PIMPINAN / SUPERVISOR</th>
+									<th class="text-center">KETERANGAN (ALASAN)</th>
+									<th class="text-center">STATUS</th>
+									<th class="text-center w-36">AKSI</th>
+								</tr>
+							</thead>
+
+							<tbody> 
+								
+								{% for item in data_pengajuan_cuti %} 
+								
+								<tr class="text-[13px]">
+								
+									<td class="text-center">
+
+										{% if item.Status_Pengajuan|trim|lower == 'pending' %}
+											<input
+												type="checkbox"
+												class="row-check"
+												value="{{ item.Id }}"
+											>
+										{% endif %}
+
+									</td>
+
+									<!-- No. / Nomor Urut-->
+									<td class="text-center">
+										{{ loop.index }}
+									</td>
+
+									<!-- Nik_Lintasarta -->
+									<td class="text-center font-mono font-bold text-cyan-700">
+										{{ item.Nik_Lintasarta }}
+									</td>
+
+									<!-- Nama_Lengkap + Alamat_Email -->
+									<td>
+										<div class="font-bold">
+											{{ item.Nama_Lengkap }}
+										</div>
+										<div class="text-gray-400">
+											{{ item.Alamat_Email }}
+										</div>
+									</td>
+									
+									<!-- Nama_Backup -->
+									<td>
+										{{ item.Nama_Backup }}
+									</td>
+									
+									<!-- TIM (HDTI / HDBS : Nama_Tim) -->
+									<td class="text-center"> 
+										{% if 'HDTI' in item.Nama_Tim %}
+										<span class="px-2 py-1 rounded bg-blue-100 text-blue-700 border border-blue-200">
+											{{ item.Nama_Tim }}
+										</span> 
+										{% elif 'HDBS' in item.Nama_Tim %} 
+										<span class="px-2 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200">
+											{{ item.Nama_Tim }}
+										</span> {% else %} 
+										<span class="px-2 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200">
+											{{ item.Nama_Tim }}
+										</span> 
+										{% endif %} 
+									</td>
+									
+									<!-- Kategori_Cuti -->
+									<td class="text-center">
+										<span class="inline-flex items-center justify-center min-w-[32px] h-7 px-3 rounded-lg font-medium text-[13px] shadow-sm" style="background:#d9dfe8; border:1px solid #bcc6d3; color:#334155;">
+											{{ item.Kategori_Cuti }}
+										</span>
+									</td>
+
+									<!-- Submitted_Date (NEW / OLD) -->
+									<td class="text-center font-mono text-[13px] text-gray-500 whitespace-nowrap">
+										<div class="flex items-center justify-center gap-2">
+											<span>
+												{{ item.Submitted_Date }}
+											</span>
+											{% if item.is_new %}
+												<span class="inline-flex items-center justify-center ml-2 px-2.5 py-1 rounded-md text-xs font-bold bg-green-500 text-white shadow-sm">
+													NEW
+												</span>
+											{% else %}
+												<!-- Buka Bagian Ini Jika Ingin Menampilkan Label Badge OLD -->
+												<!-- <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-gray-300 text-gray-700 shadow-sm">OLD</span> -->
+											{% endif %}
+										</div>
+									</td>
+
+									<!-- Tanggal_Mulai s/d Tanggal_Akhir -->
+									<td class="text-center whitespace-nowrap">
+										{{ item.Tanggal_Mulai }}
+										<span class="text-gray-400">s/d</span>
+										{{ item.Tanggal_Akhir }}
+										<br>
+										<span class="text-xs text-gray-500">
+											{{ item.Jumlah_Hari }} Hari </span>
+									</td>
+									
+									<!-- Sisa_Cuti_Awal -->
+									<td class="text-center">
+										<span class="badge-silver">
+											{{ item.Sisa_Cuti_Awal }}
+										</span>
+									</td>
+
+									<!-- Jumlah_Hari -->
+									<td class="text-center">
+										<span class="badge-silver">
+											{{ item.Jumlah_Hari }} Hari
+										</span>
+									</td>
+
+									<!-- Sisa_Cuti_Akhir -->
+									<td class="text-center">
+										<span class="badge-silver">
+											{{ item.Sisa_Cuti_Akhir }}
+										</span>
+									</td>
+
+									<!-- Project_Manager -->
+									<td>
+										{{ item.Project_Manager }}
+									</td>
+									
+									<!-- Pimpinan_Supervisor -->
+									<td>
+										{{ item.Pimpinan_Supervisor }}
+									</td>
+									
+									<!-- Keterangan -->
+									<td class="max-w-md">
+										<div class="min-w-[300px] break-words whitespace-normal">
+											{{ item.Keterangan or '-' }}
+										</div>
+									</td>
+									
+									<!-- Status_Pengajuan = Pending, Received, Approved, Rejected -->
+									<td class="text-center"> 
+										{% if item.Status_Pengajuan == 'Pending' %}
+											<span class="px-2 py-1 rounded bg-amber-100 text-amber-700 border border-amber-200">
+												Pending
+											</span>
+										{% elif item.Status_Pengajuan == 'Received' %}
+											<span class="px-2 py-1 rounded bg-blue-100 text-blue-700 border border-blue-200">
+												Received
+											</span>
+										{% elif item.Status_Pengajuan == 'Approved' %}
+											<span class="px-2 py-1 rounded bg-emerald-100 text-emerald-700 border border-emerald-200">
+												Approved
+											</span>
+										{% elif item.Status_Pengajuan == 'Rejected' %}
+											<span class="px-2 py-1 rounded bg-rose-100 text-rose-700 border border-rose-200">
+												Rejected
+											</span>
+										{% endif %}
+									</td>
+									
+									<!-- Button : APPROVE, REJECT, DETAIL, EDIT, DELETE -->
+									<td>
+										<div class="flex items-center justify-center gap-1">
+
+											{% set kategori = item.Kategori_Cuti|trim|lower %}
+
+											{% if kategori in ['cuti tahunan', 'cuti extra']
+												and item.Status_Pengajuan not in ['Approved', 'Rejected'] %}
+
+												<!-- APPROVE -->
+												<button type="button"
+													title="Approve Pengajuan"
+													onclick="approvePengajuan('{{ item.Id }}', '{{ item.Nama_Lengkap }}')"
+													class="btn-action bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-200 p-1.5 rounded-lg transition-colors">
+													<i class="fas fa-check text-[13px]"></i>
+												</button>
+
+												<!-- REJECT -->
+												<button type="button"
+													title="Reject Pengajuan"
+													onclick="rejectPengajuan('{{ item.Id }}')"
+													class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 p-1.5 rounded-lg transition-colors">
+													<i class="fas fa-ban text-[13px]"></i>
+												</button>
+
+												<div class="h-4 w-[1px] bg-gray-300 mx-1.5 self-center"></div>
+
+											{% endif %}
+
+											<!-- DETAIL -->
+											<button
+												type="button"
+												title="Lihat Detail"
+												onclick="showDetailModal('{{ item.Id }}')"
+												class="btn-action bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-200 p-1.5 rounded-lg transition-colors">
+												<i class="fas fa-eye text-[13px]"></i>
+											</button>
+
+											<!-- EDIT -->
+											<button
+												type="button"
+												title="Edit Data"
+												onclick="showEditModal('{{ item.Id }}')"
+												class="btn-action bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white border border-emerald-200 p-1.5 rounded-lg transition-colors">
+												<i class="fas fa-pen text-[13px]"></i>
+											</button>
+
+											<!-- DELETE -->
+											<button
+												type="button"
+												title="Delete Data"
+												onclick="deletePengajuan('{{ item.Id }}')"
+												class="btn-action bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white border border-rose-200 p-1.5 rounded-lg transition-colors">
+												<i class="fas fa-trash text-[13px]"></i>
+											</button>
+
+										</div>
+									</td>
+								
+								</tr> 	
+								{% endfor %} 
+
+							</tbody>
+
+						</table>
+					</div>
+					<!-- Pagination & Info Container -->
+					<div class="px-6 py-3 border-t border-gray-100 bg-slate-50/50 flex flex-col md:flex-row items-center justify-between gap-4 shrink-0">
+						<!-- Info Total & Halaman -->
+						<div class="text-xs font-semibold text-gray-500 order-2 md:order-1"> Showing <span id="pageStart" class="text-gray-900 font-bold">0</span> to <span id="pageEnd" class="text-gray-900 font-bold">0</span> of <span id="totalEntries" class="text-gray-900 font-bold">0</span> entries </div>
+						<!-- Tombol Navigasi Menjadi Satu Grup (DI TENGAH) -->
+						<div class="flex items-center justify-center order-1 md:order-2 w-full md:w-auto">
+							<div class="inline-flex rounded-lg border border-gray-300 bg-white overflow-hidden shadow-sm divide-x divide-gray-200">
+								<button id="btnPrev" onclick="changePage(-1)" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center">
+									<i class="fas fa-chevron-left mr-1"></i> Prev </button>
+								<div id="pageNumbers" class="flex divide-x divide-gray-200 text-xs"></div>
+								<button id="btnNext" onclick="changePage(1)" class="px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors flex items-center"> Next <i class="fas fa-chevron-right ml-1"></i>
+								</button>
+							</div>
+						</div>
+						<!-- Spacer penyeimbang layout desktop -->
+						<div class="hidden md:block w-48 order-3"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal Detail Pengajuan -->
+	<div id="detailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+		<div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl relative">
+			<!-- Header Modal -->
+			<div class="flex justify-between items-center mb-6 pb-4 border-b">
+				<div>
+					<h3 class="text-lg font-bold text-gray-800">Detail Pengajuan</h3>
+					<p class="text-xs text-gray-500">Informasi lengkap permohonan pengajuan karyawan</p>
+				</div>
+				<button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
+					<i class="fas fa-times text-xl"></i>
+				</button>
+			</div>
+			<!-- Form Inputs (Pastikan ID di bawah ini cocok!) -->
+			<div class="grid grid-cols-2 gap-4 text-sm">
+				<!-- NIK Lintasarta & Status -->
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">NIK Lintasarta</label>
+					<input type="text" id="detail_nik_lintasarta" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1"> Status <span class="text-rose-500">*</span></label>
+					<select id="detail_status" disabled class="w-full px-3 py-2 rounded-lg border text-sm font-medium cursor-not-allowed">
+						<option value="Pending">Pending</option>
+						<option value="Approved">Approved</option>
+						<option value="Rejected">Rejected</option>
+					</select>
+				</div>
+				<!-- Nama & Email -->
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Nama Lengkap</label>
+					<input type="text" id="detail_nama" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Alamat Email</label>
+					<input type="text" id="detail_email" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1"> Personil Backup </label>
+					<input type="text" id="detail_backup" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly>
+				</div>
+				<!-- Tim -->
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1"> TIM </label>
+					<input type="text" id="detail_tim" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly>
+				</div>
+				<!-- Kategori Cuti -->
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1"> Kategori Cuti </label>
+					<input type="text" id="detail_kategori_cuti" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly>
+				</div>
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1"> Sisa Cuti </label>
+					<input type="text" id="detail_sisa_cuti" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly>
+				</div>
+				<!-- Tanggal Submit & Durasi -->
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Pengajuan (Submitted)</label>
+					<input type="text" id="detail_tgl_pengajuan" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Durasi (Hari)</label>
+					<input type="text" id="detail_durasi" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<!-- Tanggal Mulai & Selesai -->
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Mulai</label>
+					<input type="text" id="detail_tgl_mulai" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Tanggal Selesai</label>
+					<input type="text" id="detail_tgl_akhir" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<!-- PM & Supervisor -->
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Project Manager</label>
+					<input type="text" id="detail_pm" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<div>
+					<label class="block text-xs font-semibold text-gray-600 mb-1">Pimpinan / Supervisor</label>
+					<input type="text" id="detail_spv" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-gray-700" readonly />
+				</div>
+				<!-- KETERANGAN -->
+				<div class="mt-4 col-span-2">
+					<label class="block text-xs font-semibold text-gray-600 mb-1"> Keterangan Pengajuan </label>
+					<textarea
+                            id="detail_keterangan"
+                            rows="4"
+                            readonly
+                            class="w-full min-h-[110px] bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-700 resize-none">
+                        </textarea>
+				</div>
+			</div>
+			<!-- Footer -->
+			<div class="mt-6 flex justify-end">
+				<button onclick="closeDetailModal()" class="px-5 py-2 bg-rose-600 text-white font-semibold text-sm rounded-xl hover:bg-rose-700 transition-colors">
+					<i class="fas fa-times mr-1"></i> Tutup </button>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Modal Edit Data Pengajuan -->
+	<div id="editModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+		<div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeEditModal()"></div>
+		<div class="flex min-h-full items-center justify-center p-4">
+			<div class="relative w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left shadow-2xl transition-all border border-gray-100">
+				<!-- Modal Header -->
+				<div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-5">
+					<div class="flex items-center gap-3">
+						<div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+							<i class="fas fa-pen-to-square text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-base font-bold text-gray-900">Edit Data Pengajuan</h3>
+							<p class="text-xs text-gray-500">Perbarui informasi permohonan pengajuan karyawan</p>
+						</div>
+					</div>
+					<button type="button" onclick="closeEditModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+						<i class="fas fa-times text-lg"></i>
+					</button>
+				</div>
+				<form id="formEditPengajuan" action="#" method="POST" onsubmit="handleUpdate(event)">
+					<input type="hidden" id="edit_id" name="id">
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+						<!-- BARIS 2 -->
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-600"> NIK Lintasarta </label>
+							<input type="text" id="edit_nik_lintasarta" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500 font-mono font-semibold">
+						</div>
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Status <span class="text-rose-500">*</span>
+							</label>
+							<select id="edit_status" name="status_pengajuan" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500">
+								<option value="Pending"> Pending </option>
+								<option value="Approved"> Approved </option>
+								<option value="Rejected"> Rejected </option>
+							</select>
+						</div>
+						<!-- BARIS 3 -->
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-600"> Nama Lengkap </label>
+							<input type="text" id="edit_nama" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500">
+						</div>
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-600"> Alamat Email </label>
+							<input type="text" id="edit_email" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500">
+						</div>
+						<!-- BARIS 4 -->
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Personil Backup </label>
+							<input type="text" id="edit_backup" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg">
+						</div>
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Sisa Cuti </label>
+							<input type="text" id="edit_sisa_cuti" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg">
+						</div>
+						<!-- BARIS 5 : KATEGORI CUTI | TANGGAL PENGAJUAN -->
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Kategori Cuti <span class="text-rose-500">*</span>
+							</label>
+							<select id="edit_kategori_cuti" name="kategori_cuti" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500">
+								<option value="Cuti Tahunan"> Cuti Tahunan </option>
+								<option value="Cuti Mendadak"> Cuti Mendadak </option>
+								<option value="Cuti Extra"> Cuti Extra </option>
+							</select>
+						</div>
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-600"> Tanggal Pengajuan (Submitted) </label>
+							<input type="text" id="edit_tgl_pengajuan" readonly class="w-full px-3 py-2 bg-slate-100 border border-gray-200 rounded-lg text-gray-500 font-medium focus:outline-none cursor-not-allowed">
+						</div>
+						<!-- BARIS 6 : TANGGAL MULAI | TANGGAL SELESAI -->
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Tanggal Mulai <span class="text-rose-500">*</span>
+							</label>
+							<div class="relative">
+								<input type="text" id="edit_tgl_mulai" name="tanggal_mulai" class="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none font-mono">
+								<i class="fas fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+							</div>
+						</div>
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Tanggal Selesai <span class="text-rose-500">*</span>
+							</label>
+							<div class="relative">
+								<input type="text" id="edit_tgl_akhir" name="tanggal_akhir" class="w-full px-3 py-2 pr-10 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none font-mono">
+								<i class="fas fa-calendar-alt absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+							</div>
+						</div>
+						<!-- BARIS 7 : PROJECT MANAGER | PIMPINAN SUPERVISOR -->
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Project Manager <span class="text-rose-500">*</span>
+							</label>
+							<select id="edit_pm" name="project_manager" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+								<option value="Demo Supervisor"> Demo Supervisor </option>
+							</select>
+						</div>
+						<div class="space-y-1">
+							<label class="font-semibold text-gray-700"> Pimpinan / Supervisor <span class="text-rose-500">*</span>
+							</label>
+							<select id="edit_spv" name="pimpinan_supervisor" class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+								<option value="">Choose</option> {% for spv in list_supervisor %} <option value="{{ spv.nama }}">
+									{{ spv.nama }}
+								</option> {% endfor %}
+							</select>
+						</div>
+						<!-- KETERANGAN -->
+						<div class="space-y-1 md:col-span-2">
+							<label class="font-semibold text-gray-700"> Keterangan (Alasan) </label>
+							<textarea
+                                    id="edit_keterangan"
+                                    name="keterangan"
+                                    rows="3"
+                                    class="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-cyan-500 focus:outline-none resize-none"
+                                ></textarea>
+						</div>
+					</div>
+					<!-- Action Buttons Footer Modal -->
+					<div class="mt-6 flex justify-end items-center gap-2 border-t border-gray-100 pt-4">
+						<button type="submit" class="px-5 py-2.5 bg-cyan-600 text-white font-semibold rounded-xl hover:bg-cyan-700 active:bg-cyan-800 transition-colors text-xs shadow-sm flex items-center gap-1.5">
+							<i class="fas fa-save text-xs"></i> Update </button>
+						<button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-rose-600 text-white font-semibold rounded-xl hover:bg-rose-700 active:bg-rose-800 transition-colors text-xs shadow-sm flex items-center gap-1.5">
+							<i class="fas fa-times text-xs"></i> Cancel </button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Datatable -->
+	<script>
+		let rowsPerPage = 5;
+		let currentPage = 1;
+		const table = document.querySelector('.data-table');
+		const tbody = table.querySelector('tbody');
+
+		console.log("TBODY =", tbody);
+		console.log("ROW COUNT =", tbody.querySelectorAll('tr').length);
+		const allRows = Array.from(tbody.querySelectorAll('tr:not(#noDataRow)'));
+		console.log("ALL ROWS =", allRows.length);
+
+		let filteredRows = [...allRows];
+
+		function renderTable() {
+			const totalEntries = filteredRows.length;
+			const totalPages = Math.ceil(totalEntries / rowsPerPage) || 1;
+			if (currentPage > totalPages) currentPage = totalPages;
+			if (currentPage < 1) currentPage = 1;
+			const start = (currentPage - 1) * rowsPerPage;
+			const end = start + rowsPerPage;
+			allRows.forEach(row => row.style.display = 'none');
+			filteredRows.forEach((row, index) => {
+				if (index >= start && index < end) {
+					row.style.display = '';
+				}
+			});
+			document.getElementById('pageStart').textContent = totalEntries === 0 ? 0 : start + 1;
+			document.getElementById('pageEnd').textContent = Math.min(end, totalEntries);
+			document.getElementById('totalEntries').textContent = totalEntries;
+			document.getElementById('btnPrev').disabled = currentPage === 1 || totalEntries === 0;
+			document.getElementById('btnNext').disabled = currentPage >= totalPages || totalEntries === 0;
+			renderPageNumbers(totalPages);
+		}
+
+		function changePage(delta) 
+		{
+			currentPage += delta;
+			renderTable();
+		}
+
+		function changeRowsPerPage(val)
+		{
+			rowsPerPage = val === 'all' ? (filteredRows.length || allRows.length || 1) : parseInt(val);
+			currentPage = 1;
+			renderTable();
+		}
+
+		//  Original Filter Function
+		//  function filterTable() {
+		//    const query = document.getElementById('tableSearch').value.toLowerCase();
+		//    filteredRows = allRows.filter(row => {
+		//        const text = row.textContent.toLowerCase();
+		//        return text.includes(query);
+		//    });
+		//      currentPage = 1;
+		//      renderTable();
+		//  }
+
+		function filterTable()
+		{
+			// Jangan lakukan filtering saat SweetAlert sedang aktif
+			if (Swal.isVisible())
+			{
+				return;
+			}
+
+			const nik = document.getElementById("filterNik").value.trim().toLowerCase();
+			const nama = document.getElementById("filterNama").value.trim().toLowerCase();
+			const backup = document.getElementById("filterBackup").value.trim().toLowerCase();
+			const tim = document.getElementById("filterTim").value.trim().toLowerCase();
+			const kategori = document.getElementById("filterKategori").value.trim().toLowerCase();
+			const tanggalPengajuan = document.getElementById("filterTanggalPengajuan").value.trim().toLowerCase();
+			const periode = document.getElementById("filterPeriode").value.trim().toLowerCase();
+			const sisaAwal = document.getElementById("filterSisaAwal").value.trim().toLowerCase();
+			const jumlahHari = document.getElementById("filterJumlahHari").value.trim().toLowerCase();
+			const sisaAkhir = document.getElementById("filterSisaAkhir").value.trim().toLowerCase();
+
+			const pm = document.getElementById("filterPM").value.trim().toLowerCase();
+			const supervisor = document.getElementById("filterSupervisor").value.trim().toLowerCase();
+			const keterangan = document.getElementById("filterKeterangan").value.trim().toLowerCase();
+			const status = document.getElementById("filterStatus").value.trim().toLowerCase();
+
+			// PENTING !!!
+			// Gunakan data awal table, bukan query ulang ke seluruh DOM
+			filteredRows = [];
+
+			let pendingVisibleCount = 0;
+
+			allRows.forEach((row) =>
+			{
+				const cells = row.querySelectorAll("td");
+
+				if (cells.length < 17)
+				{
+					return;
+				}
+
+				const nikText = cells[2].innerText.trim().toLowerCase();
+				const namaText = cells[3].innerText.trim().toLowerCase();
+				const backupText = cells[4].innerText.trim().toLowerCase();
+				const timText = cells[5].innerText.trim().toLowerCase();
+				const kategoriText = cells[6].innerText.trim().toLowerCase();
+				const tanggalPengajuanText = cells[7].innerText.trim().toLowerCase();
+				const periodeText = cells[8].innerText.trim().toLowerCase();
+				const sisaAwalText = cells[9].innerText.trim().toLowerCase();
+				const jumlahHariText = cells[10].innerText.trim().toLowerCase();
+				const sisaAkhirText = cells[11].innerText.trim().toLowerCase();
+				const pmText = cells[12].innerText.trim().toLowerCase();
+				const supervisorText = cells[13].innerText.trim().toLowerCase();
+				const keteranganText = cells[14].innerText.trim().toLowerCase();
+				const statusText = cells[15].innerText.trim().toLowerCase();
+
+				// =====================
+				// FILTER PERIODE
+				// =====================
+
+				let matchPeriode = true;
+
+				if (periode)
+				{
+					const range = periode.match(/\d{2}-\d{2}-\d{4}/g);
+					const dataRange = periodeText.match(/\d{2}-\d{2}-\d{4}/g);
+
+					if (
+						range &&
+						dataRange &&
+						dataRange.length === 2
+					)
+					{
+						const toDate = (str) =>
+						{
+							const [dd, mm, yyyy] = str.split("-");
+
+							return new Date(
+								parseInt(yyyy),
+								parseInt(mm) - 1,
+								parseInt(dd)
+							);
+						};
+
+						const dataStart = toDate(dataRange[0]);
+						const dataEnd = toDate(dataRange[1]);
+
+						if (range.length === 1)
+						{
+							const selected = toDate(range[0]);
+
+							matchPeriode =
+								selected >= dataStart &&
+								selected <= dataEnd;
+						}
+						else if (range.length === 2)
+						{
+							const filterStart = toDate(range[0]);
+							const filterEnd = toDate(range[1]);
+
+							matchPeriode =
+								filterStart <= dataEnd &&
+								filterEnd >= dataStart;
+						}
+					}
+				}
+
+				const match =
+				nikText.includes(nik) &&
+				namaText.includes(nama) &&
+				backupText.includes(backup) &&
+				timText.includes(tim) &&
+				kategoriText.includes(kategori) &&
+				tanggalPengajuanText.includes(tanggalPengajuan) &&
+				matchPeriode &&
+				sisaAwalText.includes(sisaAwal) &&
+				jumlahHariText.includes(jumlahHari) &&
+				sisaAkhirText.includes(sisaAkhir) &&
+				pmText.includes(pm) &&
+				supervisorText.includes(supervisor) &&
+				keteranganText.includes(keterangan) &&
+				statusText.includes(status);
+
+				console.log({
+					nama: namaText,
+					periode: periodeText,
+					matchPeriode: matchPeriode
+				});
+
+				if (match)
+				{
+				filteredRows.push(row);
+				}
+
+				// =====================
+				// CHECKBOX PENDING
+				// =====================
+
+				const checkbox = row.querySelector('.row-check');
+
+				if (checkbox)
+				{
+					if (
+						match &&
+						statusText.includes('pending')
+					)
+					{
+						checkbox.style.display = '';
+						pendingVisibleCount++;
+					}
+					else
+					{
+						checkbox.checked = false;
+						checkbox.style.display = 'none';
+					}
+				}
+			});
+
+			const checkAll = document.getElementById("checkAll");
+
+			if (checkAll)
+			{
+				checkAll.checked = false;
+
+				checkAll.style.display =
+					pendingVisibleCount > 0
+					? ''
+					: 'none';
+			}
+
+			currentPage = 1;
+
+			console.log("FILTERED ROWS =", filteredRows.length);
+
+			allRows.forEach((row) =>
+			{
+				const periodeText =
+					row.querySelectorAll("td")[8]
+					.innerText
+					.trim();
+
+				const dataRange =
+					periodeText.match(/\d{2}-\d{2}-\d{4}/g);
+
+				if (!dataRange || dataRange.length !== 2)
+				{
+					console.error(
+						"PERIODE TIDAK TERBACA :",
+						periodeText
+					);
+				}
+			});
+
+
+			renderTable();
+		}
+		
+		function renderPageNumbers(totalPages) {
+			const pageNumbersContainer = document.getElementById('pageNumbers');
+			pageNumbersContainer.innerHTML = '';
+			// Tampilkan nomor halaman meskipun hanya ada 1 halaman
+			for (let i = 1; i <= totalPages; i++) {
+				const btn = document.createElement('button');
+				btn.textContent = i;
+				btn.className = `px-3 py-1.5 text-xs font-semibold transition-colors ${ i === currentPage ? 'bg-cyan-600 text-white' : 'text-gray-600 hover:bg-gray-100 bg-white' }`;
+				btn.onclick = () => {
+					currentPage = i;
+					renderTable();
+				};
+				pageNumbersContainer.appendChild(btn);
+			}
+		}
+
+		// Initial render
+		renderTable();
+	</script>
+
+	<!-- CheckBox -->
+	<script>
+		document.addEventListener('DOMContentLoaded', function ()
+		{
+			const checkAll = document.getElementById('checkAll');
+
+			// Jika tidak ada data pending, checkbox master memang tidak dirender
+			if (!checkAll)
+			{
+				console.log('Checkbox checkAll tidak ditemukan');
+				return;
+			}
+
+			// Check / Uncheck semua checkbox yang terlihat
+			checkAll.addEventListener('change', function ()
+			{
+				document
+					.querySelectorAll(
+						'tbody tr:not([style*="display: none"]) .row-check'
+					)
+					.forEach(cb =>
+					{
+						cb.checked = this.checked;
+
+						console.log(
+							this.checked ? 'CHECKED' : 'UNCHECKED',
+							'ID =',
+							cb.value
+						);
+					});
+			});
+
+			// Sinkronisasi status checkAll
+			document.addEventListener('change', function (e)
+			{
+				if (!e.target.classList.contains('row-check'))
+				{
+					return;
+				}
+
+				console.log(
+					e.target.checked ? 'CHECKED' : 'UNCHECKED',
+					'ID =',
+					e.target.value
+				);
+
+				const visibleCheckboxes = document.querySelectorAll(
+					'tbody tr:not([style*="display: none"]) .row-check'
+				);
+
+				const checkedCheckboxes = document.querySelectorAll(
+					'tbody tr:not([style*="display: none"]) .row-check:checked'
+				);
+
+				checkAll.checked =
+					visibleCheckboxes.length > 0 &&
+					visibleCheckboxes.length === checkedCheckboxes.length;
+
+				console.log(
+					'SELECTED IDS =',
+					Array.from(
+						document.querySelectorAll('.row-check:checked')
+					).map(cb => cb.value)
+				);
+			});
+		});
+
+		function getSelectedIds()
+		{
+			const selectedIds = [];
+
+			document.querySelectorAll('.row-check:checked')
+			.forEach(cb =>
+			{
+				selectedIds.push(cb.value);
+			});
+
+			return selectedIds;
+		}
+
+		async function bulkApprove()
+		{
+			const ids = getSelectedIds();
+			console.log("SELECTED IDS =", ids);
+
+			if (ids.length === 0)
+			{
+				Swal.fire({
+					icon: 'warning',
+					title: 'Warning',
+					text: 'Silakan pilih minimal satu data.'
+				});
+				return;
+			}
+
+			const confirmResult = await Swal.fire({
+				title: 'Konfirmasi Bulk Approve',
+				html: 
+				`
+					Terdapat <b>${ids.length}</b> data pengajuan akan di-approve.
+					<br><br>
+					Apakah ingin melanjutkan bulk approval ?
+				`,
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonText: 'Ya, Approve',
+				cancelButtonText: 'Batal',
+				confirmButtonColor: '#10b981',
+				cancelButtonColor: '#6b7280'
+			});
+
+			if (!confirmResult.isConfirmed)
+			{
+				return;
+			}
+
+			try
+			{
+				const response = await fetch('/bulk-approve-pengajuan-cuti',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						ids: ids
+					})
+				});
+
+				const result = await response.json();
+				if (!result.success)
+				{
+					Swal.fire({
+						icon: 'error',
+						title: 'Gagal',
+						text: result.message
+					});
+					return;
+				}
+
+				await Swal.fire({
+					icon: 'success',
+					title: 'Berhasil',
+					text: result.message
+				});
+
+				location.reload();
+			}
+			catch(error)
+			{
+				console.error(error);
+				Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'Terjadi kesalahan sistem.'
+				});
+			}
+		}
+
+		async function bulkApproveWithPassphrase()
+		{
+				const ids = getSelectedIds();
+
+				console.log("SELECTED IDS =", ids);
+
+				if (ids.length === 0)
+				{
+					Swal.fire({
+						icon: 'warning',
+						title: 'Warning',
+						text: 'Silakan pilih minimal satu data.'
+					});
+
+					return;
+				}
+
+				const result = await Swal.fire({
+					title: 'Konfirmasi Bulk Approve',
+					allowOutsideClick: false,
+					allowEscapeKey: false,
+					returnFocus: false,
+					focusConfirm: false,
+					icon: 'question',
+
+					html: `
+						<div style="margin-top:10px;">
+
+							<div style="font-size:15px; color:#4b5563; margin-bottom:20px;">
+								Terdapat
+								<span style="color:#0891b2; font-weight:700;">
+									${ids.length}
+								</span>
+								data pengajuan yang akan disetujui, Apakah ingin melanjutkan proses Bulk Approval ?
+							</div>
+
+							<hr style="margin:20px 0; border:none; border-top:1px solid #e5e7eb;">
+
+							<div style="font-size:18px; font-weight:700; color:#111827; margin-bottom:15px;">
+								🔐 Verifikasi Passphrase
+							</div>
+
+							<div style="text-align:left; color:#64748b; font-size:13px; margin-bottom:12px;">
+								Untuk melanjutkan bulk approval pengajuan, silakan masukkan passphrase.
+							</div>
+
+							<div style="text-align:left;">
+								<label style="
+									display:block;
+									margin-bottom:6px;
+									font-size:13px;
+									font-weight:600;
+									color:#334155;
+								">
+									Passphrase Approval
+								</label>
+
+								<div style="position:relative;">
+									<input
+										id="approvalPassphrase"
+										type="password"
+										placeholder="Masukkan passphrase"
+										style="
+											width:100%;
+											height:46px;
+											border:2px solid #374151;
+											border-radius:12px;
+											padding:0 45px 0 12px;
+											font-size:14px;
+											box-sizing:border-box;
+											background:#f8fafc;
+										">
+
+									<button
+										type="button"
+										id="togglePassword"
+										style="
+											position:absolute;
+											right:12px;
+											top:50%;
+											transform:translateY(-50%);
+											background:none;
+											border:none;
+											cursor:pointer;
+											color:#6b7280;
+										">
+										<i class="fas fa-eye"></i>
+									</button>
+								</div>
+							</div>
+
+						</div>
+					`,
+
+					showCancelButton: true,
+					confirmButtonText: 'Ya, Approve',
+					cancelButtonText: 'Batal',
+					confirmButtonColor: '#0891b2',
+					cancelButtonColor: '#6b7280',
+					width: 520,
+
+					didOpen: () =>
+					{
+						const input =
+							document.getElementById('approvalPassphrase');
+
+						const btn =
+							document.getElementById('togglePassword');
+
+						input.focus();
+
+						btn.addEventListener('click', () =>
+						{
+							input.type =
+								input.type === 'password'
+								? 'text'
+								: 'password';
+
+							btn.innerHTML =
+								input.type === 'password'
+								? '<i class="fas fa-eye"></i>'
+								: '<i class="fas fa-eye-slash"></i>';
+						});
+					},
+
+					preConfirm: () =>
+					{
+						const passphrase =
+							document.getElementById('approvalPassphrase')
+							.value
+							.trim();
+
+						if (!passphrase)
+						{
+							Swal.showValidationMessage(
+								'Passphrase wajib diisi'
+							);
+
+							return false;
+						}
+
+						return passphrase;
+					}
+				});
+
+				if (!result.isConfirmed)
+				{
+					return;
+				}
+
+				const passphrase = result.value;
+
+				try
+				{
+					const response = await fetch(
+						'/bulk-approve-pengajuan-cuti-with-passphrase',
+						{
+							method: 'POST',
+							headers:
+							{
+								'Content-Type': 'application/json'
+							},
+							body: JSON.stringify({
+								ids: ids,
+								passphrase: passphrase
+							})
+						}
+					);
+
+					const data = await response.json();
+
+					if (!data.success)
+					{
+						Swal.fire({
+							icon: 'error',
+							title: 'Gagal',
+							text: data.message
+						});
+
+						return;
+					}
+
+					await Swal.fire({
+						icon: 'success',
+						title: 'Berhasil',
+						text: data.message
+					});
+
+					location.reload();
+				}
+				catch(error)
+				{
+					console.error(error);
+
+					Swal.fire({
+						icon: 'error',
+						title: 'Error',
+						text: 'Terjadi kesalahan sistem.'
+					});
+				}
+			
+		}
+	</script>	
+
+
+	<!-- Modal View Control Scripts -->
+	<script>
+		async function showDetailModal(id) {
+			try {
+				const response = await fetch(`/detail-pengajuan-cuti/${id}`);
+				const result = await response.json();
+				if (!result.success) {
+					alert(result.message);
+					return;
+				}
+				const d = result.data;
+				document.getElementById('detail_nik_lintasarta').value = d.nik_lintasarta || '-';
+				document.getElementById('detail_nama').value = d.nama_lengkap || '-';
+				document.getElementById('detail_email').value = d.email || '-';
+				document.getElementById('detail_tim').value = d.nama_tim || '-';
+				document.getElementById('detail_backup').value = d.nama_backup || '-';
+				document.getElementById('detail_kategori_cuti').value = d.kategori_cuti || '-';
+				document.getElementById('detail_sisa_cuti').value = d.sisa_cuti || 0;
+				document.getElementById('detail_tgl_pengajuan').value = d.submitted_date || '-';
+				document.getElementById('detail_tgl_mulai').value = d.tanggal_mulai || '-';
+				document.getElementById('detail_tgl_akhir').value = d.tanggal_akhir || '-';
+				document.getElementById('detail_durasi').value = `${d.jumlah_hari || 0} Hari`;
+				document.getElementById('detail_pm').value = d.project_manager || '-';
+				document.getElementById('detail_spv').value = d.pimpinan_supervisor || '-';
+				document.getElementById('detail_keterangan').value = d.keterangan || '-';
+				const statusSelect = document.getElementById('detail_status');
+				if (statusSelect) {
+					const status = d.status_pengajuan || 'Pending';
+					statusSelect.value = status;
+					statusSelect.disabled = true;
+					statusSelect.className = 'w-full px-3 py-2 rounded-lg border text-sm font-medium cursor-not-allowed';
+					switch (status.toUpperCase()) {
+						case 'PENDING':
+							statusSelect.classList.add('bg-amber-100', 'text-amber-700', 'border-amber-200');
+							break;
+						case 'APPROVED':
+							statusSelect.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-200');
+							break;
+						case 'REJECTED':
+							statusSelect.classList.add('bg-rose-100', 'text-rose-700', 'border-rose-200');
+							break;
+						default:
+							statusSelect.classList.add('bg-blue-100', 'text-blue-700', 'border-blue-200');
+					}
+				}
+				document.getElementById('detailModal').classList.remove('hidden');
+			} catch (err) {
+				console.error(err);
+				alert('Gagal mengambil detail data.');
+			}
+		}
+
+		function closeDetailModal() {
+			document.getElementById('detailModal').classList.add('hidden');
+		}
+	</script>
+
+	<!-- Modal Edit Control Scripts -->
+	<script>
+		async function showEditModal(id) {
+			try {
+				const response = await fetch(`/detail-pengajuan-cuti/${id}`);
+				const result = await response.json();
+				if (!result.success) {
+					Swal.fire('Gagal', result.message || 'Data tidak ditemukan', 'error');
+					return;
+				}
+				const d = result.data;
+				const get = (id) => document.getElementById(id);
+				const setValue = (id, value) => {
+					const el = get(id);
+					if (el) {
+						el.value = value || '';
+					}
+				};
+				const convertToDateInput = (value) => {
+					if (!value) return '';
+					const p = value.split('-');
+					if (p.length !== 3) return '';
+					return `${p[2]}-${p[1]}-${p[0]}`;
+				};
+				// =====================================
+				// FIELD DASAR
+				// =====================================
+				setValue('edit_id', d.id);
+				setValue('edit_nik_lintasarta', d.nik_lintasarta);
+				setValue('edit_nama', d.nama_lengkap);
+				setValue('edit_backup', d.nama_backup);
+				setValue('edit_sisa_cuti', d.sisa_cuti);
+				setValue('edit_email', d.email);
+				setValue('edit_tgl_pengajuan', d.submitted_date);
+				setValue('edit_keterangan', d.keterangan);
+				// =====================================
+				// TANGGAL (FLATPICKR)
+				// =====================================
+				const tglMulai = convertToDateInput(d.tanggal_mulai);
+				const tglAkhir = convertToDateInput(d.tanggal_akhir);
+				if (typeof fpMulai !== 'undefined') {
+					fpMulai.setDate(tglMulai, true);
+				} else {
+					setValue('edit_tgl_mulai', tglMulai);
+				}
+				if (typeof fpAkhir !== 'undefined') {
+					fpAkhir.setDate(tglAkhir, true);
+				} else {
+					setValue('edit_tgl_akhir', tglAkhir);
+				}
+				// =====================================
+				// DROPDOWN
+				// =====================================
+				get('edit_kategori_cuti').value = d.kategori_cuti || '';
+				get('edit_pm').value = d.project_manager || '';
+				get('edit_spv').value = d.pimpinan_supervisor || '';
+				// =====================================
+				// STATUS PENGAJUAN
+				// =====================================
+				const statusSelect = get('edit_status');
+				const statusPengajuan = d.status_pengajuan || 'Pending';
+				statusSelect.value = statusPengajuan;
+				statusSelect.classList.remove('bg-slate-100', 'text-gray-500', 'border-gray-200', 'cursor-not-allowed', 'bg-white', 'text-gray-900', 'border-gray-300');
+				statusSelect.disabled = false;
+				statusSelect.classList.add('bg-white', 'text-gray-900', 'border-gray-300');
+				// =====================================
+				// OPEN MODAL
+				// =====================================
+				get('editModal').classList.remove('hidden');
+			} catch (error) {
+				console.error(error);
+				Swal.fire('Error', 'Gagal mengambil data.', 'error');
+			}
+		}
+
+		function closeEditModal() {
+			document.getElementById('editModal').classList.add('hidden');
+		}
+	</script>
+
+	<!-- Reset Filter Table, Approved & Rejected Data Scripts -->
+	<script>
+		async function resetFilterTable()
+		{
+			// INPUT TEXT / NUMBER
+			document.getElementById('filterNik').value = '';
+			document.getElementById('filterNama').value = '';
+			document.getElementById('filterBackup').value = '';
+			document.getElementById('filterTim').value = '';
+			document.getElementById('filterTanggalPengajuan').value = '';
+			document.getElementById('filterPeriode').value = '';
+			document.getElementById('filterSisaAwal').value = '';
+			document.getElementById('filterJumlahHari').value = '';
+			document.getElementById('filterSisaAkhir').value = '';
+			document.getElementById('filterPM').value = '';
+			document.getElementById('filterSupervisor').value = '';
+			document.getElementById('filterKeterangan').value = '';
+
+			// DROPDOWN
+			document.getElementById('filterKategori').selectedIndex = 0;
+			document.getElementById('filterStatus').selectedIndex = 0;
+
+			// RESET DATA TABLE
+			filteredRows = [...allRows];
+			currentPage = 1;
+
+			// RESET CHECKBOX
+			const checkAll = document.getElementById('checkAll');
+
+			if (checkAll)
+			{
+				checkAll.checked = false;
+				checkAll.style.display = '';
+			}
+
+			document.querySelectorAll('.row-check').forEach(cb =>
+			{
+				cb.checked = false;
+				cb.style.display = '';
+			});
+
+			renderTable();
+		}
+
+		async function approvePengajuan(id, nama)
+		{
+			const savedFilteredRows = [...filteredRows]; 
+			const savedCurrentPage = currentPage;
+
+
+			const result = await Swal.fire({
+				title: 'Konfirmasi Pengajuan',
+				allowOutsideClick: false,
+				allowEscapeKey: false,
+				returnFocus: false,
+				focusConfirm: false,
+				icon: 'question',
+				html: `
+					<div style="margin-top:10px;">
+
+						<div style="font-size:15px; color:#4b5563; margin-bottom:20px;">
+							Apakah data pengajuan
+							<span style="color:#0891b2; font-weight:700;">
+								${nama}
+							</span>
+							akan disetujui ?
+						</div>
+
+						<hr style="margin:20px 0; border:none; border-top:1px solid #e5e7eb;">
+
+						<div style="font-size:18px; font-weight:700; color:#111827; margin-bottom:15px;">
+							🔐 Verifikasi Passphrase
+						</div>
+
+						<div style="text-align:left; color:#64748b; font-size:13px; margin-bottom:12px;">
+							Untuk melanjutkan approval pengajuan, silahkan masukkan passphrase.
+						</div>
+
+						<div style="text-align:left;">
+							<label style="display:block; margin-bottom:6px; font-size:13px; font-weight:600; color:#334155;">
+								Passphrase Approval
+							</label>
+
+							<div style="position:relative;">
+								<input id="approvalPassphrase" type="password" ClientIDMode="Static" placeholder="Masukkan passphrase" style="width:100%; height:46px; border:2px solid #374151; border-radius:12px; padding:0 45px 0 12px; font-size:14px; box-sizing:border-box; background:#f8fafc;">
+
+								<button type="button" id="togglePassword" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:#6b7280;">
+									<i class="fas fa-eye"></i>
+								</button>
+							</div>
+						</div>
+
+					</div>
+					`,
+
+				showCancelButton: true,
+				confirmButtonText: 'Ya, Approve',
+				cancelButtonText: 'Batal',
+				confirmButtonColor: '#0891b2',
+				cancelButtonColor: '#6b7280',
+				width: 520,
+				didOpen: () =>
+				{
+					console.log(document.activeElement);
+
+					const input = document.getElementById('approvalPassphrase');
+					const btn = document.getElementById('togglePassword');
+					input.focus();
+					btn.addEventListener('click', () =>
+					{
+						input.type =
+						input.type === 'password'
+						? 'text'
+						: 'password';
+
+						btn.innerHTML =
+						input.type === 'password'
+						? '<i class="fas fa-eye"></i>'
+						: '<i class="fas fa-eye-slash"></i>';
+					});
+				},
+
+				preConfirm: () =>
+				{
+					const passphrase = document.getElementById('approvalPassphrase').value.trim();
+					if (!passphrase)
+					{
+						Swal.showValidationMessage('Passphrase wajib diisi');
+						return false;
+					}
+					return passphrase;
+				}
+			});
+
+			if (!result.isConfirmed)
+			{
+				filteredRows = [...savedFilteredRows];
+				currentPage = savedCurrentPage;
+				renderTable();
+				return;
+			}
+
+			// restore lagi setelah popup ditutup
+			filteredRows = [...savedFilteredRows];
+			currentPage = savedCurrentPage;
+			renderTable();
+
+			const passphrase = result.value;
+
+			try
+			{
+				const response = await fetch(`/approve-pengajuan-cuti/${id}`,
+				{
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({passphrase: passphrase})
+				});
+
+				const data = await response.json();
+
+				if (!data.success)
+				{
+					Swal.fire({
+						icon: 'error',
+						title: 'Gagal',
+						text: data.message
+					});
+					return;
+				}
+
+				await Swal.fire({
+					icon: 'success',
+					title: 'Berhasil',
+					text: 'Pengajuan berhasil di-Approve'
+				});
+
+				location.reload();
+			}
+			catch(error)
+			{
+				console.error(error);
+
+				Swal.fire({
+					icon: 'error',
+					title: 'Error',
+					text: 'Terjadi kesalahan sistem.'
+				});
+			}
+		}
+
+		async function rejectPengajuan(id) {
+			const confirmResult = await Swal.fire({
+				title: 'Reject Pengajuan',
+				text: 'Apakah data pengajuan akan ditolak ?',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonText: 'Ya, Reject',
+				cancelButtonText: 'Batal',
+				confirmButtonColor: '#ef4444',
+				cancelButtonColor: '#6b7280',
+				//reverseButtons: true
+			});
+			if (!confirmResult.isConfirmed) {
+				return;
+			}
+			try {
+				const response = await fetch(`/reject-pengajuan-cuti/${id}`, {
+					method: 'POST'
+				});
+				const result = await response.json();
+				if (!result.success) {
+					Swal.fire({
+						title: 'Gagal',
+						text: result.message,
+						icon: 'error',
+						confirmButtonColor: '#ef4444'
+					});
+					return;
+				}
+				await Swal.fire({
+					title: 'Berhasil',
+					text: 'Pengajuan berhasil di-Reject',
+					icon: 'success',
+					confirmButtonColor: '#10b981'
+				});
+				location.reload();
+			} catch (error) {
+				console.error(error);
+				Swal.fire({
+					title: 'Error',
+					text: 'Gagal melakukan reject.',
+					icon: 'error',
+					confirmButtonColor: '#ef4444'
+				});
+			}
+		}
+	</script>
+
+	<!-- Update Data Scripts -->
+	<script>
+		async function handleUpdate(event) {
+			event.preventDefault();
+			const confirmResult = await Swal.fire({
+				title: 'Konfirmasi Update',
+				text: 'Apakah Anda yakin ingin memperbarui data pengajuan ini ?',
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonText: 'Ya, Update',
+				cancelButtonText: 'Batal',
+				confirmButtonColor: '#0891b2',
+				cancelButtonColor: '#dc2626',
+				//reverseButtons: true
+			});
+			if (!confirmResult.isConfirmed) {
+				return;
+			}
+			const form = document.getElementById('formEditPengajuan');
+			const formData = new FormData(form);
+			try {
+				const response = await fetch('/update-pengajuan-cuti', {
+					method: 'POST',
+					body: formData
+				});
+				const result = await response.json();
+				if (result.success) {
+					await Swal.fire({
+						title: 'Berhasil',
+						text: result.message,
+						icon: 'success',
+						confirmButtonColor: '#0891b2',
+						confirmButtonText: 'OK'
+					});
+					closeEditModal();
+					location.reload();
+				} else {
+					Swal.fire({
+						title: 'Gagal',
+						text: result.message,
+						icon: 'error',
+						confirmButtonColor: '#dc2626'
+					});
+				}
+			} catch (error) {
+				console.error(error);
+				Swal.fire({
+					title: 'Error',
+					text: 'Terjadi kesalahan saat mengupdate data',
+					icon: 'error',
+					confirmButtonColor: '#dc2626'
+				});
+			}
+		}
+	</script>
+
+	<!-- Delete Data Scripts -->
+	<script>
+		async function deletePengajuan(id) {
+			const result = await Swal.fire({
+				icon: 'warning',
+				title: 'Hapus Data',
+				text: 'Apakah yakin akan menghapus data ini ?',
+				showCancelButton: true,
+				confirmButtonColor: '#dc2626',
+				cancelButtonColor: '#6b7280',
+				confirmButtonText: 'Ya, Hapus',
+				cancelButtonText: 'Batal'
+			});
+			if (!result.isConfirmed) return;
+			try {
+				const response = await fetch(`/delete-pengajuan-cuti/${id}`, {
+					method: 'POST'
+				});
+				const data = await response.json();
+				if (!data.success) {
+					Swal.fire('Gagal', data.message, 'error');
+					return;
+				}
+				Swal.fire({
+					icon: 'success',
+					title: 'Berhasil',
+					text: 'Data berhasil dihapus'
+				}).then(() => {
+					location.reload();
+				});
+			} catch (err) {
+				Swal.fire('Error', 'Terjadi kesalahan sistem', 'error');
+			}
+		}
+	</script>
+
+	<!-- Export Scripts -->
+	<script>
+		function exportPengajuan() {
+			window.location.href = '/export-pengajuan-cuti';
+		}
+	</script>
+	
+	<!-- Flatpickr Initialization -->
+	<script>
+		let fpMulai;
+		let fpAkhir;
+		document.addEventListener('DOMContentLoaded',
+			() => {
+				fpMulai = flatpickr('#edit_tgl_mulai', {
+					locale: 'id',
+					dateFormat: 'd-m-Y',
+					allowInput: true
+				});
+				fpAkhir = flatpickr('#edit_tgl_akhir', {
+					locale: 'id',
+					dateFormat: 'd-m-Y',
+					allowInput: true
+				});
+			});
+	</script>
+
+	<script>
+	document.addEventListener("DOMContentLoaded", function ()
+	{
+		// ==========================================
+		// RESET URL SAAT REFRESH
+		// ==========================================
+		if (window.location.search.includes("tanggal_pengajuan"))
+		{
+			window.history.replaceState({}, document.title, "/view-data-pengajuan-cuti");
+		}
+
+		// ==========================================
+		// FILTER TANGGAL PENGAJUAN
+		// ==========================================
+		flatpickr("#filterTanggalPengajuan",
+		{
+			locale: "id",
+			dateFormat: "d-m-Y",
+
+			onReady: function(selectedDates, dateStr, instance)
+			{
+				const tanggal = instance.input.dataset.tanggal;
+				if (tanggal)
+				{
+					setTimeout(() =>
+					{
+						instance.input.value = tanggal;
+					}, 50);
+				}
+			},
+
+			onChange: function(selectedDates, dateStr)
+			{
+				if (!dateStr)
+				{
+					window.location.href = "/view-data-pengajuan-cuti";
+					return;
+				}
+
+				window.location.href = "/view-data-pengajuan-cuti?tanggal_pengajuan=" + encodeURIComponent(dateStr);
+			}
+		});
+
+		// ==========================================
+		// FILTER PERIODE
+		// ==========================================
+		flatpickr("#filterPeriode",
+		{
+			locale: "id",
+			mode: "range",
+			dateFormat: "d-m-Y",
+
+			onReady: function(selectedDates, dateStr, instance)
+			{
+				const periode = instance.input.dataset.periode;
+				if (periode)
+				{
+					setTimeout(() =>
+					{
+						instance.input.value = periode;
+					}, 50);
+				}
+			},
+
+			onChange: function(selectedDates, dateStr, instance)
+			{
+				if (selectedDates.length === 2)
+				{
+					const tglMulai = instance.formatDate(selectedDates[0], "d-m-Y");
+					const tglAkhir = instance.formatDate(selectedDates[1],"d-m-Y");
+					const periode = `${tglMulai} s/d ${tglAkhir}`;
+					window.location.href = "/view-data-pengajuan-cuti?periode=" + encodeURIComponent(periode);
+				}
+			}
+		});
+
+	});
+
+	function clearFilterRefresh(event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+		window.location.href = "/clear-filter-refresh-cuti";
+	}
+
+	function clearInput(id)
+	{
+		const input = document.getElementById(id);
+
+		if (!input)
+		{
+			return;
+		}
+
+		input.value = '';
+
+		toggleClearButton(id);
+
+		filterTable();
+
+		input.focus();
+	}
+
+
+	function toggleClearButton(inputId)
+	{
+		const input = document.getElementById(inputId);
+		const btn = document.getElementById("clear" + inputId.charAt(0).toUpperCase() + inputId.slice(1));
+
+		if (!input || !btn)
+		{
+			return;
+		}
+
+		if (input.value.trim() !== "")
+		{
+			btn.classList.remove("hidden");
+		}
+		else
+		{
+			btn.classList.add("hidden");
+		}
+	}
+
+	function handleSelectFilter(selectId)
+	{
+		const select = document.getElementById(selectId);
+
+		if (!select)
+		{
+			return;
+		}
+
+		if (select.value === "All")
+		{
+			select.selectedIndex = 0; // kembali ke "Pilih"
+		}
+
+		if (select.selectedIndex === 0)
+		{
+			select.classList.add("filter-select-placeholder");
+		}
+		else
+		{
+			select.classList.remove("filter-select-placeholder");
+		}
+
+		filterTable();
+	}
+	</script>
+
+	<script>
+		document.getElementById("filterNik").addEventListener("keydown", function(e) {
+			if (['e', 'E', '+', '-'].includes(e.key)) {
+				e.preventDefault();
+			}
+		});
+
+		document.getElementById("filterSisaAwal").addEventListener("keydown", function(e) {
+			if (['e', 'E', '+', '-'].includes(e.key)) {
+				e.preventDefault();
+			}
+		});
+
+		document.getElementById("filterJumlahHari").addEventListener("keydown", function(e) {
+			if (['e', 'E', '+', '-'].includes(e.key)) {
+				e.preventDefault();
+			}
+		});
+
+				document.getElementById("filterSisaAkhir").addEventListener("keydown", function(e) {
+			if (['e', 'E', '+', '-'].includes(e.key)) {
+				e.preventDefault();
+			}
+		});
+	</script>
+
+</body>
+</html>

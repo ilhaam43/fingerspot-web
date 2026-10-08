@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Shift Bulanan — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter"', 'sans-serif'] } } } }</script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .scrollbar-styled::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        
+        .injected-table { overflow-x: auto; width: 100%; max-height: calc(100vh - 220px); }
+        .injected-table table { 
+            width: max-content; 
+            min-width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0;
+            font-size: 13px; 
+            color: #1e293b; 
+        }
+        
+        .injected-table thead th { 
+            background: #f8fafc; 
+            position: sticky; 
+            top: 0; 
+            z-index: 20; 
+            border-bottom: 2px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            padding: 10px 8px; 
+            font-weight: 700; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: #475569; 
+            text-align: center !important; 
+        }
+        
+        .injected-table tbody td { 
+            padding: 8px; 
+            border-bottom: 1px solid #f1f5f9; 
+            border-right: 1px solid #f1f5f9;
+            text-align: center !important; 
+            white-space: nowrap;
+        }
+        
+        .injected-table tbody tr:hover td { background: #f0f9ff; }
+        
+        /* Sticky columns for NAMA */
+        .injected-table thead th:nth-child(2),
+        .injected-table tbody td:nth-child(2) {
+            position: sticky;
+            left: 0;
+            z-index: 15;
+            background: #f8fafc;
+            min-width: 150px;
+            max-width: 250px;
+            text-align: left !important;
+            border-right: 2px solid #e2e8f0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.02);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .injected-table thead th:nth-child(2) {
+            z-index: 25; /* higher than other headers */
+        }
+        
+        .injected-table tbody tr:hover td:nth-child(2) {
+            background: #e0f2fe; /* slightly darker blue for sticky hover */
+        }
+
+        .filter-select { 
+            height: 38px; 
+            padding: 0 32px 0 12px; 
+            border: 1.5px solid #e2e8f0; 
+            border-radius: 8px; 
+            font-size: 13px; 
+            font-weight: 500;
+            outline: none; 
+            background: #f8fafc; 
+            color: #1e293b; 
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+        }
+        .filter-select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); background-color: white; }
+        
+        /* Edit Mode Styles */
+        body.edit-mode .injected-table tbody td:not(:nth-child(1)):not(:nth-child(2)) { cursor: pointer; transition: all 0.1s; border: 1px solid transparent; }
+        body.edit-mode .injected-table tbody td:not(:nth-child(1)):not(:nth-child(2)):hover { border: 1px dashed #f43f5e; background-color: #fff1f2 !important; }
+        
+        body.edit-mode .injected-table tbody td.cell-selected { background-color: #f43f5e !important; color: white !important; font-weight: bold; border: 1px solid #e11d48; }
+        
+        body.edit-mode .injected-table thead th:not(:nth-child(1)):not(:nth-child(2)) { cursor: pointer; }
+        body.edit-mode .injected-table thead th:not(:nth-child(1)):not(:nth-child(2)):hover { background-color: #ffe4e6; color: #e11d48; }
+        
+        body.edit-mode .injected-table tbody td:nth-child(2) { cursor: pointer; }
+        body.edit-mode .injected-table tbody td:nth-child(2):hover { color: #e11d48; }
+    </style>
+</head>
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
+        
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+            <!-- Topbar -->
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 px-4 py-4 overflow-hidden flex flex-col gap-4">
+                
+                <!-- Main Card -->
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                    
+                    <!-- Header & Filters -->
+                    <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                                <i class="fas fa-calendar-alt text-blue-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-gray-900">Jadwal Shift Bulanan</h2>
+                                <p class="text-xs text-gray-500 mt-0.5">Rekapitulasi jadwal shift seluruh personil dalam 1 bulan penuh</p>
+                            </div>
+                        </div>
+                        
+                        <form method="GET" action="{{ url_for('jadwal_bulanan.jadwal_bulanan') }}" class="flex items-center gap-2 shrink-0 flex-wrap">
+                            <select name="divisi" class="filter-select min-w-[150px]">
+                                <option value="">Semua Divisi</option>
+                                {% for div in divisi_list %}
+                                    <option value="{{ div.pembagian1_id }}" {% if selected_divisi|string == div.pembagian1_id|string %}selected{% endif %}>{{ div.pembagian1_nama }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                            <select name="month" class="filter-select w-[130px]">
+                                {% set months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] %}
+                                {% for m in range(1, 13) %}
+                                    <option value="{{ m }}" {% if selected_month == m %}selected{% endif %}>{{ months[m-1] }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                            <select name="year" class="filter-select w-[100px]">
+                                {% for y in range(2023, 2031) %}
+                                    <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                            
+                            <button type="submit" class="h-[38px] px-5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all shadow-sm flex items-center gap-2 ml-1">
+                                <i class="fas fa-search text-xs"></i> Tampilkan
+                            </button>
+                            
+                            {% if is_submitted and table_html %}
+                            <div class="w-px h-6 bg-gray-200 mx-1"></div>
+                            <button type="button" id="toggleEditMode" class="h-[38px] px-4 text-sm font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-all shadow-sm flex items-center gap-2">
+                                <i class="fas fa-edit text-xs"></i> Mode Reset
+                            </button>
+                            <button type="button" id="deleteAllBtn" class="h-[38px] px-4 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-all shadow-sm flex items-center gap-2 ml-1 hidden">
+                                <i class="fas fa-dumpster text-xs"></i> Hapus Semua
+                            </button>
+                            {% endif %}
+                        </form>
+                    </div>
+
+                    <!-- Table Container -->
+                    <div class="flex-1 relative bg-slate-50/30">
+                        {% if is_submitted %}
+                            {% if table_html %}
+                                <div class="injected-table scrollbar-styled h-full absolute inset-0">
+                                    {{ table_html|safe }}
+                                </div>
+                            {% else %}
+                                <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                                    <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                                        <i class="fas fa-inbox text-2xl text-slate-300"></i>
+                                    </div>
+                                    <p class="text-sm font-medium">Tidak ada data jadwal untuk periode yang dipilih.</p>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                                <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-3">
+                                    <i class="fas fa-filter text-2xl text-slate-300"></i>
+                                </div>
+                                <p class="text-sm font-medium">Silakan pilih Divisi dan Periode, lalu klik Tampilkan.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Footer / Legend -->
+                    <div class="px-6 py-3 border-t border-gray-100 bg-white shrink-0 flex items-center justify-between text-xs text-slate-500">
+                        <div>Menampilkan rekapitulasi jadwal untuk {{ num_days }} hari.</div>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Shift Terisi</div>
+                            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-slate-200"></span> Kosong (Tidak Ada Jadwal)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Floating Action Bar for Edit Mode -->
+        <div id="resetActionBar" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-2xl border border-gray-200 px-6 py-4 flex items-center gap-6 z-50 transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none" style="box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center">
+                    <i class="fas fa-trash-alt text-rose-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-gray-900">Reset Jadwal</h3>
+                    <p class="text-xs text-gray-500 font-medium"><span id="selectedCount" class="font-bold text-rose-600">0</span> jadwal dipilih</p>
+                </div>
+            </div>
+            <div class="w-px h-8 bg-gray-200"></div>
+            <div class="flex items-center gap-2">
+                <button type="button" id="cancelReset" class="px-4 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all">Batal</button>
+                <button type="button" id="executeReset" class="px-5 py-2 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-all shadow-sm">Reset Terpilih</button>
+            </div>
+        </div>
+        
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Optional: highlight empty cells lightly
+            const cells = document.querySelectorAll(".injected-table tbody td");
+            cells.forEach(td => {
+                if(td.cellIndex > 1) { // Skip NIP and NAMA columns
+                    const text = td.textContent.trim();
+                    if(text === "") {
+                        td.style.backgroundColor = "#f8fafc";
+                    } else if (text.toLowerCase() === "libur" || text.toLowerCase() === "lb") {
+                        td.style.color = "#ef4444"; // Red for Libur
+                        td.style.fontWeight = "600";
+                    } else {
+                        td.style.color = "#0369a1"; // Blue for active shifts
+                        td.style.fontWeight = "600";
+                    }
+                }
+            });
+            
+            // Sync width of NAMA column in header and body to avoid sticky issues
+            const headerNama = document.querySelector(".injected-table thead th:nth-child(2)");
+            if(headerNama) {
+                const tbodyNamaCells = document.querySelectorAll(".injected-table tbody td:nth-child(2)");
+                
+                let maxNamaW = 150;
+                
+                tbodyNamaCells.forEach(td => { if(td.offsetWidth > maxNamaW) maxNamaW = td.offsetWidth; });
+                
+                const css = `
+                    .injected-table thead th:nth-child(2), .injected-table tbody td:nth-child(2) { min-width: ${maxNamaW}px !important; width: ${maxNamaW}px !important; }
+                `;
+                
+                const style = document.createElement("style");
+                style.textContent = css;
+                document.head.appendChild(style);
+            }
+            // INTERACTIVE EDIT MODE LOGIC
+            const toggleBtn = document.getElementById('toggleEditMode');
+            const deleteAllBtn = document.getElementById('deleteAllBtn');
+            const actionBar = document.getElementById('resetActionBar');
+            const cancelBtn = document.getElementById('cancelReset');
+            const executeBtn = document.getElementById('executeReset');
+            const countDisplay = document.getElementById('selectedCount');
+            const tableBody = document.querySelector('.injected-table tbody');
+            const tableHead = document.querySelector('.injected-table thead');
+            
+            let isEditMode = false;
+            let selectedCells = new Set(); // Stores strings like "nip_day"
+            
+            let isDragging = false;
+            let dragAction = null; // 'select' or 'deselect'
+            
+            const selectedMonth = "{{ selected_month }}".padStart(2, '0');
+            const selectedYear = "{{ selected_year }}";
+            
+            function updateActionBar() {
+                countDisplay.textContent = selectedCells.size;
+                if (selectedCells.size > 0) {
+                    actionBar.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
+                    actionBar.classList.add('translate-y-0', 'opacity-100');
+                } else {
+                    actionBar.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
+                    actionBar.classList.remove('translate-y-0', 'opacity-100');
+                }
+            }
+            
+            function toggleCellSelection(td, forceAction = null) {
+                if (!isEditMode) return;
+                
+                // Skip empty cells
+                if(td.textContent.trim() === "") return;
+                
+                const tr = td.closest('tr');
+                const nip = tr.querySelector('td:nth-child(1)').textContent.trim();
+                const day = td.cellIndex - 1; // 1-based day (NIP=0, NAMA=1, Day1=2 -> 2-1=1)
+                
+                const key = `${nip}_${day}`;
+                
+                let isSelected = selectedCells.has(key);
+                
+                if (forceAction === 'select') {
+                    selectedCells.add(key);
+                    td.classList.add('cell-selected');
+                } else if (forceAction === 'deselect') {
+                    selectedCells.delete(key);
+                    td.classList.remove('cell-selected');
+                } else {
+                    if (isSelected) {
+                        selectedCells.delete(key);
+                        td.classList.remove('cell-selected');
+                    } else {
+                        selectedCells.add(key);
+                        td.classList.add('cell-selected');
+                    }
+                }
+                updateActionBar();
+                
+                // Return what we just did for the drag logic
+                return forceAction || (isSelected ? 'deselect' : 'select');
+            }
+            
+            function exitEditMode() {
+                isEditMode = false;
+                document.body.classList.remove('edit-mode');
+                
+                // Clear selections
+                selectedCells.clear();
+                document.querySelectorAll('.cell-selected').forEach(el => el.classList.remove('cell-selected'));
+                updateActionBar();
+                
+                if(toggleBtn) {
+                    toggleBtn.innerHTML = '<i class="fas fa-edit text-xs"></i> Mode Reset';
+                    toggleBtn.classList.remove('bg-rose-600', 'text-white');
+                    toggleBtn.classList.add('bg-rose-50', 'text-rose-600');
+                }
+                
+                if(deleteAllBtn) {
+                    deleteAllBtn.classList.add('hidden');
+                }
+            }
+            
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (isEditMode) {
+                        exitEditMode();
+                    } else {
+                        isEditMode = true;
+                        document.body.classList.add('edit-mode');
+                        this.innerHTML = '<i class="fas fa-times text-xs"></i> Batal Mode';
+                        this.classList.remove('bg-rose-50', 'text-rose-600');
+                        this.classList.add('bg-rose-600', 'text-white');
+                        
+                        if(deleteAllBtn) deleteAllBtn.classList.remove('hidden');
+                    }
+                });
+            }
+            
+            if (deleteAllBtn) {
+                deleteAllBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (!isEditMode) return;
+                    
+                    // Select all filled cells
+                    const allDataCells = document.querySelectorAll('.injected-table tbody td:not(:nth-child(1)):not(:nth-child(2))');
+                    let hasFilled = false;
+                    allDataCells.forEach(td => {
+                        if(td.textContent.trim() !== "") {
+                            hasFilled = true;
+                            toggleCellSelection(td, 'select');
+                        }
+                    });
+                    
+                    if (hasFilled && executeBtn) {
+                        // Directly trigger the reset logic
+                        executeBtn.click();
+                    } else {
+                        Swal.fire('Info', 'Tidak ada jadwal yang bisa dihapus pada tabel ini.', 'info');
+                    }
+                });
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', exitEditMode);
+            }
+            
+            if (tableBody) {
+                // DRAG SELECTION LOGIC
+                tableBody.addEventListener('mousedown', function(e) {
+                    if (!isEditMode) return;
+                    
+                    const td = e.target.closest('td');
+                    if (!td) return;
+                    
+                    const cellIndex = td.cellIndex;
+                    
+                    // Ignore NIP and NAMA columns for dragging
+                    if (cellIndex === 0 || cellIndex === 1) return;
+                    if(td.textContent.trim() === "") return; // Ignore empty cells
+                    
+                    isDragging = true;
+                    // Prevent default to avoid text selection while dragging
+                    e.preventDefault(); 
+                    
+                    dragAction = toggleCellSelection(td);
+                });
+                
+                tableBody.addEventListener('mouseover', function(e) {
+                    if (!isEditMode || !isDragging) return;
+                    
+                    const td = e.target.closest('td');
+                    if (!td) return;
+                    
+                    const cellIndex = td.cellIndex;
+                    if (cellIndex === 0 || cellIndex === 1) return;
+                    if(td.textContent.trim() === "") return;
+                    
+                    toggleCellSelection(td, dragAction);
+                });
+                
+                // Stop dragging when mouse goes up anywhere
+                window.addEventListener('mouseup', function() {
+                    isDragging = false;
+                    dragAction = null;
+                });
+                
+                // Click logic for row selection (NAMA column)
+                tableBody.addEventListener('click', function(e) {
+                    if (!isEditMode) return;
+                    
+                    const td = e.target.closest('td');
+                    if (!td) return;
+                    
+                    const cellIndex = td.cellIndex;
+                    
+                    // NAMA column (1) - Select entire row
+                    if (cellIndex === 1) {
+                        const tr = td.closest('tr');
+                        const dataCells = tr.querySelectorAll('td:not(:nth-child(1)):not(:nth-child(2))');
+                        
+                        // Check if all filled cells in row are selected
+                        let allSelected = true;
+                        let hasFilledCells = false;
+                        
+                        dataCells.forEach(cell => {
+                            if(cell.textContent.trim() !== "") {
+                                hasFilledCells = true;
+                                if(!cell.classList.contains('cell-selected')) allSelected = false;
+                            }
+                        });
+                        
+                        if(!hasFilledCells) return; // Empty row
+                        
+                        const forceAction = allSelected ? 'deselect' : 'select';
+                        
+                        dataCells.forEach(cell => {
+                            if(cell.textContent.trim() !== "") {
+                                toggleCellSelection(cell, forceAction);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            if (tableHead) {
+                // Click logic for header (select entire column)
+                tableHead.addEventListener('click', function(e) {
+                    if (!isEditMode) return;
+                    
+                    const th = e.target.closest('th');
+                    if (!th) return;
+                    
+                    const cellIndex = th.cellIndex;
+                    if (cellIndex < 2) return; // Ignore NIP and NAMA headers
+                    
+                    const trs = tableBody.querySelectorAll('tr');
+                    
+                    // Check if all filled cells in this column are selected
+                    let allSelected = true;
+                    let hasFilledCells = false;
+                    
+                    trs.forEach(tr => {
+                        const cell = tr.children[cellIndex];
+                        if (cell && cell.textContent.trim() !== "") {
+                            hasFilledCells = true;
+                            if(!cell.classList.contains('cell-selected')) allSelected = false;
+                        }
+                    });
+                    
+                    if(!hasFilledCells) return; // Empty column
+                    
+                    const forceAction = allSelected ? 'deselect' : 'select';
+                    
+                    trs.forEach(tr => {
+                        const cell = tr.children[cellIndex];
+                        if (cell && cell.textContent.trim() !== "") {
+                            toggleCellSelection(cell, forceAction);
+                        }
+                    });
+                });
+            }
+            
+            if (executeBtn) {
+                executeBtn.addEventListener('click', function() {
+                    if (selectedCells.size === 0) return;
+                    
+                    // Parse keys into data array
+                    const dataPayload = Array.from(selectedCells).map(key => {
+                        const parts = key.split('_');
+                        const nip = parts[0];
+                        const day = parts[1].padStart(2, '0');
+                        return {
+                            nip: nip,
+                            date: `${selectedYear}-${selectedMonth}-${day}`
+                        };
+                    });
+                    
+                    Swal.fire({
+                        title: 'Konfirmasi Reset',
+                        text: `Anda yakin ingin me-reset (mengosongkan) ${selectedCells.size} jadwal shift yang dipilih?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#e11d48',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: 'Ya, Reset!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            
+                            Swal.fire({
+                                title: 'Memproses...',
+                                text: 'Mohon tunggu, jadwal sedang direset.',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading()
+                                }
+                            });
+                            
+                            fetch("{{ url_for('jadwal_bulanan.reset_jadwal') }}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ data: dataPayload })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.status === 'success') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil!',
+                                        text: data.message,
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        window.location.reload(); // Reload to show updated table
+                                    });
+                                } else {
+                                    Swal.fire('Gagal!', data.message, 'error');
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire('Kesalahan!', 'Tidak dapat terhubung ke server.', 'error');
+                            });
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

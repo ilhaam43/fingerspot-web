@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pengajuan Tukar Shift — Admin APBI</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        }
+
+        /* Table Styling */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; white-space: nowrap; }
+        .data-table thead { background: #f8fafc; position: sticky; top: 0; z-index: 10; }
+        .data-table th { padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; border-bottom: 2px solid #e2e8f0; }
+        .data-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; background: white; }
+        .data-table tbody tr:nth-child(even) { background: #fafafa; }
+        .data-table tbody tr:hover { background: #fdf2f8 !important; }
+        .data-table td { padding: 10px 16px; color: #111827; font-weight: 500; }
+        
+        /* Action buttons */
+        .btn-action { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
+        .btn-edit { background: #f0fdfa; color: #0f766e; border: 1px solid #ccfbf1; }
+        .btn-edit:hover { background: #14b8a6; color: white; border-color: #14b8a6; }
+        .btn-delete { background: #fff1f2; color: #be123c; border: 1px solid #ffe4e6; }
+        .btn-delete:hover { background: #f43f5e; color: white; border-color: #f43f5e; }
+
+        /* Scrollbar */
+        .scrollbar-styled::-webkit-scrollbar { width: 8px; height: 8px; }
+        .scrollbar-styled::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* SweetAlert Customization */
+        .swal2-popup { border-radius: 1rem; font-family: 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .swal2-title { font-size: 1.25rem; font-weight: 700; color: #111827; }
+        .swal2-confirm { background-color: #ec4899 !important; border-radius: 0.5rem !important; font-weight: 600; }
+        .swal2-cancel { border-radius: 0.5rem !important; font-weight: 600; }
+
+        /* Modal Styles */
+        .modal { display: none; }
+        .modal.active { display: flex; }
+    </style>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        {% include 'components/sidebar.html' %}
+
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 p-4 md:p-6 overflow-hidden flex flex-col gap-4">
+                
+                {% if error %}
+                <div class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle"></i> {{ error }}
+                </div>
+                {% endif %}
+
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 24px rgba(0,0,0,0.04);">
+                    
+                    <!-- Header Section -->
+                    <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/50 shrink-0">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-pink-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                <i class="fas fa-exchange-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900">Pengajuan Tukar Shift</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">Data history tukar shift pegawai.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                            <button id="btnTambahData" class="px-5 py-2.5 bg-pink-600 text-white font-bold rounded-xl hover:bg-pink-700 transition-all flex items-center gap-2 shadow-sm hover:shadow text-sm">
+                                <i class="fas fa-plus"></i> Tambah Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-5 flex-1 overflow-y-auto scrollbar-styled">
+                        <div class="overflow-x-auto">
+                            <table id="tukarShiftTable" class="w-full text-left border-collapse data-table">
+                        <thead>
+                            <tr>
+                                <th class="whitespace-nowrap">No Surat</th>
+                                <th class="whitespace-nowrap">Pegawai</th>
+                                <th class="whitespace-nowrap">Tim</th>
+                                <th class="whitespace-nowrap">Tgl Shift</th>
+                                <th class="whitespace-nowrap">Shift Awal</th>
+                                <th class="whitespace-nowrap">Shift Baru</th>
+                                <th class="whitespace-nowrap">Rekan (Pengganti)</th>
+                                <th class="whitespace-nowrap">Leader</th>
+                                <th class="whitespace-nowrap">Supervisor</th>
+                                <th class="whitespace-nowrap">Alasan</th>
+                                <th class="whitespace-nowrap">Status</th>
+                                <th class="whitespace-nowrap text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in pengajuan %}
+                            <tr class="hover:bg-slate-50">
+                                <td class="whitespace-nowrap"><span class="text-xs font-bold text-gray-500">{{ row.nomor_surat }}</span></td>
+                                <td class="whitespace-nowrap">
+                                    <span class="text-sm font-bold text-gray-900">{{ row.nama_pegawai }}</span><br>
+                                    <span class="text-xs font-bold text-cyan-600">{{ row.pegawai_nip }}</span>
+                                </td>
+                                <td class="whitespace-nowrap"><span class="text-[13px] font-medium text-gray-800">{{ row.tim }}</span></td>
+                                <td class="whitespace-nowrap"><span class="text-[12px] font-semibold text-gray-700">{{ row.tanggal_mulai }} <span class="text-gray-400 font-normal">s/d</span> {{ row.tanggal_akhir }}</span></td>
+                                <td class="whitespace-nowrap"><span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md font-semibold">{{ row.shift_awal_nama }}</span></td>
+                                <td class="whitespace-nowrap"><span class="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-md font-semibold">{{ row.shift_baru_nama }}</span></td>
+                                <td class="whitespace-nowrap">
+                                    <span class="text-sm font-bold text-gray-900">{{ row.pegawai_tukar_nama }}</span><br>
+                                    <span class="text-xs font-bold text-cyan-600">{{ row.pegawai_tukar_nip }}</span>
+                                </td>
+                                <td class="whitespace-nowrap"><span class="text-[13px] font-medium text-gray-800">{{ row.nama_leader }}</span></td>
+                                <td class="whitespace-nowrap"><span class="text-[13px] font-medium text-gray-800">{{ row.nama_supervisor }}</span></td>
+                                <td class="min-w-[150px]"><span class="text-[13px] text-gray-600 whitespace-normal line-clamp-2" title="{{ row.alasan_tukar_shift }}">{{ row.alasan_tukar_shift }}</span></td>
+                                <td class="whitespace-nowrap">
+                                    <span class="px-2 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs rounded-md font-bold">
+                                        <i class="fas fa-check-circle mr-1"></i> {{ row.status }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="flex items-center justify-center gap-1.5">
+                                        <button class="btn-action bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-600 hover:text-white" title="Cetak PDF"
+                                            onclick="downloadPdf({{ row.id_tukar_shift }})">
+                                            <i class="fas fa-print text-xs"></i>
+                                        </button>
+                                        <button class="btn-action btn-edit" title="Edit"
+                                            data-id="{{ row.id_tukar_shift }}"
+                                            data-pegawai="{{ row.pegawai_id }}"
+                                            data-rekan="{{ row.pegawai_tukar_id }}"
+                                            data-mulai="{{ row.tanggal_mulai }}"
+                                            data-akhir="{{ row.tanggal_akhir }}"
+                                            data-tim="{{ row.tim }}"
+                                            data-leader="{{ row.nama_leader }}"
+                                            data-spv="{{ row.nama_supervisor }}"
+                                            data-alasan="{{ row.alasan_tukar_shift }}">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                        <button class="btn-action btn-delete" title="Hapus"
+                                            data-id="{{ row.id_tukar_shift }}">
+                                            <i class="fas fa-trash text-xs"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="px-6 py-3 border-t border-gray-100 bg-slate-50/50 shrink-0">
+                <p class="text-xs font-semibold text-gray-500">Total: <span class="text-gray-900 font-bold">{{ pengajuan|length }}</span> riwayat.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="modalForm" class="modal fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Tambah Tukar Shift</h3>
+                <button id="btnCloseModal" class="text-slate-400 hover:text-slate-600 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <form id="formTukarShift">
+                    <input type="hidden" id="form_id_tukar_shift">
+                    <input type="hidden" id="form_mode" value="add">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Pegawai (Pengaju)</label>
+                            <select id="form_pegawai_id" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required>
+                                <option value="">-- Pilih Pegawai --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Rekan (Pengganti)</label>
+                            <select id="form_pegawai_tukar_id" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required>
+                                <option value="">-- Pilih Rekan --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Tgl Mulai</label>
+                            <input type="date" id="form_tanggal_mulai" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Tgl Selesai</label>
+                            <input type="date" id="form_tanggal_akhir" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Tim</label>
+                            <select id="form_tim" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required>
+                                <option value="">-- Pilih Tim --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Leader</label>
+                            <select id="form_leader" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required>
+                                <option value="">-- Pilih Leader --</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Supervisor</label>
+                            <select id="form_supervisor" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required>
+                                <option value="">-- Pilih Supervisor --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Alasan</label>
+                        <textarea id="form_alasan" rows="3" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none" required></textarea>
+                    </div>
+
+                </form>
+            </div>
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
+                <button type="button" id="btnCancelModal" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 rounded-lg transition">Batal</button>
+                <button type="button" id="btnSaveModal" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">Simpan Data</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Fetch Employees and Master Data
+            let dataLoaded = false;
+            function loadMasterData(callback) {
+                if (dataLoaded) { if(callback) callback(); return; }
+                $.get("{{ url_for('admin_tukar_shift.get_employees') }}", function(res) {
+                    if (res.success) {
+                        const sel1 = $('#form_pegawai_id');
+                        const sel2 = $('#form_pegawai_tukar_id');
+                        res.employees.forEach(emp => {
+                            const opt = `<option value="${emp.pegawai_id}">${emp.pegawai_nama} (${emp.pegawai_nip})</option>`;
+                            sel1.append(opt);
+                            sel2.append(opt);
+                        });
+
+                        const selTim = $('#form_tim');
+                        res.tim.forEach(t => selTim.append(`<option value="${t}">${t}</option>`));
+
+                        const selLeader = $('#form_leader');
+                        res.leader.forEach(l => selLeader.append(`<option value="${l}">${l}</option>`));
+
+                        const selSpv = $('#form_supervisor');
+                        res.supervisor.forEach(s => selSpv.append(`<option value="${s}">${s}</option>`));
+
+                        dataLoaded = true;
+                        if(callback) callback();
+                    }
+                });
+            }
+
+            // Modal Toggles
+            const modal = $('#modalForm');
+            function openModal(mode, data = null) {
+                loadMasterData(function() {
+                    $('#form_mode').val(mode);
+                    $('#formTukarShift')[0].reset();
+                    
+                    const isEdit = mode === 'edit';
+                    $('#modalTitle').text(isEdit ? 'Edit Pengajuan Tukar Shift' : 'Tambah Tukar Shift Baru');
+                    
+                    // Disable core fields in edit mode to prevent complex reverting logic
+                    $('#form_pegawai_id, #form_pegawai_tukar_id, #form_tanggal_mulai, #form_tanggal_akhir').prop('disabled', isEdit);
+
+                    if (isEdit && data) {
+                        $('#form_id_tukar_shift').val(data.id);
+                        $('#form_pegawai_id').val(data.pegawai);
+                        $('#form_pegawai_tukar_id').val(data.rekan);
+                        $('#form_tanggal_mulai').val(data.mulai);
+                        $('#form_tanggal_akhir').val(data.akhir);
+                        $('#form_tim').val(data.tim);
+                        $('#form_leader').val(data.leader);
+                        $('#form_supervisor').val(data.spv);
+                        $('#form_alasan').val(data.alasan);
+                    }
+                    modal.addClass('active');
+                });
+            }
+
+            $('#btnTambahData').click(() => openModal('add'));
+            $('#btnCloseModal, #btnCancelModal').click(() => modal.removeClass('active'));
+
+            // Delete Action
+            $('#tukarShiftTable tbody').on('click', '.btn-delete', function() {
+                const id = $(this).data('id');
+                Swal.fire({
+                    title: 'Hapus Data?',
+                    text: "Tindakan ini akan menghapus histori dari tabel, namun jadwal di sistem tidak akan di-revert secara otomatis.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Ya, Hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ url_for('admin_tukar_shift.delete_tukar_shift') }}",
+                            type: "POST",
+                            contentType: "application/json",
+                            data: JSON.stringify({ id_tukar_shift: id }),
+                            success: function(res) {
+                                if (res.success) {
+                                    Swal.fire('Terhapus!', res.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Error', res.error, 'error');
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Edit Action
+            $('#tukarShiftTable tbody').on('click', '.btn-edit', function() {
+                const data = $(this).data();
+                openModal('edit', data);
+            });
+
+            // Save Action
+            $('#btnSaveModal').click(function() {
+                const mode = $('#form_mode').val();
+                const url = mode === 'add' 
+                    ? "{{ url_for('admin_tukar_shift.add_tukar_shift') }}" 
+                    : "{{ url_for('admin_tukar_shift.update_tukar_shift') }}";
+
+                const payload = {
+                    id_tukar_shift: $('#form_id_tukar_shift').val(),
+                    pegawai_id: $('#form_pegawai_id').val(),
+                    pegawai_tukar_id: $('#form_pegawai_tukar_id').val(),
+                    tanggal_mulai: $('#form_tanggal_mulai').val(),
+                    tanggal_akhir: $('#form_tanggal_akhir').val(),
+                    tim: $('#form_tim').val(),
+                    leader: $('#form_leader').val(),
+                    supervisor: $('#form_supervisor').val(),
+                    alasan: $('#form_alasan').val()
+                };
+
+                if (mode === 'add' && (!payload.pegawai_id || !payload.pegawai_tukar_id || !payload.tanggal_mulai || !payload.tanggal_akhir)) {
+                    Swal.fire('Peringatan', 'Pegawai, rekan, dan tanggal wajib diisi.', 'warning');
+                    return;
+                }
+
+                Swal.fire({ title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(payload),
+                    success: function(res) {
+                        if (res.success) {
+                            modal.removeClass('active');
+                            Swal.fire('Berhasil!', res.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', res.error, 'error');
+                        }
+                    },
+                    error: function(err) {
+                        Swal.fire('Error', 'Terjadi kesalahan sistem.', 'error');
+                    }
+                });
+            });
+        });
+
+        function downloadPdf(id) {
+            Swal.fire({
+                title: 'Mempersiapkan Dokumen...',
+                html: 'Tunggu sebentar, sedang di-generate...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Gunakan format=json agar response bukan berupa file
+            // Ini mencegah Download Manager (IDM) mencegat stream!
+            fetch(`/admin/tukar-shift/download/${id}?format=json`)
+                .then(response => response.json())
+                .then(res => {
+                    if (!res.success) {
+                        throw new Error(res.error || 'Terjadi kesalahan sistem');
+                    }
+
+                    // Convert Base64 ke Blob
+                    const byteCharacters = atob(res.pdf_base64);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], {type: 'application/pdf'});
+
+                    // Download file
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = res.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    
+                    Swal.close();
+                })
+                .catch(error => {
+                    Swal.fire('Gagal', error.message, 'error');
+                });
+        }
+    </script>
+</body>
+</html>

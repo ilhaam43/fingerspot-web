@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Absen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    fontSize: {
+                        'xxs': '0.65rem',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans h-screen flex flex-col overflow-hidden">
+
+    <div class="flex-1 overflow-y-auto hide-scroll pb-20">
+        <div class="container mx-auto px-3 py-4 max-w-4xl">
+            
+            {% if pegawai %}
+            <div class="bg-white rounded-xl p-3 shadow-sm border border-blue-100 mb-4 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-lg shrink-0 shadow-md shadow-blue-200">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <h2 class="text-base font-bold text-gray-900 truncate">{{ pegawai.pegawai_nama }}</h2>
+                    <p class="text-xs text-gray-500 truncate">{{ pegawai.divisi or '-' }} • {{ pegawai.jabatan or '-' }}</p>
+                </div>
+            </div>
+            {% else %}
+            <h2 class="text-xl font-bold text-gray-800 mb-4 px-1">Data Absen</h2>
+            {% endif %}
+
+            <div class="sticky top-0 z-30 bg-gray-100 py-2 mb-2">
+                <div class="flex justify-between items-center gap-2">
+                    <div class="bg-gray-200 p-1 rounded-lg flex shadow-inner text-xs font-medium">
+                        <button onclick="switchView('card')" id="btn-card" class="px-4 py-1.5 rounded-md transition-all duration-200 shadow bg-white text-blue-700">
+                            <i class="fas fa-th-large mr-1"></i> Kartu
+                        </button>
+                        <button onclick="switchView('table')" id="btn-table" class="px-4 py-1.5 rounded-md text-gray-500 hover:text-gray-700 transition-all duration-200">
+                            <i class="fas fa-table mr-1"></i> Tabel
+                        </button>
+                    </div>
+
+                    <button onclick="toggleFilter()" class="bg-white border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-medium shadow-sm hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                        <i class="fas fa-filter text-blue-600 mr-1"></i> Filter
+                    </button>
+                </div>
+            </div>
+
+            <div id="filterModal" class="fixed inset-0 bg-black/50 z-[60] hidden flex items-end sm:items-center justify-center backdrop-blur-sm transition-opacity">
+                <div class="bg-white w-full sm:w-96 rounded-t-2xl sm:rounded-2xl p-5 shadow-2xl animate-[slideUp_0.3s_ease-out] sm:mb-0">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold text-gray-800">Filter Data</h3>
+                        <button onclick="toggleFilter()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"><i class="fas fa-times"></i></button>
+                    </div>
+                    <form method="get" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500">Mulai</label>
+                                <input type="date" name="start_date" class="w-full mt-1 px-3 py-2 bg-gray-50 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" value="{{ start_date }}" min="2025-05-06">
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-500">Sampai</label>
+                                <input type="date" name="end_date" class="w-full mt-1 px-3 py-2 bg-gray-50 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" value="{{ end_date }}" min="2025-05-06">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold text-gray-500">Status</label>
+                            <select name="keterangan" class="w-full mt-1 px-3 py-2 bg-gray-50 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                <option value="">Semua</option>
+                                {% for option in ['H', 'TL', 'TP', 'LB', 'CT', 'D', 'S', 'LDL', 'LD', 'Libur', "Belum Diketahui"] %}
+                                    <option value="{{ option }}" {% if keterangan == option %}selected{% endif %}>{{ option }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg mt-2 shadow-lg shadow-blue-500/30 transition-all">Terapkan Filter</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if records %}
+                <div id="cardView" class="space-y-2.5 fade-in">
+                    {% for record in records %}
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-shadow">
+                        <div class="absolute left-0 top-0 bottom-0 w-1 
+                            {% if record.keterangan == 'H' %}bg-green-500
+                            {% elif record.keterangan == 'TL' %}bg-yellow-400
+                            {% elif record.keterangan == 'TP' %}bg-orange-500
+                            {% elif record.keterangan in ['Libur', 'LB', 'LD', 'LDL', 'CT', 'S', 'D'] %}bg-gray-400
+                            {% else %}bg-red-500{% endif %}">
+                        </div>
+
+                        <div class="flex justify-between items-center mb-2 pl-2">
+                            <span class="font-bold text-gray-800 text-sm">{{ record.tgl_formatted }}</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase border
+                                {% if record.keterangan == 'H' %}bg-green-50 text-green-700 border-green-100
+                                {% elif record.keterangan == 'TL' %}bg-yellow-50 text-yellow-700 border-yellow-100
+                                {% elif record.keterangan == 'TP' %}bg-orange-50 text-orange-700 border-orange-100
+                                {% elif record.keterangan in ['Libur', 'LB', 'LD', 'LDL', 'CT', 'S', 'D'] %}bg-gray-50 text-gray-600 border-gray-200
+                                {% else %}bg-red-50 text-red-700 border-red-100{% endif %}">
+                                {{ record.keterangan }}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 pl-2 mb-2">
+                            <div class="bg-gray-50 rounded p-1.5 border border-gray-100 flex flex-col items-center">
+                                <span class="text-[10px] text-gray-400 uppercase tracking-wider">Masuk</span>
+                                <span class="text-sm font-bold {% if record.scan_in %}text-blue-600{% else %}text-gray-300{% endif %}">
+                                    {{ record.scan_in or '--:--' }}
+                                </span>
+                            </div>
+                            <div class="bg-gray-50 rounded p-1.5 border border-gray-100 flex flex-col items-center">
+                                <span class="text-[10px] text-gray-400 uppercase tracking-wider">Pulang</span>
+                                <span class="text-sm font-bold {% if record.scan_out %}text-blue-600{% else %}text-gray-300{% endif %}">
+                                    {{ record.scan_out or '--:--' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pl-2 text-xs text-gray-500 border-t border-gray-50 pt-1.5">
+                            <div class="flex items-center gap-1">
+                                <i class="far fa-clock text-xxs"></i>
+                                <span>Jadwal: <span class="text-gray-700 font-medium">{{ record.jk_bcin }} - {{ record.jk_ecout }}</span></span>
+                            </div>
+                            <span class="bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded text-[10px] font-medium">{{ record.jk_name or '-' }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div id="tableView" class="hidden fade-in bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-xs sm:text-sm text-left">
+                            <thead class="bg-blue-50 text-blue-800 font-semibold border-b border-blue-100">
+                                <tr>
+                                    <th class="px-4 py-3 whitespace-nowrap">Tanggal</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">Jadwal</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">Masuk</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">Pulang</th>
+                                    <th class="px-4 py-3 text-center whitespace-nowrap">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                {% for record in records %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 font-medium text-gray-700 whitespace-nowrap">{{ record.tgl_formatted }}</td>
+                                    
+                                    <td class="px-4 py-3 text-center text-gray-500 whitespace-nowrap">
+                                        <span class="bg-gray-100 px-2 py-1 rounded text-xs">{{ record.jk_bcin }} - {{ record.jk_ecout }}</span>
+                                    </td>
+                                    
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        <span class="font-bold text-sm {% if record.scan_in %}text-blue-600{% else %}text-gray-300{% endif %}">
+                                            {{ record.scan_in or '-' }}
+                                        </span>
+                                    </td>
+                                    
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        <span class="font-bold text-sm {% if record.scan_out %}text-orange-600{% else %}text-gray-300{% endif %}">
+                                            {{ record.scan_out or '-' }}
+                                        </span>
+                                    </td>
+                                    
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        <span class="inline-block px-2 py-0.5 rounded text-xs font-semibold
+                                            {% if record.keterangan == 'H' %}bg-green-100 text-green-700
+                                            {% elif record.keterangan == 'TL' %}bg-yellow-100 text-yellow-700
+                                            {% elif record.keterangan == 'TP' %}bg-orange-100 text-orange-700
+                                            {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                            {{ record.keterangan }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="flex flex-col items-center justify-center py-10 bg-white rounded-lg border border-dashed border-gray-300">
+                    <i class="far fa-calendar-times text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-gray-500 text-sm">Tidak ada data untuk ditampilkan.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <nav class="fixed bottom-0 w-full bg-white border-t border-gray-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div class="grid grid-cols-4 h-16">
+            
+            <a href="/beranda" class="flex flex-col items-center justify-center h-full text-blue-600 bg-blue-50/50 transition-all group relative">
+                <div class="absolute top-0 w-full h-0.5 bg-blue-600"></div>
+                <i class="fas fa-home text-xl mb-1 group-hover:-translate-y-0.5 transition-transform"></i>
+                <span class="text-[10px] font-medium">Beranda</span>
+            </a>
+            
+            <div class="relative h-full flex flex-col items-center justify-center group px-1">
+            
+                <div id="milkshake-bubble" class="hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-4 z-50 w-48">
+                    
+                    <div class="animate-[bounce_1s_infinite]">
+                        
+                        <div class="bg-blue-600 text-white text-xs rounded-lg p-3 shadow-xl relative text-center">
+                            <p class="font-bold mb-1">Butuh Form?</p>
+                            <p class="leading-tight text-[10px]">Menu ini untuk ke: https://msha.ke/personilhdti#links</p>
+                            
+                            <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-8 border-transparent border-t-blue-600"></div>
+                        </div>
+    
+                    </div>
+                </div>
+    
+                <a href="https://msha.ke/personilhdti#links" target="_blank" id="btn-milkshake" class="flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-blue-600 hover:bg-gray-50 transition-all">
+                    <i class="fas fa-link text-xl mb-1 group-hover:-translate-y-0.5 transition-transform"></i>
+                    <span class="text-[10px] font-medium">Milkshake</span>
+                </a>
+            </div>
+            
+            <a href="/akun-saya" class="flex flex-col items-center justify-center h-full text-gray-400 hover:text-blue-600 hover:bg-gray-50 transition-all group">
+                <i class="fas fa-user text-xl mb-1 group-hover:-translate-y-0.5 transition-transform"></i>
+                <span class="text-[10px] font-medium">Akun</span>
+            </a>
+    
+            <a href="{{ url_for('logout') }}" class="flex flex-col items-center justify-center h-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all group">
+                <i class="fas fa-sign-out-alt text-xl mb-1 group-hover:-translate-y-0.5 transition-transform"></i>
+                <span class="text-[10px] font-medium">Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        // Logic Switch View
+        let currentView = 'card';
+
+        function switchView(view) {
+            const cardView = document.getElementById('cardView');
+            const tableView = document.getElementById('tableView');
+            const btnCard = document.getElementById('btn-card');
+            const btnTable = document.getElementById('btn-table');
+
+            // Class aktif vs inaktif
+            const activeClasses = ['bg-white', 'text-blue-700', 'shadow'];
+            const inactiveClasses = ['text-gray-500', 'hover:text-gray-700'];
+
+            if (view === 'card') {
+                cardView.classList.remove('hidden');
+                tableView.classList.add('hidden');
+                
+                btnCard.classList.add(...activeClasses);
+                btnCard.classList.remove('text-gray-500');
+                
+                btnTable.classList.remove(...activeClasses);
+                btnTable.classList.add(...inactiveClasses);
+            } else {
+                cardView.classList.add('hidden');
+                tableView.classList.remove('hidden');
+                
+                btnTable.classList.add(...activeClasses);
+                btnTable.classList.remove('text-gray-500');
+                
+                btnCard.classList.remove(...activeClasses);
+                btnCard.classList.add(...inactiveClasses);
+            }
+            currentView = view;
+        }
+
+        function toggleFilter() {
+            const modal = document.getElementById('filterModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Initialize
+        switchView('card');
+        document.addEventListener('DOMContentLoaded', () => {
+        const bubbleWrapper = document.getElementById('milkshake-bubble');
+        const btnMilkshake = document.getElementById('btn-milkshake');
+        
+        // Cek localStorage
+        const hasSeenGuide = localStorage.getItem('seen_milkshake_guide');
+
+        const dismissBubble = () => {
+            if (bubbleWrapper && !bubbleWrapper.classList.contains('hidden')) {
+                // Efek fade out pada wrapper
+                bubbleWrapper.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                bubbleWrapper.style.opacity = '0';
+                bubbleWrapper.style.transform = 'translate(-50%, 10px)'; // Geser sedikit ke bawah saat hilang agar mulus
+                
+                setTimeout(() => {
+                    bubbleWrapper.classList.add('hidden');
+                    // Reset style agar kalau di-reload nanti (jika logic berubah) tetap bersih
+                    bubbleWrapper.style.opacity = ''; 
+                    bubbleWrapper.style.transform = '';
+                }, 500);
+                
+                localStorage.setItem('seen_milkshake_guide', 'true');
+            }
+        };
+
+        if (!hasSeenGuide) {
+            bubbleWrapper.classList.remove('hidden');
+
+            // Timer 10 detik
+            const autoHideTimer = setTimeout(() => {
+                dismissBubble();
+            }, 10000);
+
+            // Klik tombol
+            btnMilkshake.addEventListener('click', () => {
+                clearTimeout(autoHideTimer);
+                dismissBubble();
+            });
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit NIP Mapping - APBI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+ body {
+            background-color: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .sidebar {
+            background-color: white;
+            color: black;
+            padding: 20px;
+            max-width: 200px;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #ddd;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+        }
+        .sidebar img {
+            display: block;
+            margin: -15px auto 20px auto;
+            height: 60px;
+        }
+        .sidebar .nav-link {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .sidebar .nav-link span {
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #007aff;
+            color: white;
+        }
+        .navbar-custom {
+            background-color: #007aff;
+            padding: 10px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+            font-weight: bold;
+            position: fixed;
+            top: 0;
+            left: 200px;
+            right: 0;
+            z-index: 1000;
+            height: 58px;
+        }
+        .content {
+            padding: 20px;
+            margin-left: 200px;
+            margin-top: 60px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            border-radius: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex">
+
+        <div class="sidebar">
+            <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Lintasarta Logo">
+            <div class="menu">
+                <a class="nav-link" href="/"><i class="fas fa-home"></i> <span>Beranda</span></a>
+                <a class="nav-link" href="/upload_excel"><i class="fas fa-calendar-alt"></i> <span>Upload Jadwal Shift</span></a>
+                <a class="nav-link" href="/upload"><i class="fas fa-database"></i> <span>Load Data Absen (Mesin Lama)</span></a>
+                <a class="nav-link" href="/att_log"><i class="fas fa-fingerprint"></i> <span>Load Data Absen Fingerspot</span></a>
+                <a class="nav-link" href="/scrape-form"><i class="fas fa-server"></i> <span>Load Data Absen DCAP</span></a>
+                <a class="nav-link" href="/pegawai"><i class="fas fa-users"></i> <span>Data Pegawai</span></a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cogs"></i> <span>Pengaturan</span>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="/edit_shift_mappings">Mapping Jadwal Shift</a></li>
+                        <li><a class="dropdown-item" href="/edit-nip-mapping">Mapping NIP (Old)</a></li>
+                        <li><a class="dropdown-item" href="/edit_connection">Pengaturan Database</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="flex-grow-1">
+            <nav class="navbar navbar-expand-lg navbar-custom">
+                <div class="container-fluid">
+                    <span>Sistem Absen</span>
+                </div>
+            </nav>
+
+            <div class="content">
+                <div class="container mt-4">
+                    <div class="card p-4">
+                        <h1 class="text-center">Ubah Mapping NIP</h1>
+                        
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                <div class="alert alert-danger" role="alert">
+                                    <ul>
+                                        {% for category, message in messages %}
+                                            <li><strong>{{ category }}: </strong>{{ message }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="POST" action="{{ url_for('edit_nip_mapping') }}">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>NIP di Mesin</th>
+                                        <th>NIP yang Benar</th>
+                                        <th>Nama Pegawai</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for old_nip, new_nip in nip_mapping.items() %}
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="old_nip" value="{{ old_nip }}" required class="form-control" placeholder="NIP di Mesin" />
+                                        </td>
+                                        <td>
+                                            <input type="text" name="new_nip" value="{{ new_nip }}" required class="form-control" placeholder="NIP yang Benar" />
+                                        </td>
+                                        <td>
+                                            {{ pegawai_names[new_nip] }}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="new_old_nip" placeholder="Tambah Baru NIP di Mesin" class="form-control" />
+                                        </td>
+                                        <td>
+                                            <input type="text" name="new_new_nip" placeholder="Tambah Baru NIP yang Benar" class="form-control" />
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">(Nama Pegawai)</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfdomK8S9dkC3Atz0ZTII+K50pdh9zA2m68Zp+ykB" crossorigin="anonymous"></script>
+</body>
+</html>

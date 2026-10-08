@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Form Pengajuan Ke Tidak-Hadiran (APBI)</title>
+	<meta name="description" content="Form Pengajuan">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+	<!-- Sweet Alert 2.11 -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<!-- JS Flatpickr Utama -->
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+	<!-- CDN Flatpickr (Bahasa Indonesia) -->
+	<script src="https://npmcdn.com/flatpickr/dist/l10n/id.js"></script>
+	<!-- CSS Flatpickr -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+	<style>
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		html,
+		body {
+			height: 100%;
+			font-family: "Inter", sans-serif;
+		}
+
+		/* ══ BACKGROUND ══ */
+		body {
+			min-height: 100vh;
+			background: #eef4ff;
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		body::before {
+			content: "";
+			position: fixed;
+			inset: 0;
+			background: radial-gradient(ellipse 80% 60% at 15% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 55%),
+				radial-gradient(ellipse 60% 50% at 85% 100%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+				linear-gradient(180deg, #eef4ff 0%, #f0f5ff 100%);
+			z-index: 0;
+			pointer-events: none;
+		}
+
+		body::after {
+			content: "";
+			position: fixed;
+			inset: 0;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M 60 0 L 0 0 0 60' fill='none' stroke='rgba(59,130,246,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+			z-index: 0;
+			pointer-events: none;
+		}
+
+		/* ══ LAYOUT ══ */
+		.page-content {
+			position: relative;
+			z-index: 1;
+			padding: 0 0 104px;
+			min-height: 100vh;
+		}
+
+		/* ══ PAGE HEADER ══ */
+		.page-header {
+			padding: 20px 16px 0;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 20px;
+		}
+
+		.page-header-icon {
+			width: 44px;
+			height: 44px;
+			border-radius: 14px;
+			background: linear-gradient(135deg, #f59e0b, #f97316);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			box-shadow:
+				0 6px 18px rgba(245, 158, 11, 0.3),
+				inset 0 1px 0 rgba(255, 255, 255, 0.2);
+			flex-shrink: 0;
+		}
+
+		.page-header-icon i {
+			color: #fff;
+			font-size: 18px;
+		}
+
+		.page-header-title {
+			font-size: 20px;
+			font-weight: 900;
+			color: #0f172a;
+			letter-spacing: -0.03em;
+		}
+
+		.page-header-sub {
+			font-size: 12px;
+			color: #94a3b8;
+			font-weight: 500;
+			margin-top: 2px;
+		}
+
+		/* ══ SECTION ══ */
+		.section {
+			padding: 0 16px;
+			margin-bottom: 14px;
+		}
+
+		/* ══ GLASS CARD ══ */
+		.glass-card {
+			background: rgba(255, 255, 255, 0.72);
+			border: 1px solid rgba(255, 255, 255, 0.95);
+			border-radius: 20px;
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			box-shadow:
+				0 2px 16px rgba(37, 99, 235, 0.07),
+				inset 0 1px 0 #fff;
+			overflow: hidden;
+			position: relative;
+		}
+
+		.glass-card::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 24px;
+			right: 24px;
+			height: 2px;
+			background: linear-gradient(90deg, transparent, #f59e0b, #f97316, transparent);
+		}
+
+		.card-body {
+			padding: 22px 18px;
+		}
+
+		/* ══ INFO BANNER ══ */
+		.info-banner {
+			display: flex;
+			align-items: flex-start;
+			gap: 10px;
+			background: rgba(245, 158, 11, 0.08);
+			border: 1px solid rgba(245, 158, 11, 0.2);
+			border-radius: 12px;
+			padding: 12px 14px;
+			margin-bottom: 18px;
+			font-size: 12px;
+			font-weight: 500;
+			color: #92400e;
+			line-height: 1.55;
+		}
+
+		.info-banner i {
+			color: #f59e0b;
+			font-size: 14px;
+			margin-top: 1px;
+			flex-shrink: 0;
+		}
+
+		/* ══ FORM ELEMENTS ══ */
+		.form-group {
+			margin-bottom: 14px;
+		}
+
+		.form-label {
+			display: block;
+			font-size: 10px;
+			font-weight: 800;
+			color: #475569;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			margin-bottom: 7px;
+		}
+
+		.input-wrap {
+			position: relative;
+		}
+
+		.select-chevron {
+			position: absolute;
+			right: 14px;
+			top: 50%;
+			transform: translateY(-50%);
+			pointer-events: none;
+			color: #94a3b8;
+			font-size: 12px;
+		}
+
+		.form-input,
+		.form-select {
+			width: 100%;
+			height: 48px;
+			padding: 0 40px 0 14px;
+			background: rgba(248, 250, 252, 0.85);
+			border: 1.5px solid rgba(203, 213, 225, 0.6);
+			border-radius: 12px;
+			font-size: 14px;
+			font-family: "Inter", sans-serif;
+			color: #0f172a;
+			outline: none;
+			transition: all 0.2s;
+			appearance: none;
+		}
+
+		.form-input {
+			padding: 0 14px;
+		}
+
+		.form-input:focus,
+		.form-select:focus {
+			background: rgba(255, 255, 255, 0.95);
+			border-color: #f59e0b;
+			box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.1);
+		}
+
+		/* Grid 2 cols */
+		.grid-2 {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
+		}
+
+		/* ══ BUTTONS ══ */
+		.btn-check {
+			width: 100%;
+			height: 50px;
+			margin-top: 6px;
+			background: linear-gradient(135deg, #2563eb, #4f46e5);
+			color: #fff;
+			border: none;
+			border-radius: 14px;
+			font-size: 15px;
+			font-family: "Inter", sans-serif;
+			font-weight: 700;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 8px;
+			box-shadow:
+				0 6px 20px rgba(37, 99, 235, 0.3),
+				inset 0 1px 0 rgba(255, 255, 255, 0.2);
+			transition: all 0.2s;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.btn-check::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 60%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+			transform: skewX(-20deg);
+			transition: left 0.5s;
+		}
+
+		.btn-check:hover:not(:disabled)::before {
+			left: 160%;
+		}
+
+		.btn-check:disabled {
+			opacity: 0.45;
+			cursor: not-allowed;
+		}
+
+		.btn-check:active:not(:disabled) {
+			transform: scale(0.98);
+		}
+
+		.btn-swap {
+			width: 100%;
+			height: 52px;
+			background: linear-gradient(135deg, #f59e0b, #f97316);
+			color: #fff;
+			border: none;
+			border-radius: 14px;
+			font-size: 15px;
+			font-family: "Inter", sans-serif;
+			font-weight: 800;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			box-shadow:
+				0 6px 20px rgba(245, 158, 11, 0.35),
+				inset 0 1px 0 rgba(255, 255, 255, 0.2);
+			transition: all 0.2s;
+			position: relative;
+			overflow: hidden;
+			letter-spacing: 0.01em;
+		}
+
+		.btn-swap::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: -100%;
+			width: 60%;
+			height: 100%;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+			transform: skewX(-20deg);
+			transition: left 0.5s;
+		}
+
+		.btn-swap:hover::before {
+			left: 160%;
+		}
+
+		.btn-swap:active {
+			transform: scale(0.98);
+		}
+
+		/* ══ PREVIEW SECTION ══ */
+		.preview-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 12px;
+		}
+
+		.preview-title {
+			font-size: 15px;
+			font-weight: 800;
+			color: #0f172a;
+			letter-spacing: -0.01em;
+		}
+
+		.preview-range {
+			font-size: 11px;
+			font-weight: 600;
+			color: #64748b;
+			background: rgba(241, 245, 249, 0.8);
+			border: 1px solid rgba(226, 232, 240, 0.6);
+			border-radius: 100px;
+			padding: 3px 10px;
+		}
+
+		/* Schedule day card */
+		.day-card {
+			background: rgba(255, 255, 255, 0.75);
+			border: 1.5px solid rgba(255, 255, 255, 0.95);
+			border-radius: 18px;
+			padding: 0;
+			backdrop-filter: blur(14px);
+			box-shadow:
+				0 2px 12px rgba(37, 99, 235, 0.06),
+				inset 0 1px 0 #fff;
+			margin-bottom: 10px;
+			animation: fadeIn 0.2s ease-out;
+			overflow: hidden;
+			transition: all 0.2s;
+		}
+
+		@keyframes fadeIn {
+			from {
+				opacity: 0;
+				transform: translateY(6px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* Hari aktif: garis tepi kiri ijo */
+		.day-card.active-card {
+			border-left: 4px solid #f59e0b;
+		}
+
+		/* Hari non-aktif: visual redup */
+		.day-card.disabled {
+			border-left: 4px solid #e2e8f0;
+			background: rgba(255, 255, 255, 0.45);
+		}
+
+		.day-card.disabled .day-card-content {
+			opacity: 0.4;
+			pointer-events: none;
+		}
+
+		.day-status-badge {
+			font-size: 10px;
+			font-weight: 700;
+			padding: 3px 9px;
+			border-radius: 100px;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+			white-space: nowrap;
+		}
+
+		.badge-swap {
+			background: rgba(245, 158, 11, 0.12);
+			color: #d97706;
+		}
+
+		.badge-oneway {
+			background: rgba(99, 102, 241, 0.12);
+			color: #4f46e5;
+		}
+
+		.badge-skip {
+			background: rgba(226, 232, 240, 0.6);
+			color: #94a3b8;
+		}
+
+		.day-card-header {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 11px 16px;
+			border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+		}
+
+		.day-name {
+			font-size: 13px;
+			font-weight: 800;
+			color: #0f172a;
+			flex-grow: 1;
+		}
+
+		.day-name span {
+			color: #64748b;
+			font-weight: 500;
+			font-size: 12px;
+			margin-left: 6px;
+		}
+
+		.day-card-body {
+			padding: 12px 16px;
+		}
+
+		/* Shift comparison table */
+		.shift-table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+
+		.shift-table-head {
+			display: grid;
+			grid-template-columns: 46px 1fr 28px 1fr;
+			gap: 6px;
+			padding-bottom: 7px;
+			margin-bottom: 6px;
+			border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+		}
+
+		.col-head {
+			font-size: 9px;
+			font-weight: 800;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: #94a3b8;
+			text-align: center;
+		}
+
+		.shift-table-row {
+			display: grid;
+			grid-template-columns: 46px 1fr 28px 1fr;
+			gap: 6px;
+			align-items: center;
+			padding: 4px 0;
+		}
+
+		.shift-table-sep {
+			height: 1px;
+			background: rgba(226, 232, 240, 0.35);
+			margin: 3px 0;
+		}
+
+		.person-tag {
+			font-size: 9px;
+			font-weight: 800;
+			text-transform: uppercase;
+			letter-spacing: 0.06em;
+			padding: 3px 0;
+			border-radius: 6px;
+			text-align: center;
+		}
+
+		.mine-tag {
+			background: rgba(59, 130, 246, 0.1);
+			color: #2563eb;
+		}
+
+		.partner-tag {
+			background: rgba(245, 158, 11, 0.1);
+			color: #d97706;
+		}
+
+		.shift-cell {
+			font-size: 13px;
+			font-weight: 600;
+			color: #475569;
+			padding: 5px 10px;
+			background: rgba(241, 245, 249, 0.8);
+			border-radius: 8px;
+			text-align: center;
+		}
+
+		.shift-cell.shift-changed {
+			background: rgba(245, 158, 11, 0.1);
+			border: 1px solid rgba(245, 158, 11, 0.25);
+			color: #0f172a;
+			font-weight: 800;
+		}
+
+		.shift-cell.shift-same {
+			color: #94a3b8;
+			font-weight: 500;
+		}
+
+		.table-arrow {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: #cbd5e1;
+			font-size: 12px;
+		}
+
+		/* Warning text */
+		.swap-warning {
+			font-size: 11px;
+			text-align: center;
+			color: #94a3b8;
+			margin-top: 10px;
+			line-height: 1.6;
+		}
+
+		/* ══ ERROR BANNER ══ */
+		.alert-error {
+			display: flex;
+			align-items: flex-start;
+			gap: 10px;
+			background: rgba(254, 242, 242, 0.9);
+			border: 1px solid rgba(252, 165, 165, 0.4);
+			border-left: 3px solid #f87171;
+			border-radius: 14px;
+			padding: 14px 16px;
+			font-size: 13px;
+			font-weight: 500;
+			color: #dc2626;
+			margin-bottom: 14px;
+		}
+
+		.alert-error i {
+			color: #ef4444;
+			font-size: 14px;
+			margin-top: 1px;
+			flex-shrink: 0;
+		}
+
+		/* ══ BOTTOM NAV ══ */
+		.bottom-nav {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			background: rgba(255, 255, 255, 0.85);
+			border-top: 1px solid rgba(226, 232, 240, 0.6);
+			backdrop-filter: blur(24px);
+			-webkit-backdrop-filter: blur(24px);
+			z-index: 50;
+			box-shadow: 0 -4px 24px rgba(37, 99, 235, 0.07);
+			padding-bottom: env(safe-area-inset-bottom);
+		}
+
+		.nav-grid {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			height: 68px;
+		}
+
+		.nav-item {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-decoration: none;
+			color: #94a3b8;
+			font-family: "Inter", sans-serif;
+			transition: color 0.2s;
+			position: relative;
+			gap: 3px;
+		}
+
+		.nav-item.active {
+			color: #f59e0b;
+		}
+
+		.nav-item-icon {
+			width: 40px;
+			height: 40px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+			transition: all 0.2s;
+		}
+
+		.nav-item.active .nav-item-icon {
+			background: rgba(245, 158, 11, 0.1);
+		}
+
+		.nav-item:not(.active):hover .nav-item-icon {
+			background: rgba(241, 245, 249, 0.8);
+			color: #64748b;
+		}
+
+		.nav-label {
+			font-size: 10px;
+			font-weight: 700;
+		}
+
+		.nav-item.active::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 50%;
+			transform: translateX(-50%);
+			width: 24px;
+			height: 3px;
+			background: linear-gradient(90deg, #f59e0b, #f97316);
+			border-radius: 0 0 4px 4px;
+		}
+
+		/* hide scrollbar */
+		::-webkit-scrollbar {
+			display: none;
+		}
+
+		* {
+			-ms-overflow-style: none;
+			scrollbar-width: none;
+		}
+	</style>
+	<style>
+		.submenu {
+			padding-left: 2.5rem;
+			display: none;
+		}
+
+		.submenu-item {
+			display: flex;
+			align-items: center;
+			padding: 8px 0;
+			color: inherit;
+			text-decoration: none;
+			font-size: 0.9em;
+		}
+
+		.submenu-icon {
+			margin-right: 10px;
+			width: 16px;
+		}
+
+		.nav-arrow {
+			margin-left: auto;
+			transition: transform 0.3s ease;
+		}
+
+		/* Container pembungkus item bottom navbar */
+		.nav-item-dropdown {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
+		/* Kartu Submenu Melayang */
+		.dropup-popover {
+			display: none;
+			position: absolute;
+			bottom: calc(100% + 12px);
+			/* Melayang 12px tepat di atas navbar */
+			left: 50%;
+			transform: translateX(-50%);
+			/* Mengetengahkan menu persis di atas tombol */
+			min-width: 170px;
+			background-color: #ffffff;
+			border-radius: 12px;
+			box-shadow:
+				0 10px 25px -5px rgba(0, 0, 0, 0.15),
+				0 8px 10px -6px rgba(0, 0, 0, 0.1);
+			border: 1px solid #e2e8f0;
+			padding: 6px;
+			z-index: 1000;
+		}
+
+		/* Arrow/Segitiga Kecil Penunjuk ke Bawah */
+		.dropup-popover::after {
+			content: "";
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			border-width: 6px;
+			border-style: solid;
+			border-color: #ffffff transparent transparent transparent;
+		}
+
+		.dropup-popover.show {
+			display: flex;
+			flex-direction: column;
+			gap: 2px;
+		}
+
+		/* Item Menu Di Dalam Popover */
+		.popover-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 10px 14px;
+			color: #334155;
+			text-decoration: none;
+			font-size: 0.875rem;
+			font-weight: 500;
+			border-radius: 8px;
+			white-space: nowrap;
+			transition:
+				background-color 0.2s,
+				color 0.2s;
+		}
+
+		.popover-item:hover {
+			background-color: #f1f5f9;
+			color: #2563eb;
+		}
+
+		.popover-icon {
+			font-size: 1rem;
+			width: 18px;
+			text-align: center;
+		}
+
+		/* Style Parent Utama saat Aktif */
+		.nav-item.active {
+			color: #2563eb !important;
+			/* Warna teks & ikon jadi biru */
+		}
+
+		.nav-item.active .nav-item-icon i {
+			color: #2563eb !important;
+		}
+
+		/* Style Submenu Item (Child) saat Aktif */
+		.popover-item.active-child {
+			background-color: #eff6ff !important;
+			/* Background biru muda */
+			color: #2563eb !important;
+			/* Teks & ikon biru utama */
+			font-weight: 600;
+		}
+
+		.popover-item.active-child .popover-icon {
+			color: #2563eb !important;
+		}
+
+		/* Menghilangkan background kebiruan akibat Autofill Browser */
+		input:-webkit-autofill,
+		input:-webkit-autofill:hover,
+		input:-webkit-autofill:focus,
+		input:-webkit-autofill:active {
+			-webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+			-webkit-text-fill-color: #334155 !important;
+			transition: background-color 5000s ease-in-out 0s;
+		}
+
+		/* Menargetkan semua state readonly pada Flatpickr */
+		#date_range,
+		.flatpickr-input,
+		.flatpickr-input[readonly],
+		.flatpickr-input:disabled,
+		input.form-input[readonly] {
+			width: 100%;
+			padding: 10px 14px;
+			border: 1px solid #cbd5e1;
+			border-radius: 8px;
+			font-size: 14px;
+			background-color: #ffffff !important;
+			background: #ffffff !important;
+			/* Memaksa reset background shorthands */
+			color: #334155;
+			outline: none;
+			cursor: pointer;
+		}
+
+		/* Styling warna merah untuk tanggal libur/tanggal merah */
+		.flatpickr-day.hari-minggu {
+			color: #ef4444 !important;
+			font-weight: bold !important;
+		}
+
+		.flatpickr-day.tanggal-merah {
+			background: #ef4444 !important;
+			color: white !important;
+			border-radius: 50% !important;
+		}
+
+		/* Jika tanggal merah tersebut juga di-disable, warnanya tetap dibuat kemerahan pudar */
+		.flatpickr-day.tanggal-merah.flatpickr-disabled {
+			color: #fca5a5 !important;
+			opacity: 0.7;
+		}
+	</style>
+	<style>
+		/* =========================
+        CHOICES.JS CUSTOM STYLE
+        ========================= */
+		.choices {
+			width: 100% !important;
+			margin-bottom: 0 !important;
+		}
+
+		.choices__inner {
+			min-height: 48px !important;
+			padding: 6px 12px !important;
+			border: 1.5px solid rgba(203, 213, 225, 0.6) !important;
+			border-radius: 12px !important;
+			background: #ffffff !important;
+			font-size: 14px !important;
+		}
+
+		.choices__input {
+			width: 100% !important;
+			font-size: 14px !important;
+			border: 1.5px solid #858d9a !important;
+			border-radius: 8px !important;
+			padding: 8px 12px !important;
+			background: #ffffff !important;
+		}
+
+		.choices__list--dropdown,
+		.choices__list[aria-expanded] {
+			z-index: 99999 !important;
+			max-height: 260px !important;
+			overflow-y: auto !important;
+		}
+
+		.choices__item--selectable.is-highlighted {
+			background: #3b82f6 !important;
+			color: #ffffff !important;
+		}
+
+		.choices__list--dropdown .choices__item--choice[data-value=""],
+		.choices__list[aria-expanded] .choices__item--choice[data-value=""] {
+			display: none !important;
+		}
+
+		.choices__placeholder {
+			color: #000 !important;
+			opacity: 1 !important;
+		}
+
+		/* Supervisor dropdown buka ke atas */
+		.supervisor-choices {
+			position: relative !important;
+		}
+
+		.supervisor-choices.is-open .choices__list--dropdown {
+			top: auto !important;
+			bottom: calc(100% + 4px) !important;
+			left: 0 !important;
+			width: 100% !important;
+		}
+
+		.supervisor-choices.is-flipped .choices__list--dropdown {
+			top: auto !important;
+			bottom: calc(100% + 4px) !important;
+			left: 0 !important;
+			width: 100% !important;
+		}
+
+		.supervisor-choices .choices__list--dropdown {
+			transform: translateY(0) !important;
+			max-height: 450px !important;
+		}
+
+		/* Search box tetap tampil */
+		.supervisor-choices .choices__list--dropdown .choices__input,
+		.supervisor-choices .choices__list[aria-expanded] .choices__input {
+			display: block !important;
+		}
+
+		/* Hilangkan Warna Focus Hitam */
+		* {
+			outline: none !important;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="page-content">
+
+		<!-- ══ PAGE HEADER ══ -->
+		<div class="page-header">
+			<div class="page-header-icon">
+				<i class="fas fa-exchange-alt"></i>
+			</div>
+			<div>
+				<div class="page-header-title">Form Pengajuan Tidak Hadir</div>
+				<div class="page-header-sub">Ajukan form untuk berbagai kebutuhan</div>
+			</div>
+		</div> 
+		
+		{% if error %} 
+		<div class="section">
+			<div class="alert-error">
+				<i class="fas fa-exclamation-circle"></i>
+				<span>{{ error }}</span>
+			</div>
+		</div> 
+		{% else %} 
+		
+		<!-- ══ FORM CARD ══ -->
+		<div class="section">
+			<div class="glass-card">
+				<div class="card-body">
+					<div class="info-banner">
+						<i class="fas fa-info-circle"></i>
+						<span>Pastikan sudah berkoordinasi dengan rekan yang bersangkutan sebelum melakukan pengajuan form.</span>
+					</div>
+					<form id="formPengajuan" action="/form-pengajuan-tidak-hadir" method="POST">
+						<!-- Radio Button Tim Personil -->
+						<div class="form-group" style="margin-bottom: 16px;">
+							<label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> TIM PERSONIL <span style="color: #ef4444;">*</span>
+							</label>
+							<div style="display: flex; gap: 16px; align-items: center;">
+								<label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: #334155;">
+									<input type="radio" name="tim_personil" value="HDTI" checked style="cursor: pointer;"> HDTI </label>
+								<label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: #334155;">
+									<input type="radio" name="tim_personil" value="HDBS" style="cursor: pointer;"> HDBS </label>
+							</div>
+						</div>
+						<!-- Group Wrapper HDTI (Tampil Secara Default) -->
+						<div id="wrapper_hdti">
+							<!-- ROW 1 -->
+							<div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+								<!-- PERSONIL HDTI -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> PERSONIL HDTI (Nama Lengkap) <span style="color:#ef4444">*</span>
+									</label>
+									<select id="personil_hdti" name="personil_hdti" class="form-select" style="width:100%;
+                        padding:10px 14px;
+                        border:1px solid #cbd5e1;
+                        border-radius:8px;
+                        font-size:14px;
+                        background-color:#ffffff;
+                        color:#334155;
+                        outline:none;
+                        cursor:pointer;">
+										<option value="" disabled selected hidden> Choose </option> {% for personil in data_personil_hdti %} <option value="{{ personil.pegawai_id }}" data-nik="{{ personil.pegawai_nik_lintas }}">
+											{{ personil.pegawai_nama }}
+										</option> {% endfor %}
+									</select>
+								</div>
+								<!-- NIK LINTASARTA -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> NIK LINTASARTA <span style="color:#ef4444">*</span>
+									</label>
+									<input type="text" id="nik_lintasarta_hdti" name="nik_lintasarta_hdti" class="form-input" placeholder="Autofill NIK Lintasarta..." readonly required style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff;color:#334155;outline:none;">
+								</div>
+							</div>
+							<!-- ROW 2 -->
+							<div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+								<!-- TIM HDTI -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> TIM HDTI <span style="color:#ef4444">*</span>
+									</label>
+									<select id="tim_hdti" name="tim_hdti" class="form-select" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background-color:#ffffff;color:#334155;outline:none;cursor:pointer;">
+										<option value="" disabled selected hidden>Choose</option> {% for item in data_tim_hdti %} <option value="{{ item.pembagian3_id }}">
+											{{ item.pembagian3_nama }}
+										</option> {% endfor %}
+									</select>
+								</div>
+								<!-- ALAMAT EMAIL -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> Alamat Email <span style="color:#ef4444">*</span>
+									</label>
+									<input type="email" id="email_hdti" name="email_hdti" class="form-input" placeholder="demo@example.com" value="demo@example.com" required style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background-color:#ffffff;color:#334155;outline:none;">
+								</div>
+							</div>
+						</div>
+						<!-- Group Wrapper HDBS (Hidden Secara Default) -->
+						<div id="wrapper_hdbs" style="display:none;">
+							<!-- ROW 1 -->
+							<div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+								<!-- PERSONIL HDBS -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> PERSONIL HDBS (Nama Lengkap) <span style="color:#ef4444">*</span>
+									</label>
+									<select id="personil_hdbs" name="personil_hdbs" class="form-select" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background-color:#ffffff;color:#334155;outline:none;cursor:pointer;">
+										<option value="" disabled selected hidden>Choose</option> {% for personil in data_personil_hdbs %} <option value="{{ personil.pegawai_id }}" data-nik="{{ personil.pegawai_nik_lintas }}">
+											{{ personil.pegawai_nama }}
+										</option> {% endfor %}
+									</select>
+								</div>
+								<!-- NIK LINTASARTA -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> NIK LINTASARTA <span style="color:#ef4444">*</span>
+									</label>
+									<input type="text" id="nik_lintasarta_hdbs" name="nik_lintasarta_hdbs" class="form-input" placeholder="Autofill NIK Lintasarta..." readonly required style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background:#fff;color:#334155;outline:none;">
+								</div>
+							</div>
+							<!-- ROW 2 -->
+							<div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+								<!-- TIM HDBS -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> TIM HDBS <span style="color:#ef4444">*</span>
+									</label>
+									<select id="tim_hdbs" name="tim_hdbs" class="form-select" style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background-color:#ffffff;color:#334155;outline:none;cursor:pointer;">
+										<option value="" disabled selected hidden>Choose</option> {% for item in data_tim_hdbs %} <option value="{{ item.pembagian3_id }}">
+											{{ item.pembagian3_nama }}
+										</option> {% endfor %}
+									</select>
+								</div>
+								<!-- ALAMAT EMAIL -->
+								<div class="form-group">
+									<label class="form-label" style="font-weight:600;margin-bottom:8px;display:block;"> Alamat Email <span style="color:#ef4444">*</span>
+									</label>
+									<input type="email" id="email_hdbs" name="email_hdbs" class="form-input" placeholder="demo@example.com" value="demo@example.com" required style="width:100%;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;background-color:#ffffff;color:#334155;outline:none;">
+								</div>
+							</div>
+						</div>
+						<!-- Status Absensi & Project Manager -->
+						<div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; align-items: start;">
+							<!-- Status Absensi -->
+							<div class="form-group">
+								<label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> Jenis Pengajuan <span style="color: #ef4444;">*</span>
+								</label>
+								<select name="status_absensi" class="form-select" required style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #fff; color: #334155; outline: none; cursor: pointer;">
+									<option value="" disabled selected hidden>Choose</option>
+									<option value="Dinas">Dinas</option>
+									<option value="Sakit">Sakit</option>
+									<option value="Terlambat">Terlambat</option>
+									<option value="Tidak Penuh">Tidak Penuh</option>
+									<option value="Tidak Hadir">Tidak Hadir</option>
+									<!-- <option value="Cuti">Cuti</option> -->
+								</select>
+							</div>
+							<!-- Project Manager (Dropdown) -->
+							<div class="form-group">
+								<label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> PROJECT MANAGER (Nama Lengkap) <span style="color: #ef4444;">*</span>
+								</label>
+								<select id="project_manager" name="project_manager" class="form-select" required style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #ffffff; color: #334155; outline: none; cursor: pointer;">
+									<option value="" selected hidden>Choose</option> {% for pm in data_project_manager %} <option value="{{ pm.pegawai_id }}">
+										{{ pm.pegawai_nama }}
+									</option> {% endfor %}
+								</select>
+							</div>
+						</div>
+						<!-- Periode Tanggal & Pimpinan/Supervisor (Berdampingan) -->
+						<div class="form-row" style="display: flex; gap: 16px; margin-top: 16px;">
+							<!-- Periode Tanggal -->
+							<div class="form-group" style="flex: 1;">
+								<label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> Periode Tanggal <span style="color: #ef4444;">*</span>
+								</label>
+								<input type="text" id="date_range" name="periode_tanggal" class="form-input" placeholder="Pilih rentang tanggal..." required readonly>
+							</div>
+							<!-- Pimpinan / Supervisor -->
+							<div class="form-group" style="flex: 1;">
+								<label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> Pimpinan / Supervisor (Nama Lengkap) <span style="color: #ef4444;">*</span>
+								</label>
+								<select id="supervisor" name="supervisor" class="form-select" required style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #ffffff; color: #334155; outline: none; cursor: pointer;">
+									<option value="" disabled selected hidden>Choose</option> {% for spv in data_supervisor %} <option value="{{ spv.id }}">{{ spv.nama }}</option> {% endfor %}
+								</select>
+							</div>
+						</div>
+						<!-- Keterangan (Lebar Penuh) -->
+						<div class="form-row" style="margin-top: 16px;">
+							<div class="form-group" style="width: 100%;">
+								<label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;"> Keterangan (Alasan) </label>
+								<textarea name="keterangan" class="form-input" placeholder="Masukkan keterangan atau alasan..." style="width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; background-color: #ffffff; color: #334155; outline: none; resize: vertical; min-height: 80px;"></textarea>
+							</div>
+						</div>
+						<div class="section" style="margin-top: 20px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+							<!-- Tombol Submit -->
+							<button type="submit" style=" display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 44px; background: #3b82f6; border: none; border-radius: 12px; font-weight: 700; color: #ffffff; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); cursor: pointer; font-size: 14px; transition: all 0.2s; ">
+								<i class="fas fa-paper-plane"></i> Submit </button>
+							<!-- Tombol Cancel -->
+							<button type="button" onclick="resetFormPengajuan()" style=" display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 44px; background-color: #ef4444; border: none; border-radius: 12px; font-weight: 700; color: #ffffff; cursor: pointer; font-size: 14px; transition: all 0.2s; ">
+								<i class="fas fa-times"></i> Cancel </button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		{% endif %} 
+		
+        <!-- ══ BOTTOM NAVIGATION ══ -->
+        <nav class="bottom-nav">
+            <!-- Menambahkan inline style grid-template-columns untuk 6 kolom -->
+            <div class="nav-grid" style="display: grid; grid-template-columns: repeat(6, 1fr); width: 100%;">
+
+                <a href="{{ url_for('dashboard_pegawai.dasbor_pegawai') }}" class="nav-item">
+                    <div class="nav-item-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span class="nav-label">Dasbor</span>
+                </a>
+
+                <div class="nav-item" style="position:relative;">
+                    <!-- Milkshake Bubble -->
+                    <div id="milkshake-bubble" style="display:none;">
+                        <div class="bubble-inner">
+                            <div class="bubble-title">Butuh Form?</div>
+                            <div class="bubble-sub">Akses form & layanan lewat Milkshake.</div>
+                        </div>
+                    </div>
+
+                    <a href="https://msha.ke/personilhdti#links" target="_blank" id="btn-milkshake"
+                        style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;height:100%;text-decoration:none;color:#94a3b8;">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <span class="nav-label">Milkshake</span>
+                    </a>
+                </div>
+
+                <a href="{{ url_for('dashboard_pegawai.akun_pegawai') }}" class="nav-item">
+                    <div class="nav-item-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="nav-label">Akun</span>
+                </a>
+
+                <a href="{{ url_for('dashboard_pegawai.tukar_shift_page') }}" class="nav-item">
+                    <div class="nav-item-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <span class="nav-label">Tukar Shift</span>
+                </a>
+
+                <!-- Parent Menu -->
+                <div class="nav-item-dropdown">
+
+                    <div class="dropup-popover" id="submenu-pengajuan">
+
+						<a href="{{ url_for('view_kalender_ketersediaan_cuti.view_data') }}" 
+						class="popover-item {% if request.endpoint == 'view_kalender_ketersediaan_cuti.view_data' %}active-child{% endif %}">
+							<i class="fas fa-calendar-check popover-icon"></i>
+							<span>Lihat Pengajuan</span>
+						</a>
+
+                        
+                        <a href="{{ url_for('form_pengajuan_tidakhadir.form_pengajuan') }}" 
+                        class="popover-item {% if request.endpoint == 'form_pengajuan_tidakhadir.form_pengajuan' %}active-child{% endif %}">
+                            <i class="fas fa-user-times popover-icon"></i>
+                            <span>Tidak Hadir</span>
+                        </a>
+                        
+                        <a href="{{ url_for('form_pengajuan_cuti.form_pengajuan') }}"
+                            class="popover-item {% if request.endpoint == 'form_pengajuan_cuti.form_pengajuan' %}active-child{% endif %}">
+                            <i class="fas fa-plane-departure popover-icon"></i>
+                            <span>Cuti</span>
+                        </a>
+                        
+                        <a href="#" class="popover-item">
+                            <i class="fas fa-business-time popover-icon"></i>
+                            <span>Lembur</span>
+                        </a>
+                    </div>
+
+                    <a href="#" class="nav-item {% if 'form_pengajuan' in request.endpoint %} active {% endif %}" onclick="toggleSubmenu(event, 'submenu-pengajuan', this)">
+                        <div class="nav-item-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <span class="nav-label">Form Pengajuan</span>
+                    </a>
+                </div>
+
+                <a href="{{ url_for('auth.auth_logout') }}" class="nav-item"
+                    style="color:#f43f5e;" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e'">
+                    <div class="nav-item-icon" style="background:rgba(244,63,94,0.08);">
+                        <i class="fas fa-sign-out-alt" style="color:#f43f5e;"></i>
+                    </div>
+                    <span class="nav-label" style="color:#f43f5e;">Logout</span>
+                </a>
+
+            </div>
+        </nav>
+
+		<!-- Script Simpan Data -->
+		<script>
+			// 1. Cek Parameter URL untuk Notifikasi Sukses / Gagal
+			document.addEventListener("DOMContentLoaded", function() {
+				const urlParams = new URLSearchParams(window.location.search);
+				const status = urlParams.get('status');
+				if (status === 'success') {
+					Swal.fire({
+						icon: 'success',
+						title: 'Berhasil !',
+						text: 'Pengajuan berhasil disimpan, silakan cek email untuk informasi lebih lanjut.',
+						confirmButtonColor: '#3b82f6',
+						confirmButtonText: 'OK'
+					}).then(() => {
+						// Bersihkan query string dari URL tanpa reload halaman
+						window.history.replaceState({}, document.title, window.location.pathname);
+					});
+				} else if (status === 'error') {
+					Swal.fire({
+						icon: 'error',
+						title: 'Gagal !',
+						text: 'Terjadi kesalahan saat menyimpan data pengajuan. Silakan coba lagi.',
+						confirmButtonColor: '#ef4444',
+						confirmButtonText: 'Tutup'
+					}).then(() => {
+						window.history.replaceState({}, document.title, window.location.pathname);
+					});
+				}
+			});
+			// 2. Event Listener Submit Form
+			document.getElementById('formPengajuan').addEventListener('submit', function(e) {
+				e.preventDefault();
+				const form = this;
+				const timPersonil = document.querySelector('input[name="tim_personil"]:checked')?.value || '-';
+				const idBi = timPersonil === 'HDTI' ? document.getElementById('nik_lintasarta_hdti')?.value || '-' : document.getElementById('nik_lintasarta_hdbs')?.value || '-';
+				const email = timPersonil === 'HDTI' ? (document.getElementById('email_hdti')?.value || '-') : (document.getElementById('email_hdbs')?.value || '-');
+				let timSelected = '-';
+				let personilSelected = '-';
+				if (timPersonil === 'HDTI') {
+					const timElem = document.getElementById('tim_hdti');
+					const personilElem = document.getElementById('personil_hdti');
+					timSelected = timElem?.options[timElem.selectedIndex]?.text || '-';
+					personilSelected = personilElem?.options[personilElem.selectedIndex]?.text || '-';
+				} else if (timPersonil === 'HDBS') {
+					const timElem = document.getElementById('tim_hdbs');
+					const personilElem = document.getElementById('personil_hdbs');
+					timSelected = timElem?.options[timElem.selectedIndex]?.text || '-';
+					personilSelected = personilElem?.options[personilElem.selectedIndex]?.text || '-';
+				}
+				const statusAbsensi = document.querySelector('select[name="status_absensi"]')?.value || '-';
+				const pmElem = document.getElementById('project_manager') || document.querySelector('select[name="project_manager"]');
+				const projectManager = pmElem?.options ? pmElem.options[pmElem.selectedIndex]?.text : (pmElem?.value || '-');
+				const periodeVal = document.querySelector('input[name="periode_tanggal"]')?.value || '';
+				let tanggalMulai = '-';
+				let tanggalAkhir = '-';
+				if (periodeVal) {
+					const separator = periodeVal.includes(' s/d ') ? ' s/d ' : ' - ';
+					const splitDates = periodeVal.split(separator);
+					tanggalMulai = splitDates[0] ? splitDates[0].trim() : '-';
+					tanggalAkhir = splitDates[1] ? splitDates[1].trim() : tanggalMulai;
+				}
+				const spvElem = document.getElementById('supervisor') || document.querySelector('select[name="supervisor"]');
+				const supervisor = spvElem?.options ? spvElem.options[spvElem.selectedIndex]?.text : (spvElem?.value || '-');
+				const keterangan = document.querySelector('textarea[name="keterangan"]')?.value || '-';
+				// Modal Konfirmasi
+				Swal.fire({
+					title: 'Konfirmasi Pengajuan',
+					width: '650px',
+					html: `
+                        <div style="text-align:left; color:#334155;">
+                            <hr style="margin:10px 0; border:0; border-top:1px solid #e2e8f0;">
+                                <table style="width:100%; border-collapse:collapse; font-size:16px; line-height:1.8;">
+                                    <tr>
+                                        <td style="font-weight:bold; width:220px;">Tim Personil</td>
+                                        <td style="width:20px;">:</td>
+                                        <td>${timPersonil}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">ID BI</td>
+                                        <td>:</td>
+                                        <td>${idBi}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Alamat Email</td>
+                                        <td>:</td>
+                                        <td>${email}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Tim ${timPersonil}</td>
+                                        <td>:</td>
+                                        <td>${timSelected}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Personil ${timPersonil}</td>
+                                        <td>:</td>
+                                        <td>${personilSelected}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Jenis Pengajuan</td>
+                                        <td>:</td>
+                                        <td>${statusAbsensi}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Tanggal Mulai</td>
+                                        <td>:</td>
+                                        <td>${tanggalMulai}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Tanggal Akhir</td>
+                                        <td>:</td>
+                                        <td>${tanggalAkhir}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Project Manager</td>
+                                        <td>:</td>
+                                        <td>${projectManager}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Pimpinan / Supervisor</td>
+                                        <td>:</td>
+                                        <td>${supervisor}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight:bold;">Keterangan (Alasan)</td>
+                                        <td>:</td>
+                                        <td>${keterangan}</td>
+                                    </tr>
+                                </table>
+                            <hr style="margin:10px 0; border:0; border-top:1px solid #e2e8f0;">
+                        </div>
+                        `,
+					icon: 'question',
+					showCancelButton: true,
+					confirmButtonColor: '#3b82f6',
+					cancelButtonColor: '#ef4444',
+					confirmButtonText: 'Ya, Submit',
+					cancelButtonText: 'Batal'
+				}).then((result) => {
+					if (result.isConfirmed) {
+						form.submit();
+					}
+				});
+			});
+		</script>
+
+		<!-- Script toggleTimDropdown, Helper function untuk Disable & Reset -->
+		<script>
+			function toggleTimDropdown() {
+				const selectedRadio = document.querySelector('input[name="tim_personil"]:checked');
+				// Elemen Tim (ID disesuaikan dengan HTML)
+				const selectTimHdti = document.getElementById('tim_hdti');
+				const selectTimHdbs = document.getElementById('tim_hdbs');
+				// Elemen Personil (ID disesuaikan dengan HTML)
+				const selectPersonilHdti = document.getElementById('personil_hdti');
+				const selectPersonilHdbs = document.getElementById('personil_hdbs');
+				if (!selectedRadio) return;
+				if (selectedRadio.value === 'HDTI') {
+					// Enable HDTI (Tim & Personil)
+					enableElement(selectTimHdti);
+					enableElement(selectPersonilHdti);
+					// Disable HDBS (Tim & Personil)
+					disableElement(selectTimHdbs);
+					disableElement(selectPersonilHdbs);
+				} else if (selectedRadio.value === 'HDBS') {
+					// Enable HDBS (Tim & Personil)
+					enableElement(selectTimHdbs);
+					enableElement(selectPersonilHdbs);
+					// Disable HDTI (Tim & Personil)
+					disableElement(selectTimHdti);
+					disableElement(selectPersonilHdti);
+				}
+			}
+			// Helper function untuk Enable
+			function enableElement(element) {
+				if (!element) return;
+				element.disabled = false;
+				element.required = true;
+				element.style.backgroundColor = '#ffffff';
+				element.style.cursor = 'pointer';
+			}
+			// Helper function untuk Disable & Reset
+			function disableElement(element) {
+				if (!element) return;
+				element.disabled = true;
+				element.required = false;
+				element.value = '';
+				element.style.backgroundColor = '#f1f5f9';
+				element.style.cursor = 'not-allowed';
+			}
+		</script>
+
+		<!-- Script Toggle Wrapper HDTI & HDBS -->
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const radioHDTI = document.querySelector('input[name="tim_personil"][value="HDTI"]');
+				const radioHDBS = document.querySelector('input[name="tim_personil"][value="HDBS"]');
+				const wrapperHDTI = document.getElementById('wrapper_hdti');
+				const wrapperHDBS = document.getElementById('wrapper_hdbs');
+				const idBiHDTI = document.getElementById('nik_lintasarta_hdti');
+				const idBiHDBS = document.getElementById('nik_lintasarta_hdbs');
+				const timHDTI = document.getElementById('tim_hdti');
+				const personilHDTI = document.getElementById('personil_hdti');
+				const timHDBS = document.getElementById('tim_hdbs');
+				const personilHDBS = document.getElementById('personil_hdbs');
+
+				function toggleTimPersonil() {
+					if (radioHDTI.checked) {
+						wrapperHDTI.style.display = 'grid';
+						timHDTI.required = true;
+						personilHDTI.required = true;
+						idBiHDTI.required = true;
+						wrapperHDBS.style.display = 'none';
+						timHDBS.required = false;
+						personilHDBS.required = false;
+						idBiHDBS.required = false;
+						timHDBS.value = '';
+						personilHDBS.value = '';
+						idBiHDBS.value = '';
+					} else if (radioHDBS.checked) {
+						wrapperHDBS.style.display = 'grid';
+						timHDBS.required = true;
+						personilHDBS.required = true;
+						idBiHDBS.required = true;
+						wrapperHDTI.style.display = 'none';
+						timHDTI.required = false;
+						personilHDTI.required = false;
+						idBiHDTI.required = false;
+						timHDTI.value = '';
+						personilHDTI.value = '';
+						idBiHDTI.value = '';
+					}
+				}
+				// Event listener saat radio button diubah
+				document.querySelectorAll('input[name="tim_personil"]').forEach(radio => {
+					radio.addEventListener('change', toggleTimPersonil);
+				});
+				// Jalankan sekali saat halaman pertama kali di-load
+				toggleTimPersonil();
+			});
+		</script>
+
+		<!-- Script Toggle Submenu -->
+		<script>
+			function toggleSubmenu(event, submenuId) {
+				event.preventDefault();
+				event.stopPropagation();
+				const submenu = document.getElementById(submenuId);
+				// Tutup menu lain jika sedang terbuka
+				document.querySelectorAll('.dropup-popover').forEach(el => {
+					if (el.id !== submenuId) el.classList.remove('show');
+				});
+				submenu.classList.toggle('show');
+			}
+			// Tutup popover otomatis jika mengeklik di luar menu
+			document.addEventListener('click', function(e) {
+				const popover = document.getElementById('submenu-pengajuan');
+				if (popover && !popover.contains(e.target)) {
+					popover.classList.remove('show');
+				}
+			});
+		</script>
+
+		<!-- Script Datepicker (Flatpickr) / Kalender -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+                const tanggalMerah = {{ tanggal_merah|tojson }};
+				console.log("Tanggal Merah :", tanggalMerah);
+				flatpickr("#date_range", {
+					mode: "range",
+					dateFormat: "d-m-Y",
+					altInput: true,
+					altFormat: "d-m-Y",
+					altInputClass: "form-input",
+					locale: "id",
+					onDayCreate: function(dObj, dStr, fp, dayElem) {
+						const date = dayElem.dateObj;
+						const tanggal = date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+						// Tanggal merah nasional
+						if (tanggalMerah.includes(tanggal)) {
+							dayElem.style.backgroundColor = "#ef4444";
+							dayElem.style.color = "#ffffff";
+							dayElem.style.borderRadius = "50%";
+							dayElem.style.fontWeight = "700";
+						}
+						// Hari Minggu
+						if (date.getDay() === 0) {
+							dayElem.style.color = "#ef4444";
+							dayElem.style.fontWeight = "700";
+						}
+					}
+				});
+			});
+		</script>
+
+		<!-- Script Reset Form -->
+		<script>
+			function resetFormPengajuan() {
+				// Reset seluruh form
+				document.getElementById('formPengajuan').reset();
+				// Default radio HDTI
+				document.querySelector('input[name="tim_personil"][value="HDTI"]').checked = true;
+				// Tampilkan HDTI
+				document.getElementById('wrapper_hdti').style.display = 'grid';
+				// Sembunyikan HDBS
+				document.getElementById('wrapper_hdbs').style.display = 'none';
+				// Reset dropdown HDTI
+				document.getElementById('tim_hdti').selectedIndex = 0;
+				document.getElementById('personil_hdti').selectedIndex = 0;
+				// Reset dropdown HDBS
+				document.getElementById('tim_hdbs').selectedIndex = 0;
+				document.getElementById('personil_hdbs').selectedIndex = 0;
+				// Reset Jenis Pengajuan
+				document.querySelector('select[name="status_absensi"]').selectedIndex = 0;
+				// Reset Project Manager
+				document.getElementById('project_manager').selectedIndex = 0;
+				// Reset Pimpinan / Supervisor
+				document.getElementById('supervisor').selectedIndex = 0;
+				// Reset Date Range
+				document.getElementById('date_range').value = '';
+			}
+		</script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				// HDTI
+				const personilHdti = document.getElementById('personil_hdti');
+				const nikHdti = document.getElementById('nik_lintasarta_hdti');
+				if (personilHdti && nikHdti) {
+					personilHdti.addEventListener('change', function() {
+						const nik = this.options[this.selectedIndex].dataset.nik || '';
+						nikHdti.value = nik;
+					});
+				}
+				// HDBS
+				const personilHdbs = document.getElementById('personil_hdbs');
+				const nikHdbs = document.getElementById('nik_lintasarta_hdbs');
+				if (personilHdbs && nikHdbs) {
+					personilHdbs.addEventListener('change', function() {
+						const nik = this.options[this.selectedIndex].dataset.nik || '';
+						nikHdbs.value = nik;
+					});
+				}
+			});
+		</script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function() {
+				const config = {
+					searchEnabled: true,
+					searchChoices: true,
+					searchFloor: 1,
+					shouldSort: false,
+					itemSelectText: '',
+					searchResultLimit: 9999,
+					fuseOptions: {
+						threshold: 0.2
+					}
+				};
+				choicesPersonilHDTI = new Choices('#personil_hdti', {
+					...config,
+					searchPlaceholderValue: 'Cari Nama Personil HDTI...'
+				});
+				choicesPersonilHDBS = new Choices('#personil_hdbs', {
+					...config,
+					searchPlaceholderValue: 'Cari Nama Personil HDBS...'
+				});
+				choicesSupervisor = new Choices('#supervisor', {
+					...config,
+					searchEnabled: true,
+					searchChoices: true,
+					searchFloor: 1,
+					shouldSort: false,
+					itemSelectText: '',
+					searchResultLimit: 9999,
+					searchPlaceholderValue: 'Cari Nama Pimpinan / Supervisor...',
+					placeholder: true,
+					placeholderValue: 'Choose'
+				});
+				// Jika Dropdown PIMPINAN / SUPERVISOR (NAMA LENGKAP) * posisinya akan keatas buka bagian dibawah yang diremark ini.
+				const supervisorChoices = document.querySelector('#supervisor').closest('.form-group').querySelector('.choices').classList.add('supervisor-choices');
+			});
+		</script>
+
+	</div>
+</body>
+
+</html>

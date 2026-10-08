@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Tukar Shift Saya - APBI</title>
+    <style>
+        .scrollbar-hidden {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .scrollbar-hidden::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .mobile-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .mobile-buttons {
+                flex-direction: column;
+                width: 100%;
+                gap: 8px;
+            }
+            
+            .mobile-buttons a,
+            .mobile-buttons button {
+                width: 100%;
+                justify-content: center;
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+            
+            .mobile-card {
+                margin: 8px;
+                padding: 16px;
+            }
+            
+            .mobile-table {
+                font-size: 13px;
+            }
+            
+            .mobile-action-buttons {
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen p-3 md:p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="flex mobile-header md:flex-row items-start md:items-center justify-between mb-4 md:mb-6">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Riwayat Tukar Shift Kamu</h1>
+                    <p class="text-gray-600 mt-1 text-sm md:text-base">Daftar pengajuan tukar shift yang pernah kamu ajukan</p>
+                </div>
+                <div class="flex mobile-buttons md:flex-row md:space-x-3">
+                    <a href="/tukar-shift" class="inline-flex items-center px-3 md:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                        <i class="fas fa-plus mr-2"></i>
+                        Buat Form Tukar Shift Baru
+                    </a>
+                    <a href="/kalender-cuti" class="inline-flex items-center px-3 md:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm">
+                        <i class="fas fa-calendar mr-2"></i>
+                        Kalender Cuti
+                    </a>
+                    <a href="/beranda" class="inline-flex items-center px-3 md:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Kembali
+                    </a>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 bg-{{ 'green' if category == 'success' else 'red' }}-100 border border-{{ 'green' if category == 'success' else 'red' }}-400 text-{{ 'green' if category == 'success' else 'red' }}-700 px-3 md:px-4 py-3 rounded text-sm">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Content -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                {% if tukar_shift_records %}
+                    <!-- Desktop Table -->
+                    <div class="hidden lg:block overflow-x-auto">
+                        <div class="relative overflow-y-auto scrollbar-hidden" style="max-height: calc(100vh - 200px);">
+                            <table class="table-auto border-collapse w-full text-sm">
+                                <thead class="bg-blue-600 text-white sticky top-0 z-10 shadow-md">
+                                    <tr>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">No</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Nomor Surat</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Tim</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Periode Tukar</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Shift Awal</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Shift Baru</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Pegawai Tukar</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Alasan</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Status</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Tanggal Pengajuan</th>
+                                        <th class="px-4 py-3 text-center font-semibold uppercase tracking-wide">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in tukar_shift_records %}
+                                    <tr class="hover:bg-gray-100 transition ease-in-out duration-200 border-b border-gray-300">
+                                        <td class="px-4 py-3 text-center text-gray-800 font-medium">{{ loop.index }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800 font-medium">{{ record.nomor_surat }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.tim }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.tanggal_mulai }} s/d {{ record.tanggal_akhir }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.shift_awal_nama }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.shift_baru_nama }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">{{ record.pegawai_tukar_nama }}</td>
+                                        <td class="px-4 py-3 text-center text-gray-800">
+                                            <button onclick="showAlasan('{{ record.alasan_tukar_shift }}')" 
+                                                    class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded hover:bg-blue-200 transition-colors">
+                                                Lihat Alasan
+                                            </button>
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                                {% if record.status == 'OK' %}
+                                                    bg-green-100 text-green-800
+                                                {% elif record.status == 'Menunggu' %}
+                                                    bg-yellow-100 text-yellow-800
+                                                {% elif record.status == 'Ditolak' %}
+                                                    bg-red-100 text-red-800
+                                                {% endif %}">
+                                                {{ record.status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-center text-gray-800 text-xs">{{ record.tanggal_pengajuan }}</td>
+                                        <td class="px-4 py-3 text-center">
+                                            <div class="flex justify-center space-x-2">
+                                                <a href="/download-tukar-shift/{{ record.id_tukar_shift }}" 
+                                                   class="inline-flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                                   title="Download Form Tukar Shift">
+                                                    <i class="fas fa-download text-xs"></i>
+                                                </a>
+                                                <button onclick="showEmailModal({{ record.id_tukar_shift }})" 
+                                                        class="inline-flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                                        title="Kirim via Email">
+                                                    <i class="fas fa-envelope text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="lg:hidden">
+                        <div class="grid gap-4 p-2 md:gap-6 md:p-4">
+                            {% for record in tukar_shift_records %}
+                            <div class="bg-white shadow-xl rounded-lg mobile-card md:p-6 border border-gray-200">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded">{{ loop.index }}</span>
+                                        <span class="px-3 py-1 bg-purple-100 text-purple-800 text-xs md:text-sm font-medium rounded-full">
+                                            Tukar Shift
+                                        </span>
+                                    </div>
+                                    <span class="px-3 py-1 rounded-full text-xs md:text-sm font-medium
+                                        {% if record.status == 'OK' %}
+                                            bg-green-100 text-green-800
+                                        {% elif record.status == 'Menunggu' %}
+                                            bg-yellow-100 text-yellow-800
+                                        {% elif record.status == 'Ditolak' %}
+                                            bg-red-100 text-red-800
+                                        {% endif %}">
+                                        {{ record.status }}
+                                    </span>
+                                </div>
+                                
+                                <table class="table-auto w-full mobile-table">
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Nomor Surat</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.nomor_surat }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Tim</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.tim }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Periode Tukar</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.tanggal_mulai }} s/d {{ record.tanggal_akhir }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Shift Awal</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.shift_awal_nama }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Shift Baru</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.shift_baru_nama }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Pegawai Tukar</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.pegawai_tukar_nama }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Alasan</td>
+                                            <td class="text-gray-600 py-2">
+                                                <button onclick="showAlasan('{{ record.alasan_tukar_shift }}')" 
+                                                        class="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded hover:bg-blue-200 transition-colors">
+                                                    Lihat Alasan
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Team Leader</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.nama_mengetahui }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Nama Menyetujui (SPV)</td>
+                                            <td class="text-gray-600 py-2 text-xs md:text-sm">{{ record.nama_menyetujui }}</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Tanggal Pengajuan</td>
+                                            <td class="text-gray-600 py-2 text-xs">{{ record.tanggal_pengajuan }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-medium text-gray-700 py-2 text-xs md:text-sm">Aksi</td>
+                                            <td class="text-gray-600 py-2">
+                                                <div class="flex mobile-action-buttons">
+                                                    <a href="/download-tukar-shift/{{ record.id_tukar_shift }}" 
+                                                       class="inline-flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
+                                                       title="Download Form Tukar Shift">
+                                                        <i class="fas fa-download text-xs"></i>
+                                                    </a>
+                                                    <button onclick="showEmailModal({{ record.id_tukar_shift }})" 
+                                                            class="inline-flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                                                            title="Kirim via Email">
+                                                        <i class="fas fa-envelope text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="text-center py-12">
+                        <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-exchange-alt text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Pengajuan Tukar Shift</h3>
+                        <p class="text-gray-500 mb-6 text-sm md:text-base">Kamu belum pernah ajukan tukar shift sebelumnya.</p>
+                        <a href="/tukar-shift" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            <i class="fas fa-plus mr-2"></i>
+                            Ajukan Tukar Shift Pertama
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Footer Info -->
+            {% if tukar_shift_records %}
+            <div class="mt-6 text-center">
+                <p class="text-xs md:text-sm text-gray-500">
+                    Total {{ tukar_shift_records|length }} pengajuan tukar shift kamu
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal Alasan -->
+    <div id="alasanModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-lg p-4 md:p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Alasan Tukar Shift</h3>
+                <button onclick="closeAlasan()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p id="alasanText" class="text-gray-700 text-sm leading-relaxed"></p>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="closeAlasan()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-sm">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Email -->
+    <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
+        <div class="bg-white rounded-lg p-4 md:p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Kirim Form lewat email</h3>
+                <button onclick="closeEmailModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="mb-4">
+                <label for="emailInput" class="block text-sm font-medium text-gray-700 mb-2">Email Tujuan</label>
+                <input type="email" id="emailInput" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                       placeholder="demo@example.com">
+                <p class="text-xs text-gray-500 mt-1">Form pengajuan tukar shift bakal dikirim sebagai file PDF</p>
+            </div>
+            <div class="flex flex-col md:flex-row justify-end space-y-2 md:space-y-0 md:space-x-3">
+                <button onclick="closeEmailModal()" class="w-full md:w-auto px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors text-sm">
+                    Batal
+                </button>
+                <button onclick="kirimEmail()" id="kirimBtn" class="w-full md:w-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm">
+                    <span id="kirimText">Kirim Email</span>
+                    <i id="loadingIcon" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTukarShiftId = null;
+
+        function showAlasan(alasan) {
+            document.getElementById('alasanText').textContent = alasan || 'Gak ada alasan';
+            document.getElementById('alasanModal').classList.remove('hidden');
+        }
+
+        function closeAlasan() {
+            document.getElementById('alasanModal').classList.add('hidden');
+        }
+
+        function showEmailModal(tukarShiftId) {
+            currentTukarShiftId = tukarShiftId;
+            document.getElementById('emailInput').value = '';
+            document.getElementById('emailModal').classList.remove('hidden');
+            document.getElementById('emailInput').focus();
+        }
+
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.add('hidden');
+            currentTukarShiftId = null;
+        }
+
+        function kirimEmail() {
+            const email = document.getElementById('emailInput').value.trim();
+            
+            if (!email) {
+                alert('Tolong masukin alamat email dulu.');
+                return;
+            }
+
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                alert('Format email gak valid nih.');
+                return;
+            }
+
+            // Show loading
+            const kirimBtn = document.getElementById('kirimBtn');
+            const kirimText = document.getElementById('kirimText');
+            const loadingIcon = document.getElementById('loadingIcon');
+            
+            kirimBtn.disabled = true;
+            kirimText.textContent = 'Ngirim...';
+            loadingIcon.classList.remove('hidden');
+
+            // Send email request
+            fetch(`/kirim-email-tukar-shift-simple/${currentTukarShiftId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Email berhasil dikirim!');
+                    closeEmailModal();
+                } else {
+                    alert(data.message || 'Gagal kirim email.');
+                }
+            })
+            .catch(error => {
+                alert('Ada error saat kirim email.');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                // Hide loading
+                kirimBtn.disabled = false;
+                kirimText.textContent = 'Kirim Email';
+                loadingIcon.classList.add('hidden');
+            });
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('alasanModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAlasan();
+            }
+        });
+
+        document.getElementById('emailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEmailModal();
+            }
+        });
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeAlasan();
+                closeEmailModal();
+            }
+        });
+
+        // Enter key to send email
+        document.getElementById('emailInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                kirimEmail();
+            }
+        });
+
+        // Prevent body scroll when modal is open
+        function toggleBodyScroll(disable) {
+            document.body.style.overflow = disable ? 'hidden' : '';
+        }
+
+        // Update modal functions to handle body scroll
+        const originalShowAlasan = showAlasan;
+        const originalCloseAlasan = closeAlasan;
+        const originalShowEmailModal = showEmailModal;
+        const originalCloseEmailModal = closeEmailModal;
+
+        showAlasan = function(alasan) {
+            originalShowAlasan(alasan);
+            toggleBodyScroll(true);
+        };
+
+        closeAlasan = function() {
+            originalCloseAlasan();
+            toggleBodyScroll(false);
+        };
+
+        showEmailModal = function(tukarShiftId) {
+            originalShowEmailModal(tukarShiftId);
+            toggleBodyScroll(true);
+        };
+
+        closeEmailModal = function() {
+            originalCloseEmailModal();
+            toggleBodyScroll(false);
+        };
+    </script>
+</body>
+</html>

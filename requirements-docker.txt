@@ -1,0 +1,15 @@
+# Runtime dependencies used by the root app.py. Excludes Windows-only pywin32.
+Flask==3.1.0
+gunicorn==23.0.0
+mysql-connector-python==9.2.0
+pandas==2.2.3
+numpy==2.2.5
+openpyxl==3.1.5
+XlsxWriter==3.2.3
+pdfkit==1.0.0
+xhtml2pdf==0.2.17
+python-docx==1.2.0
+pytz==2025.2
+python-dateutil==2.9.0.post0
+requests==2.32.3
+chardet==5.2.0

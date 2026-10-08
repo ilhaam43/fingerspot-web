@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Data DCAP — Lintasarta APBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>tailwind.config = { theme: { extend: { fontFamily: { sans: ['"Inter"', 'sans-serif'] } } } }</script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .scrollbar-styled::-webkit-scrollbar { width: 5px; height: 5px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .injected-table { width: 100%; }
+        .injected-table table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 13.5px; color: #111827; text-align: left; white-space: nowrap; }
+        .injected-table thead { background: #f1f5f9; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
+        .injected-table th { padding: 12px 16px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: #374151; white-space: nowrap; text-align: left !important; }
+        .injected-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.1s; background: white; }
+        .injected-table tbody tr:nth-child(even) { background: #fafafa; }
+        .injected-table tbody tr:hover { background: #fff7ed !important; }
+        .injected-table td { padding: 10px 16px; color: #111827; font-weight: 500; white-space: nowrap; text-align: left !important; }
+    </style>
+</head>
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+        {% include 'components/sidebar.html' %}
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+            {% include 'components/topbar.html' %}
+
+            <div class="flex-1 px-4 py-3 overflow-hidden flex flex-col gap-3">
+
+                <!-- Step indicator bar -->
+                <div class="bg-white rounded-xl border border-gray-100 px-5 py-3 flex items-center gap-2 shrink-0" style="box-shadow:0 1px 6px rgba(0,0,0,0.04);">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold"><i class="fas fa-check text-[9px]"></i></div>
+                        <span class="text-xs font-bold text-orange-600">Upload</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs font-bold">2</div>
+                        <span class="text-xs font-bold text-orange-600">Preview</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold">3</div>
+                        <span class="text-xs font-semibold text-gray-400">Konversi</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold">4</div>
+                        <span class="text-xs font-semibold text-gray-400">Simpan ke DB</span>
+                    </div>
+                    <div class="ml-auto flex items-center gap-1 text-xs text-gray-400">
+                        <i class="fas fa-file text-orange-400"></i>
+                        <span class="font-semibold text-orange-700">{{ filename }}</span>
+                    </div>
+                </div>
+
+                <!-- Table card -->
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col" style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+                    <!-- Header -->
+                    <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/60 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center shrink-0">
+                                <i class="fas fa-eye text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-gray-900">Preview Data DCAP</h2>
+                                <p class="text-xs text-gray-500 mt-0.5">Periksa data mentah sebelum dikonversi</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <a href="{{ url_for('dcap.upload_dcap') }}"
+                                class="px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-all flex items-center gap-2 shadow-sm">
+                                <i class="fas fa-arrow-left text-xs"></i> Kembali
+                            </a>
+                            <a href="{{ url_for('dcap.konversi_dcap', filename=filename) }}"
+                                class="px-5 py-2.5 text-sm font-bold text-white bg-orange-500 hover:bg-orange-600 rounded-xl transition-all flex items-center gap-2 shadow-sm hover:shadow">
+                                <i class="fas fa-magic text-xs"></i> Convert Data
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="overflow-auto scrollbar-styled flex-1 relative">
+                        <div class="injected-table">{{ tables|safe }}</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

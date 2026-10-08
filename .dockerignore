@@ -1,0 +1,15 @@
+*
+!app.py
+!requirements-docker.txt
+!templates/
+!templates/**
+!static/
+!static/**
+!files/
+!files/README.md
+!config/
+!config/shift_mappings.json
+!config/mapping_nip_dcap_to_real_nip.json
+!config/mapping_nip_old_absen_to_real_nip.json
+static/img/screenshot_file_lemburan.png
+static/img/test_1.jpg

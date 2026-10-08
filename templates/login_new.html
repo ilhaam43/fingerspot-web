@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Masuk ke Akun</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <style>
+    .fade-text {
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .fade-text.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-100 flex items-center justify-center px-6">
+  <div class="w-full max-w-sm">
+    <header class="mb-6 text-center">
+      <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo Lintasarta" class="mx-auto w-24" />
+      <h1 id="fadeText" class="mt-4 text-2xl font-bold text-slate-800 fade-text">Login</h1>
+      <p class="mt-1 text-sm text-slate-500">Masuk untuk melanjutkan</p>
+    </header>
+
+    <form id="loginForm" class="space-y-4" novalidate>
+<div class="relative">
+  <i class="fas fa-id-card text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 text-sm"></i>
+  <input id="nik" name="nik" type="text" pattern="\d{4}" maxlength="4" required 
+    class="block w-full rounded-full border border-gray-300 pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none" 
+    placeholder="4 digit terakhir NIK Lintasarta">
+  <p id="nikError" class="mt-1 text-xs text-red-600 hidden">Masukkan 4 digit angka NIK</p>
+</div>
+
+      <div class="relative">
+        <i class="fas fa-lock text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 text-sm"></i>
+        <input id="password" name="password" type="password" required class="block w-full rounded-full border border-gray-300 pl-10 pr-12 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-400 outline-none" placeholder="Kata sandi">
+        <button type="button" id="togglePwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600">
+          <i class="fas fa-eye"></i>
+        </button>
+        <p id="pwdError" class="mt-1 text-xs text-red-600 hidden">Kata sandi wajib diisi.</p>
+      </div>
+
+      <div class="flex items-center justify-between text-xs">
+        <label class="inline-flex items-center">
+          <input id="remember" type="checkbox" class="h-3.5 w-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+          <span class="ml-1.5 text-slate-700">Ingat saya</span>
+        </label>
+        <a href="#" class="text-blue-600 hover:underline font-medium">Lupa sandi?</a>
+      </div>
+
+      <button type="submit" class="w-full rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 flex items-center justify-center gap-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <i class="fas fa-sign-in-alt"></i> Masuk
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const fadeText = document.getElementById('fadeText');
+    const messages = [
+      "Halo, Selamat Datang",
+      "Pantau Absen Lebih Mudah",
+      "Data Absen Selalu Aman",
+      "Abensi Project BI (APBI)"
+    ];
+    let msgIndex = 0;
+
+    function cycleMessages() {
+      fadeText.classList.remove('show');
+      setTimeout(() => {
+        fadeText.textContent = messages[msgIndex];
+        fadeText.classList.add('show');
+        msgIndex = (msgIndex + 1) % messages.length;
+      }, 500);
+    }
+
+    fadeText.classList.add('show');
+    setInterval(cycleMessages, 3000);
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const form = document.getElementById('loginForm');
+    const nik = document.getElementById('nik');
+    const password = document.getElementById('password');
+    const nikError = document.getElementById('nikError');
+    const pwdError = document.getElementById('pwdError');
+    const togglePwd = document.getElementById('togglePwd');
+    const toggleIcon = togglePwd.querySelector('i');
+
+    togglePwd.addEventListener('click', () => {
+      if (password.type === 'password') {
+        password.type = 'text';
+        toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        password.type = 'password';
+        toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let valid = true;
+
+if (!/^\d{4}$/.test(nik.value.trim())) {
+  nikError.classList.remove('hidden');
+  valid = false;
+} else {
+  nikError.classList.add('hidden');
+}
+
+      if (!password.value.trim()) {
+        pwdError.classList.remove('hidden');
+        valid = false;
+      } else {
+        pwdError.classList.add('hidden');
+      }
+
+      if (!valid) return;
+
+      alert('Data login berhasil dikirim.');
+    });
+  </script>
+</body>
+</html>

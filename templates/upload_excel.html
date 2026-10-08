@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Update Jadwal Shift - APBI</title>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('hidden');
+            if (sidebar.classList.contains('hidden')) {
+                content.classList.remove('lg:ml-56');
+            } else {
+                content.classList.add('lg:ml-56');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleModal(show, modalId) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+ document.addEventListener('DOMContentLoaded', () => {
+    const scrollableElement = document.querySelector('.relative.overflow-y-auto'); 
+    const editButtons = document.querySelectorAll('.edit-button'); 
+
+    const savedScrollPosition = localStorage.getItem('scrollableElementScrollPosition');
+    const highlightedRowIds = JSON.parse(localStorage.getItem('highlightedRowIds')) || []; 
+
+    if (savedScrollPosition) {
+        scrollableElement.scrollTop = parseInt(savedScrollPosition, 10);
+        localStorage.removeItem('scrollableElementScrollPosition'); 
+    }
+
+    highlightedRowIds.forEach(rowId => {
+        const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+        if (row) {
+            row.style.backgroundColor = '#f0f4ff'; 
+        }
+    });
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault(); 
+
+            const row = button.closest('tr'); 
+            row.style.backgroundColor = '#f0f4ff'; 
+
+            const rowId = row.getAttribute('data-row-id');
+            if (!highlightedRowIds.includes(rowId)) {
+                highlightedRowIds.push(rowId); 
+                localStorage.setItem('highlightedRowIds', JSON.stringify(highlightedRowIds)); 
+            }
+
+            localStorage.setItem('scrollableElementScrollPosition', scrollableElement.scrollTop); 
+
+            setTimeout(() => {
+                window.location.href = button.href;
+            }, 200);
+        });
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const monthPicker = document.getElementById('monthPicker');
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // bulan mulai dari 0
+    monthPicker.value = `${year}-${month}`;
+});
+
+function prepareStartDate() {
+    const monthPicker = document.getElementById('monthPicker');
+    const startDateInput = document.getElementById('startDate');
+
+    const [year, month] = monthPicker.value.split('-');
+    startDateInput.value = `${year}-${month}-01`;
+
+    return true; // lanjutkan submit
+}
+
+
+
+    </script>
+    <style>
+                                .scrollbar-hidden {
+                            scrollbar-width: none;
+                            -ms-overflow-style: none;
+                        }
+                        .scrollbar-hidden::-webkit-scrollbar {
+                            display: none; 
+                        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="relative flex min-h-screen">
+
+        <div id="sidebar" class="w-56 bg-white text-gray-800 flex flex-col p-4 fixed h-full z-40 shadow-lg border-r border-gray-200">
+
+            <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-gray-800 text-xl lg:hidden">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center justify-center mb-8">
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo" class="h-auto object-contain max-w-[150px]">
+            </div>
+
+                       <nav class="space-y-6">
+                <ul class="space-y-2">
+                
+                    <li>
+                        <a href="/" class="group flex items-center p-3 rounded-xl hover:bg-blue-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Absen</span>
+                        </a>
+                    </li>
+            
+                  
+                    <li>
+                        <a href="/upload_excel" class="group flex items-center p-3 rounded-xl hover:bg-green-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-alt mr-4 text-green-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Upload Jadwal Shift</span>
+                        </a>
+                    </li>
+            
+                   
+                    <li>
+                        <a href="/upload" class="group flex items-center p-3 rounded-xl hover:bg-yellow-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-history mr-4 text-yellow-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen (Mesin Lama)</span>
+                        </a>
+                    </li>
+            
+              
+                    <li>
+                        <a href="/att_log" class="group flex items-center p-3 rounded-xl hover:bg-purple-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-fingerprint mr-4 text-purple-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen Fingerspot</span>
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <a href="/daftar-cuti" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-clipboard-list mr-4 text-pink-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Cuti Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/cek_jadwal"  class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Cek Jadwal Pegawai</span>
+                        </a>
+                    </li>
+            
+                 
+                    <li>
+                        <div>
+                            <button onclick="toggleDropdown()" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300 w-full text-left">
+                                <i class="fas fa-ellipsis-h mr-4 text-pink-500 text-lg"></i>
+                                <span class="font-semibold text-sm">Lainnya</span>
+                                <i class="fas fa-chevron-down ml-auto text-gray-400 group-hover:text-pink-500"></i>
+                            </button>
+                            <ul id="settings-dropdown" class="pl-8 mt-3 space-y-2 hidden">
+                                <li>
+                                    <a href="/pegawai" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-users mr-2 text-blue-500"></i> Pegawai
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/upload-lembur" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-business-time mr-2 text-green-600"></i> Lemburan
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/ito_load" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>&nbsp;&nbsp; Absen ITO
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mt-auto text-center text-sm text-gray-500 border-t border-gray-300 pt-4">
+                <a href="/logout">
+                    <i class="fas fa-sign-out text-lg"></i>
+                    <span class="hidden md:inline font-medium text-sm">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="content" class="flex-1 flex flex-col lg:ml-56">
+
+<div class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
+
+    <button onclick="toggleSidebar()" class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2">
+        <i class="fas fa-bars text-lg"></i>
+        <span class="hidden md:inline font-medium text-sm">Menu</span>
+    </button>
+
+    <div class="flex items-center space-x-3">
+
+    </div>
+</div>
+
+<div class="flex-grow flex items-center justify-center p-4 bg-white">
+    <div class="w-full max-w-xl">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Upload Jadwal Shift</h1>
+            <p class="text-gray-500 mt-2">Silakan isi form di bawah untuk memperbarui jadwal shift pegawai.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6" onsubmit="return prepareStartDate()">
+            <div>
+                <label for="monthPicker" class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-calendar-alt mr-2 text-blue-500"></i>Pilih Bulan Jadwal
+                </label>
+                <div class="relative">
+                    <input
+                        type="month"
+                        id="monthPicker"
+                        name="monthPicker"
+                        required
+                        class="block w-full rounded-lg border-gray-300 shadow-sm pl-4 pr-4 py-3 focus:ring-blue-500 focus:border-blue-500 text-base"
+                    >
+                </div>
+            </div>
+        
+            <input type="hidden" id="startDate" name="startDate">
+
+            <div>
+                <label for="division" class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-building mr-2 text-green-500"></i>Pilih Divisi
+                </label>
+                <select name="division" id="division" required
+                class="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm
+                       focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            
+                <option value="" disabled selected>Pilih Divisi</option>
+            
+                <!-- Semua divisi (opsional kalau dipakai untuk filter) -->
+                <option value="ALL">Semua Divisi</option>
+            
+                <!-- Divisi tunggal -->
+                <option value="HDTI">HDTI</option>
+                <option value="HDBS">HDBS</option>
+                <option value="QAQC">QAQC</option>
+                <option value="TA">TA</option>
+            
+                <!-- Divisi gabungan -->
+                <option value="HDTI-HDBS">HDTI - HDBS</option>
+                <option value="QAQC-TA">QAQC - TA</option>
+            </select>
+            
+            </div>
+        
+            <div>
+                <label for="file" class="block text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-file-excel mr-2 text-purple-500"></i>Pilih File Excel
+                </label>
+                <input
+                    type="file"
+                    id="file"
+                    name="file"
+                    accept=".xlsx,.xls"
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
+                >
+            </div>
+        
+            <button
+                type="submit"
+                class="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:shadow-lg hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center text-base"
+            >
+                <i class="fas fa-upload mr-2"></i>Upload Jadwal
+            </button>
+        </form>
+    </div>
+</div>
+
+    </div>
+</div>  
+
+</body>
+</html>

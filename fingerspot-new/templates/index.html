@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Absen — Lintasarta APBI</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff', 100: '#dbeafe',
+                            500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Scrollbar */
+        .scrollbar-styled { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+        .scrollbar-styled::-webkit-scrollbar { width: 5px; height: 5px; }
+        .scrollbar-styled::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .scrollbar-styled::-webkit-scrollbar-track { background: transparent; }
+
+        /* Table row hover */
+        tbody tr { transition: background 0.1s; }
+        tbody tr:hover { background: #f0f7ff !important; }
+        tbody tr.highlighted { background: #dbeafe !important; }
+
+        /* Modal overlay */
+        .modal-overlay {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        /* Modal animation */
+        .modal-box {
+            animation: modalIn 0.2s ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.97) translateY(-8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Badge status */
+        .badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; letter-spacing: 0.03em; }
+
+        /* Form input base */
+        .form-input {
+            width: 100%;
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background: #f8fafc;
+            color: #1e293b;
+            transition: border 0.15s, box-shadow 0.15s;
+        }
+        .form-input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+            background: white;
+        }
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 5px;
+        }
+        textarea.form-input { height: auto; padding: 10px 12px; resize: none; }
+        select.form-input { appearance: none; cursor: pointer; }
+
+        /* Modal header line */
+        .modal-header-line {
+            width: 3px;
+            height: 18px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 overflow-hidden">
+    <div class="flex h-screen w-full">
+
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
+
+        <!-- Main Content -->
+        <div id="content" class="flex-1 flex flex-col transition-all duration-300 lg:ml-[260px] w-full h-full overflow-hidden">
+
+            <!-- Topbar -->
+            {% include 'components/topbar.html' %}
+
+            <!-- Table Container -->
+            <div class="flex-1 px-4 py-3 overflow-hidden flex flex-col">
+                <div class="bg-white rounded-2xl border border-gray-100 flex-1 overflow-hidden flex flex-col"
+                    style="box-shadow: 0 2px 20px rgba(0,0,0,0.05);">
+
+                    <div class="overflow-auto scrollbar-styled flex-1 relative">
+                        <table class="w-full text-sm text-left text-gray-900 whitespace-nowrap">
+                            <thead class="sticky top-0 z-10">
+                                <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                                    <th class="px-4 py-3.5 text-center">ID</th>
+                                    <th class="px-4 py-3.5 text-center">NIP</th>
+                                    <th class="px-4 py-3.5 text-left">Nama</th>
+                                    <th class="px-4 py-3.5 text-center">Divisi</th>
+                                    <th class="px-4 py-3.5 text-center">Tanggal</th>
+                                    <th class="px-4 py-3.5 text-center">Shift</th>
+                                    <th class="px-4 py-3.5 text-center">Batas Masuk</th>
+                                    <th class="px-4 py-3.5 text-center">Batas Pulang</th>
+                                    <th class="px-4 py-3.5 text-center">Masuk Real</th>
+                                    <th class="px-4 py-3.5 text-center">Pulang Real</th>
+                                    <th class="px-4 py-3.5 text-center">Asal Masuk</th>
+                                    <th class="px-4 py-3.5 text-center">Asal Pulang</th>
+                                    <th class="px-4 py-3.5 text-center">Status</th>
+                                    <th class="px-4 py-3.5 text-center">Notes</th>
+                                    <th class="px-4 py-3.5 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                {% for record in records %}
+                                <tr class="bg-white" data-row-id="{{ record['pegawai_id'] }}">
+                                    <td class="px-4 py-3 text-center text-gray-900 font-mono text-xs">{{ record['pegawai_id'] }}</td>
+                                    <td class="px-4 py-3 text-center text-gray-900 font-mono font-medium">{{ record['pegawai_nip'] }}</td>
+                                    <td class="px-4 py-3 text-left font-bold text-gray-900">{{ record['pegawai_nama'] }}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="text-xs font-semibold text-gray-900 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-lg">{{ record['pembagian1_nama'] }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-gray-900 font-semibold">{{ record['tgl_shift'] }}</td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="text-xs font-bold text-indigo-800 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg">{{ record['jk_name'] }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-gray-900 font-mono font-medium">{{ record['jk_bcin'] }}</td>
+                                    <td class="px-4 py-3 text-center text-gray-900 font-mono font-medium">{{ record['jk_ecout'] }}</td>
+
+                                    <td class="px-4 py-3 text-center font-mono font-bold
+                                        {% if record['scan_in'] == '-' %}text-gray-400
+                                        {% elif not record['scan_in'] %}text-red-600
+                                        {% else %}text-blue-800{% endif %}">
+                                        {{ record['scan_in'] or '—' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center font-mono font-bold
+                                        {% if record['scan_out'] == '-' %}text-gray-400
+                                        {% elif not record['scan_out'] %}text-red-600
+                                        {% else %}text-violet-800{% endif %}">
+                                        {{ record['scan_out'] or '—' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center text-gray-500 text-xs">
+                                        {{ record['scan_in_source'] or '-' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center text-gray-500 text-xs">
+                                        {{ record['scan_out_source'] or '-' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="badge
+                                            {% if record['keterangan'] == 'H' %}bg-emerald-100 text-emerald-900
+                                            {% elif record['keterangan'] == 'TL' %}bg-amber-100 text-amber-900
+                                            {% elif record['keterangan'] == 'TP' %}bg-orange-100 text-orange-900
+                                            {% elif record['keterangan'] in ['LB', 'LDL', 'LD', 'CT'] %}bg-blue-100 text-blue-900
+                                            {% elif record['keterangan'] == 'S' %}bg-purple-100 text-purple-900
+                                            {% elif record['keterangan'] == 'D' %}bg-indigo-100 text-indigo-900
+                                            {% elif record['keterangan'] == 'A' %}bg-red-100 text-red-900
+                                            {% elif record['keterangan'] == 'OT' %}bg-teal-100 text-teal-900
+                                            {% elif record['keterangan'] == 'Libur' %}bg-slate-100 text-gray-900
+                                            {% else %}bg-gray-100 text-gray-900{% endif %}">
+                                            {{ record['keterangan'] }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center text-gray-900 font-medium truncate max-w-[150px]" title="{{ record['notes'] }}">
+                                        {{ record['notes'] or '—' }}
+                                    </td>
+
+                                    <td class="px-4 py-3 text-center">
+                                        <button
+                                            onclick="openUpdateModal('{{ record['pegawai_id'] }}', '{{ record['tgl_shift'] }}', '{{ record['jk_id'] }}', '{{ record['raw_scan_in'] }}', '{{ record['raw_scan_out'] }}', '{{ record['notes'] or '' }}')"
+                                            class="edit-button w-8 h-8 inline-flex items-center justify-center text-blue-700 hover:text-white bg-blue-50 hover:bg-blue-600 rounded-lg transition-all border border-blue-100 hover:border-blue-600">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Table Footer -->
+                    <div class="px-5 py-2.5 border-t border-gray-100 bg-slate-50/60 flex items-center justify-between rounded-b-2xl">
+                        <p class="text-xs text-gray-400">
+                            Menampilkan <span class="font-semibold text-gray-600">{{ records|length }}</span> baris data
+                        </p>
+                        <p class="text-xs text-gray-300 font-mono">Lintasarta APBI · v3.0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MODALS ===================== -->
+
+    <!-- SHARED MODAL WRAPPER FUNCTION -->
+    <!-- All modals use same overlay + box pattern for consistency -->
+
+    <!-- ① Edit Jadwal & Absensi -->
+    <div class="fixed inset-0 modal-overlay hidden items-center justify-center z-50 p-4" id="updateScheduleModal">
+        <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <!-- Header -->
+            <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+                <div class="flex items-center">
+                    <span class="modal-header-line bg-blue-500"></span>
+                    <h2 class="text-base font-bold text-gray-900">Edit Jadwal &amp; Absensi</h2>
+                </div>
+                <button onclick="toggleModal(false,'updateScheduleModal')"
+                    class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <!-- Body -->
+            <div class="p-6">
+                <form action="{{ url_for('main.edit_jadwal_shift_peruser') }}" method="post" class="space-y-4">
+                    <input type="hidden" name="pegawai_id" id="edit_pegawai_id">
+                    <input type="hidden" name="tgl_shift" id="edit_tgl_shift">
+                    <input type="hidden" name="referrer" value="{{ request.url }}">
+
+                    <div>
+                        <label class="form-label">Jadwal Shift</label>
+                        <div class="relative">
+                            <select name="jk_id" id="edit_jk_id" class="form-input pr-8">
+                                <option value="">— Pilih Shift —</option>
+                                {% for jk in jam_kerja_list %}
+                                <option value="{{ jk.jk_id }}">{{ jk.jk_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label">Scan Masuk</label>
+                            <input type="datetime-local" name="scan_in" id="edit_scan_in" class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">Scan Pulang</label>
+                            <input type="datetime-local" name="scan_out" id="edit_scan_out" class="form-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" id="edit_notes" rows="2" class="form-input" placeholder="Catatan opsional..."></textarea>
+                    </div>
+
+                    <div class="flex gap-3 pt-1">
+                        <button type="button" onclick="toggleModal(false,'updateScheduleModal')"
+                            class="flex-1 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+                            Batal
+                        </button>
+                        <button type="submit"
+                            class="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-save text-xs"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ② Filter -->
+    <div class="fixed inset-0 modal-overlay hidden items-center justify-center z-50 p-4" id="filterModal">
+        <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+                <div class="flex items-center">
+                    <span class="modal-header-line bg-violet-500"></span>
+                    <h2 class="text-base font-bold text-gray-900">Filter Data</h2>
+                </div>
+                <button onclick="toggleModal(false,'filterModal')"
+                    class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form action="{{ url_for('main.index') }}" method="get" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label">Tanggal Awal</label>
+                            <input type="date" name="start_date" class="form-input" value="{{ request.args.get('start_date', '') }}">
+                        </div>
+                        <div>
+                            <label class="form-label">Tanggal Akhir</label>
+                            <input type="date" name="end_date" class="form-input" value="{{ request.args.get('end_date', '') }}">
+                        </div>
+                    </div>
+
+                    <div class="relative group" id="keteranganFilterContainer">
+                        <label class="form-label">Keterangan</label>
+                        <button type="button" onclick="document.getElementById('keteranganDropdown').classList.toggle('hidden')" class="form-input w-full text-left pr-8 relative bg-white flex items-center h-10 border border-gray-200 rounded-lg">
+                            <span id="keteranganText" class="truncate">Semua Status</span>
+                            <i class="fas fa-chevron-down absolute right-3 text-gray-400 text-xs pointer-events-none"></i>
+                        </button>
+                        <div id="keteranganDropdown" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg hidden flex-col max-h-[300px] overflow-hidden">
+                            <div class="overflow-y-auto scrollbar-styled p-2 flex flex-col gap-1">
+                                {% for ket in ['H', 'TL', 'TP', 'LB', 'CT', 'D', 'A', 'OT', 'Libur', 'LDL'] %}
+                                <label class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors">
+                                    <input type="checkbox" name="keterangan" value="{{ ket }}" class="row-checkbox ket-cb" {% if ket in request.args.getlist('keterangan') %}checked{% endif %}>
+                                    <span class="text-sm font-medium text-gray-700">{{ ket }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative group" id="divisiFilterContainer">
+                        <label class="form-label">Divisi</label>
+                        <button type="button" onclick="document.getElementById('divisiDropdown').classList.toggle('hidden')" class="form-input w-full text-left pr-8 relative bg-white flex items-center h-10 border border-gray-200 rounded-lg">
+                            <span id="divisiText" class="truncate">Semua Divisi</span>
+                            <i class="fas fa-chevron-down absolute right-3 text-gray-400 text-xs pointer-events-none"></i>
+                        </button>
+                        <div id="divisiDropdown" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg hidden flex-col max-h-[300px] overflow-hidden">
+                            <div class="overflow-y-auto scrollbar-styled p-2 flex flex-col gap-1">
+                                {% for div in ['HDTI', 'HDBS', 'QAQC', 'TA'] %}
+                                <label class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors">
+                                    <input type="checkbox" name="pembagian1_nama" value="{{ div }}" class="row-checkbox div-cb" {% if div in request.args.getlist('pembagian1_nama') %}checked{% endif %}>
+                                    <span class="text-sm font-medium text-gray-700">{{ div }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Cari Nama / NIP</label>
+                        <input type="text" name="search_name" class="form-input"
+                            value="{{ request.args.get('search_name', '') }}" placeholder="Ketik nama atau NIP...">
+                        <input type="hidden" name="show_pm" value="{{ request.args.get('show_pm', 'off') }}">
+                    </div>
+
+                    <div class="flex gap-3 pt-1">
+                        <a href="{{ url_for('main.index') }}"
+                            class="flex-1 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors text-center">
+                            Reset
+                        </a>
+                        <button type="submit"
+                            class="flex-1 py-2.5 text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-filter text-xs"></i> Terapkan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ③ Export -->
+    <div class="fixed inset-0 modal-overlay hidden items-center justify-center z-50 p-4" id="exportModal">
+        <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+            <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+                <div class="flex items-center">
+                    <span class="modal-header-line bg-emerald-500"></span>
+                    <h2 class="text-base font-bold text-gray-900">Export Data</h2>
+                </div>
+                <button onclick="toggleModal(false,'exportModal')"
+                    class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form action="{{ url_for('main.export_laporan_excel') }}" method="get" class="space-y-4">
+                    <input type="hidden" name="start_date" value="{{ request.args.get('start_date', '') }}">
+                    <input type="hidden" name="end_date" value="{{ request.args.get('end_date', '') }}">
+                    <div id="hiddenKeteranganContainer">
+                        {% for ket in request.args.getlist('keterangan') %}
+                        <input type="hidden" name="keterangan" value="{{ ket }}">
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="search_name" value="{{ request.args.get('search_name', '') }}">
+                    <input type="hidden" name="show_pm" value="{{ request.args.get('show_pm', 'off') }}">
+
+                    <div class="relative group" id="divisiExtFilterContainer">
+                        <label class="form-label">Filter Divisi</label>
+                        <button type="button" onclick="document.getElementById('divisiExtDropdown').classList.toggle('hidden')" class="form-input w-full text-left pr-8 relative bg-white flex items-center h-10 border border-gray-200 rounded-lg">
+                            <span id="divisiExtText" class="truncate">Semua Divisi</span>
+                            <i class="fas fa-chevron-down absolute right-3 text-gray-400 text-xs pointer-events-none"></i>
+                        </button>
+                        <div id="divisiExtDropdown" class="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg hidden flex-col max-h-[300px] overflow-hidden">
+                            <div class="overflow-y-auto scrollbar-styled p-2 flex flex-col gap-1">
+                                {% for div in ['HDTI', 'HDBS', 'QAQC', 'TA'] %}
+                                <label class="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors">
+                                    <input type="checkbox" name="division_ext" value="{{ div }}" class="row-checkbox div-ext-cb" {% if div in request.args.getlist('division_ext') %}checked{% endif %}>
+                                    <span class="text-sm font-medium text-gray-700">{{ div }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info box -->
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-xs text-blue-700 flex gap-2">
+                        <i class="fas fa-info-circle mt-0.5 shrink-0"></i>
+                        <span>Rentang tanggal & filter aktif dari halaman utama akan ikut diterapkan di file Excel.</span>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-2.5 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-file-excel text-sm"></i> Download Excel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ④ Samakan Shift (Reload) -->
+    <div class="fixed inset-0 modal-overlay hidden items-center justify-center z-50 p-4" id="reloadModal">
+        <div class="modal-box bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100">
+                <div class="flex items-center">
+                    <span class="modal-header-line bg-amber-500"></span>
+                    <h2 class="text-base font-bold text-gray-900">Samakan Shift</h2>
+                </div>
+                <button onclick="toggleModal(false,'reloadModal')"
+                    class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <form action="{{ url_for('main.reload_shift') }}" method="POST" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label">Tanggal Target</label>
+                            <input type="date" name="target_date" required class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">Tanggal Referensi</label>
+                            <input type="date" name="reference_date" required class="form-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Divisi <span class="normal-case text-gray-400 font-normal">(opsional)</span></label>
+                        <div class="relative">
+                            <select name="division" class="form-input pr-8">
+                                <option value="">Semua Divisi</option>
+                                <option value="HDTI">HDTI</option>
+                                <option value="HDBS">HDBS</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Ikuti Status</label>
+                        <div class="bg-gray-50 border border-gray-100 rounded-xl p-4 grid grid-cols-2 gap-3">
+                            {% for item, label in [('update_bifast_shifts','Ubah Shift BI-FAST'), ('cuti','Cuti'), ('dinas','Dinas'), ('sakit','Sakit'), ('izin','Izin')] %}
+                            <label class="flex items-center gap-2.5 cursor-pointer group">
+                                <input type="checkbox" name="{{ item }}" value="true"
+                                    {% if item == 'update_bifast_shifts' %}checked{% endif %}
+                                    class="w-4 h-4 rounded border-gray-300 text-amber-500 focus:ring-amber-400 cursor-pointer">
+                                <span class="text-sm text-gray-700 group-hover:text-gray-900 transition-colors">{{ label }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-2.5 text-sm font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-xl transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-sync-alt text-xs"></i> Sesuaikan Shift
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== SCRIPTS ===================== -->
+    <script>
+        function toggleModal(show, modalId) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Close modal when clicking overlay
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                    this.classList.remove('flex');
+                }
+            });
+        });
+
+        function openUpdateModal(pegawaiId, tglShift, jkId, scanIn, scanOut, notes) {
+            document.getElementById('edit_pegawai_id').value = pegawaiId;
+            document.getElementById('edit_tgl_shift').value = tglShift;
+            document.getElementById('edit_jk_id').value = jkId === 'None' ? '' : jkId;
+            document.getElementById('edit_scan_in').value = scanIn === 'None' ? '' : scanIn;
+            document.getElementById('edit_scan_out').value = scanOut === 'None' ? '' : scanOut;
+            document.getElementById('edit_notes').value = notes === 'None' ? '' : notes;
+            toggleModal(true, 'updateScheduleModal');
+        }
+
+        document.getElementById('pmToggle').addEventListener('change', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('show_pm', this.checked ? 'on' : 'off');
+            window.location.search = urlParams.toString();
+        });
+
+        // Row highlight + scroll restore
+        document.addEventListener('DOMContentLoaded', () => {
+            const scrollableElement = document.querySelector('.scrollbar-styled');
+            const editButtons = document.querySelectorAll('.edit-button');
+
+            const savedScrollPosition = sessionStorage.getItem('scrollableElementScrollPosition');
+            const highlightedRowIds = JSON.parse(sessionStorage.getItem('highlightedRowIds')) || [];
+
+            if (savedScrollPosition && scrollableElement) {
+                scrollableElement.scrollTop = parseInt(savedScrollPosition, 10);
+            }
+
+            highlightedRowIds.forEach(rowId => {
+                const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+                if (row) row.classList.add('highlighted');
+            });
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const row = button.closest('tr');
+                    row.classList.add('highlighted');
+                    const rowId = row.getAttribute('data-row-id');
+                    if (!highlightedRowIds.includes(rowId)) {
+                        highlightedRowIds.push(rowId);
+                        sessionStorage.setItem('highlightedRowIds', JSON.stringify(highlightedRowIds));
+                    }
+                    if (scrollableElement) {
+                        sessionStorage.setItem('scrollableElementScrollPosition', scrollableElement.scrollTop);
+                    }
+                });
+            });
+
+            sessionStorage.removeItem('highlightedRowIds');
+            sessionStorage.removeItem('scrollableElementScrollPosition');
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(m => {
+                    m.classList.add('hidden');
+                    m.classList.remove('flex');
+                });
+            }
+        });
+        
+        // Checkbox dropdown logic
+        function updateDropdownText(checkboxClass, textId, defaultText) {
+            const checked = document.querySelectorAll(`.${checkboxClass}:checked`);
+            const textEl = document.getElementById(textId);
+            if (!textEl) return;
+            
+            if (checked.length === 0) {
+                textEl.textContent = defaultText;
+            } else if (checked.length <= 2) {
+                textEl.textContent = Array.from(checked).map(cb => cb.value).join(', ');
+            } else {
+                textEl.textContent = `${checked.length} Terpilih`;
+            }
+        }
+
+        ['ket-cb', 'div-cb', 'div-ext-cb'].forEach(cls => {
+            document.querySelectorAll(`.${cls}`).forEach(cb => {
+                cb.addEventListener('change', () => {
+                    if (cls === 'ket-cb') updateDropdownText('ket-cb', 'keteranganText', 'Semua Status');
+                    if (cls === 'div-cb') updateDropdownText('div-cb', 'divisiText', 'Semua Divisi');
+                    if (cls === 'div-ext-cb') updateDropdownText('div-ext-cb', 'divisiExtText', 'Semua Divisi');
+                });
+            });
+        });
+
+        // Initialize text on load
+        updateDropdownText('ket-cb', 'keteranganText', 'Semua Status');
+        updateDropdownText('div-cb', 'divisiText', 'Semua Divisi');
+        updateDropdownText('div-ext-cb', 'divisiExtText', 'Semua Divisi');
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            ['keterangan', 'divisi', 'divisiExt'].forEach(prefix => {
+                const container = document.getElementById(`${prefix}FilterContainer`);
+                const dropdown = document.getElementById(`${prefix}Dropdown`);
+                if (container && dropdown && !container.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+    
+    <!-- SweetAlert2 for Flash Messages -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    {% for category, message in messages %}
+                        Swal.fire({
+                            icon: '{{ "success" if category == "success" else "error" }}',
+                            title: '{{ "Berhasil!" if category == "success" else "Oops..." }}',
+                            text: '{{ message }}',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        });
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
+</body>
+
+</html>

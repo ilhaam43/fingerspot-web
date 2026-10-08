@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Absensi Project BI</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Custom Animations */
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Input Styling Fixes */
+        .peer:focus ~ label,
+        .peer:not(:placeholder-shown) ~ label {
+            top: -0.6rem;
+            font-size: 0.75rem;
+            color: #2563eb;
+            background-color: white;
+            padding: 0 0.25rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        /* SweetAlert Custom Override */
+        .swal2-popup {
+            border-radius: 1rem !important;
+            padding: 2rem !important;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
+        }
+        .swal2-styled.swal2-confirm {
+            background-color: #2563eb !important;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3) !important;
+        }
+        .swal2-styled.swal2-confirm:hover {
+            background-color: #1d4ed8 !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 selection:bg-brand-100 selection:text-brand-900">
+
+    <div class="flex w-full max-w-[1000px] bg-white rounded-3xl shadow-2xl overflow-hidden fade-in-up border border-white/50">
+        
+        <div class="hidden md:flex w-5/12 bg-brand-900 relative flex-col justify-between p-12 overflow-hidden text-white">
+            <div class="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 rounded-full bg-brand-600 blur-3xl opacity-20"></div>
+            <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-60 h-60 rounded-full bg-brand-500 blur-3xl opacity-20"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+
+            <div class="relative z-10">
+                <div class="bg-white/10 backdrop-blur-sm w-12 h-12 rounded-xl flex items-center justify-center mb-6 shadow-inner border border-white/10">
+                    <i class="fas fa-shield-alt text-2xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold tracking-tight mb-4">Absensi <br>Project BI.</h1>
+                <p class="text-brand-100 text-lg font-light leading-relaxed">
+                    Kelola kehadiran jadi lebih mudah, cepat, dan praktis.
+                </p>
+            </div>
+
+            <div class="relative z-10 pt-8">
+                <div class="flex items-center gap-3 opacity-80 mb-2">
+                    <div class="h-px bg-brand-500 w-12"></div>
+                    <span class="text-sm font-medium tracking-widest uppercase">Powered By</span>
+                </div>
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo Lintasarta" class="w-32 brightness-0 invert opacity-90">
+            </div>
+        </div>
+
+        <div class="w-full md:w-7/12 p-8 md:p-14 flex flex-col justify-center bg-white relative">
+            <div class="md:hidden text-center mb-8">
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo Lintasarta" class="h-10 mx-auto">
+            </div>
+
+            <div class="mb-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Halo, Rekan Kerja!</h2>
+                <p class="text-gray-500">Silakan login dulu untuk mulai administrasi absensi ya</p>
+            </div>
+
+            <div id="error-toast" class="hidden transform transition-all duration-300 ease-in-out bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl mb-6 flex items-start gap-3 shadow-sm">
+                <i class="fas fa-exclamation-circle mt-0.5"></i>
+                <div class="flex-1 text-sm" id="error-message"></div>
+                <button id="close-toast" class="text-red-400 hover:text-red-600 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="loginForm" action="{{ url_for('login') }}" method="POST" class="space-y-5">
+                
+                <div class="relative group">
+                    <input type="text" id="username" name="username" required placeholder=" " 
+                           class="peer w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-4 focus:ring-brand-500/20 focus:border-brand-600 block px-4 py-3.5 pl-11 outline-none transition-all duration-200 shadow-sm hover:border-brand-400">
+                    
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 peer-focus:text-brand-600 transition-colors">
+                        <i class="fas fa-user-tag text-lg"></i>
+                    </div>
+                    
+                    <label for="username" class="absolute left-10 top-3.5 text-gray-500 text-sm transition-all duration-200 origin-[0] bg-transparent px-1 pointer-events-none">
+                        4 Digit Belakang NIK
+                    </label>
+                </div>
+
+                <div class="relative group">
+                    <input type="password" id="password" name="password" required placeholder=" " 
+                           class="peer w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-4 focus:ring-brand-500/20 focus:border-brand-600 block px-4 py-3.5 pl-11 pr-11 outline-none transition-all duration-200 shadow-sm hover:border-brand-400">
+                    
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-400 peer-focus:text-brand-600 transition-colors">
+                        <i class="fas fa-lock text-lg"></i>
+                    </div>
+
+                    <label for="password" class="absolute left-10 top-3.5 text-gray-500 text-sm transition-all duration-200 origin-[0] bg-transparent px-1 pointer-events-none">
+                        Password
+                    </label>
+
+                    <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-gray-600 cursor-pointer focus:outline-none">
+                        <i class="fas fa-eye transition-all"></i>
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center cursor-pointer group">
+                        <div class="relative flex items-center">
+                            <input type="checkbox" id="rememberMe" name="rememberMe" class="peer h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer transition-all">
+                        </div>
+                        <span class="ml-2 text-gray-600 group-hover:text-gray-800 transition-colors">Ingat akun saya</span>
+                    </label>
+                    <a href="#" id="forgot-password" class="text-brand-600 hover:text-brand-800 font-semibold hover:underline decoration-2 underline-offset-4 transition-all">
+                        Lupa Password?
+                    </a>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl py-3.5 px-4 transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-500/30 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none flex items-center justify-center gap-2 group"
+                        disabled>
+                    <span id="button-text" class="flex items-center gap-2">
+                        Masuk ke Aplikasi <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </span>
+                    <span id="button-loading" class="hidden flex items-center gap-2">
+                        <i class="fas fa-circle-notch fa-spin"></i> Memproses...
+                    </span>
+                </button>
+            </form>
+
+            <div class="mt-10 text-center">
+                <p class="text-xs text-gray-400 font-medium">
+                    &copy; 2026 Lintasarta  &bull;  Project Bank Indonesia<br>
+                    <span class="opacity-70">Version 1.6</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const rememberMeCheckbox = document.getElementById('rememberMe');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const buttonText = document.getElementById('button-text');
+            const buttonLoading = document.getElementById('button-loading');
+            const errorToast = document.getElementById('error-toast');
+            const errorMessage = document.getElementById('error-message');
+            const closeToast = document.getElementById('close-toast');
+            const forgotPasswordLink = document.getElementById('forgot-password');
+            const togglePassword = document.getElementById('togglePassword');
+
+            // --- UI Helper Functions ---
+            function updateSubmitButton() {
+                const isValid = usernameInput.value.trim().length > 0 && passwordInput.value.trim().length > 0;
+                submitButton.disabled = !isValid;
+                if(isValid) {
+                    submitButton.classList.remove('opacity-50');
+                } else {
+                    submitButton.classList.add('opacity-50');
+                }
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorToast.classList.remove('hidden');
+                errorToast.classList.add('flex');
+            }
+
+            function hideError() {
+                errorToast.classList.add('hidden');
+                errorToast.classList.remove('flex');
+            }
+
+            // --- Event Listeners ---
+            usernameInput.addEventListener('input', () => {
+                updateSubmitButton();
+                hideError();
+            });
+            passwordInput.addEventListener('input', () => {
+                updateSubmitButton();
+                hideError();
+            });
+
+            // --- LocalStorage Logic (Remember Me) ---
+            const savedUsername = localStorage.getItem('rememberedUsername');
+            const savedPassword = localStorage.getItem('rememberedPassword');
+            
+            if (savedUsername) {
+                usernameInput.value = savedUsername;
+                if(savedPassword) passwordInput.value = savedPassword;
+                rememberMeCheckbox.checked = true;
+                updateSubmitButton();
+            }
+
+            rememberMeCheckbox.addEventListener('change', function () {
+                if (!this.checked) {
+                    localStorage.removeItem('rememberedUsername');
+                    localStorage.removeItem('rememberedPassword');
+                }
+            });
+
+            // --- Toggle Password (Login Form) ---
+            togglePassword.addEventListener('click', function () {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+
+            // --- Form Submit ---
+            form.addEventListener('submit', function (e) {
+                if (rememberMeCheckbox.checked) {
+                    localStorage.setItem('rememberedUsername', usernameInput.value);
+                    localStorage.setItem('rememberedPassword', passwordInput.value);
+                }
+
+                let valid = true;
+                let errors = [];
+
+                if (usernameInput.value.length < 3) {
+                    usernameInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+                    errors.push('Ups, username minimal 3 karakter ya.');
+                    valid = false;
+                } else {
+                    usernameInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+                }
+
+                if (passwordInput.value.length < 6) {
+                    passwordInput.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+                    errors.push('Password harus minimal 6 karakter.');
+                    valid = false;
+                } else {
+                    passwordInput.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+                }
+
+                if (!valid) {
+                    e.preventDefault();
+                    showError(errors.join(' '));
+                } else {
+                    buttonText.classList.add('hidden');
+                    buttonLoading.classList.remove('hidden');
+                    buttonLoading.classList.add('flex');
+                    submitButton.disabled = true;
+                }
+            });
+
+            closeToast.addEventListener('click', hideError);
+
+            // --- Keyboard Navigation ---
+            const focusableElements = form.querySelectorAll('input, button, a');
+            form.addEventListener('keydown', (e) => {
+                if (e.key === 'Tab') {
+                    const first = focusableElements[0];
+                    const last = focusableElements[focusableElements.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
+            });
+
+            // --- Forgot Password SweetAlert ---
+            forgotPasswordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Lupa Password?',
+                    text: 'Tenang, bantu kami verifikasi identitasmu dulu ya.',
+                    html: `
+                        <div class="mt-4 space-y-3 text-left">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">4 Digit NIP</label>
+                                <input type="text" id="nip" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Contoh: 1234">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">NIP Lengkap Lintasarta</label>
+                                <input type="text" id="card_id" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Nomor Induk Pegawai">
+                            </div>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Kirim Permintaan',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#9ca3af',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const nip = Swal.getPopup().querySelector('#nip').value;
+                        const card_id = Swal.getPopup().querySelector('#card_id').value;
+                        if (!nip || !card_id) {
+                            Swal.showValidationMessage('Mohon isi semua kolom dulu ya');
+                        }
+                        return { nip, card_id };
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch('/forgot-password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(result.value)
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.fire({
+                                icon: data.success ? 'success' : 'error',
+                                title: data.success ? 'Berhasil Terkirim!' : 'Gagal Mengirim',
+                                text: data.success ? 'Permintaan reset sudah masuk ke Admin. Mohon ditunggu sebentar ya.' : data.error,
+                                confirmButtonColor: '#2563eb'
+                            });
+                        });
+                    }
+                });
+            });
+
+            // --- Force Reset Password Logic (DENGAN FITUR SHOW HIDE PASSWORD) ---
+            {% if session.get('force_reset') %}
+            Swal.fire({
+                title: 'Update Password Dulu, Yuk!',
+                allowOutsideClick: false,
+                html: `
+                    <p class="text-sm text-gray-600 mb-4">Demi keamanan akunmu, mohon perbarui password sebelum lanjut ya.</p>
+                    <div class="text-left space-y-4">
+                        
+                        <div class="relative">
+                            <input type="password" id="new_password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-10" placeholder="Password Baru">
+                            <button type="button" class="toggle-swal-pass absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer" data-target="new_password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="relative">
+                            <input type="password" id="confirm_password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none pr-10" placeholder="Konfirmasi Password">
+                            <button type="button" class="toggle-swal-pass absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer" data-target="confirm_password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                            <p class="font-bold mb-1">Pastikan password memiliki:</p>
+                            <ul class="list-disc pl-4 space-y-1">
+                                <li>Minimal 6 karakter</li>
+                                <li>Ada 1 Huruf Besar & 1 Angka</li>
+                                <li>Ada 1 Karakter Unik (!@#$)</li>
+                            </ul>
+                        </div>
+                    </div>
+                `,
+                confirmButtonText: 'Simpan Password Baru',
+                confirmButtonColor: '#2563eb',
+                // Logic untuk mengaktifkan tombol mata setelah popup muncul
+                didOpen: () => {
+                    const popup = Swal.getPopup();
+                    const toggles = popup.querySelectorAll('.toggle-swal-pass');
+                    
+                    toggles.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const targetId = btn.getAttribute('data-target');
+                            const input = popup.querySelector('#' + targetId);
+                            const icon = btn.querySelector('i');
+
+                            if (input.type === 'password') {
+                                input.type = 'text';
+                                icon.classList.remove('fa-eye');
+                                icon.classList.add('fa-eye-slash');
+                            } else {
+                                input.type = 'password';
+                                icon.classList.remove('fa-eye-slash');
+                                icon.classList.add('fa-eye');
+                            }
+                        });
+                    });
+                },
+                preConfirm: () => {
+                    const new_pass = Swal.getPopup().querySelector('#new_password').value;
+                    const conf_pass = Swal.getPopup().querySelector('#confirm_password').value;
+                    if (!new_pass || !conf_pass) {
+                        Swal.showValidationMessage('Kolom password wajib diisi ya');
+                        return false;
+                    }
+                    if (new_pass !== conf_pass) {
+                        Swal.showValidationMessage('Hmm, password konfirmasi tidak cocok');
+                        return false;
+                    }
+                    return { new_password: new_pass, confirm_password: conf_pass };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/set-new-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(result.value)
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if(data.success && data.redirect) {
+                            Swal.fire({
+                                icon: 'success', 
+                                title: 'Sip, Berhasil!', 
+                                text: 'Password berhasil diperbarui. Mengalihkan...',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = data.redirect;
+                            });
+                        } else {
+                            Swal.fire('Ups, Error', data.error || data.message, 'error');
+                        }
+                    });
+                }
+            });
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

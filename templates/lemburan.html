@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Daftar Pengajuan Lembur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        .block-container {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background-color: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-6 md:py-10">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mt-4 p-4 rounded
+                        {% if category == 'error' %}bg-red-100 text-red-800
+                        {% elif category == 'success' %}bg-green-100 text-green-800
+                        {% elif category == 'warning' %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {% if category == 'error' %}
+                            Oops, {{ message|lower }}!
+                        {% elif category == 'success' %}
+                            Yeay, {{ message|lower }}!
+                        {% elif category == 'warning' %}
+                            Hmm, {{ message|lower }}!
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Daftar Pengajuan Lembur</h2>
+
+        <form method="get" class="block-container mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Awal</label>
+                    <input type="date" name="start_date" class="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           value="{{ start_date }}" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Akhir</label>
+                    <input type="date" name="end_date" class="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           value="{{ end_date }}" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                    <select name="status" class="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Semua Status</option>
+                        {% for status_option in status_options %}
+                        <option value="{{ status_option }}" {% if status == status_option %}selected{% endif %}>{{ status_option }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Bagian/Divisi</label>
+                    <select name="pembagian1_nama" class="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Semua Bagian</option>
+                        {% for pembagian in pembagian1_options %}
+                        <option value="{{ pembagian }}" {% if pembagian1_nama == pembagian %}selected{% endif %}>{{ pembagian }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Cari Nama/NIP</label>
+                    <input type="text" name="search_name" class="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           value="{{ search_name or '' }}" placeholder="Masukkan nama atau NIP">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="block-container table-responsive">
+            <table class="min-w-full bg-white">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">No</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">NIP</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Nama</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Bagian</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">No. Surat</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Tanggal Lembur</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Lokasi Kerja</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Jam Lembur</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Keterangan</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Mengetahui</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Menyetujui</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Pemberi Tugas</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Tanggal Pengajuan</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Total Jam Lembur</th>
+                        <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Download</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if records %}
+                    {% for record in records %}
+                    <tr class="border-t">
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ loop.index }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.pegawai_nip }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.pegawai_nama }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.pembagian1_nama or '-' }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.nomor_surat }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.tanggal_lembur }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.lokasi_kerja }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.jam_lembur_awal }} - {{ record.jam_lembur_akhir }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.keterangan_lembur }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.nama_mengetahui }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.nama_menyetujui }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.pemberi_tugas }}</td>
+                        <td class="px-4 py-2 text-sm">
+                            <span class="status-badge
+                                {% if record.status == 'Menunggu' %}bg-yellow-400 text-black
+                                {% elif record.status == 'Disetujui' %}bg-green-500 text-white
+                                {% elif record.status == 'Ditolak' %}bg-red-500 text-white
+                                {% else %}bg-gray-200 text-black{% endif %}">
+                                {{ record.status }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.tanggal_pengajuan }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">{{ record.total_jam_lembur }} jam</td>
+                        <td class="px-4 py-2 text-sm text-gray-600">
+                            <a href="{{ url_for('download_lembur', id_lembur=record.id_lembur) }}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-download"></i> Unduh
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="16" class="px-4 py-4 text-center text-sm text-gray-600">Tidak ada data pengajuan lembur.</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

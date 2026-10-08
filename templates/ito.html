@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>ITO - APBI</title>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('hidden');
+            if (sidebar.classList.contains('hidden')) {
+                content.classList.remove('lg:ml-56');
+            } else {
+                content.classList.add('lg:ml-56');
+            }
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('settings-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function toggleModal(show, modalId) {
+            const modal = document.getElementById(modalId);
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+ document.addEventListener('DOMContentLoaded', () => {
+    const scrollableElement = document.querySelector('.relative.overflow-y-auto'); 
+    const editButtons = document.querySelectorAll('.edit-button'); 
+
+    const savedScrollPosition = localStorage.getItem('scrollableElementScrollPosition');
+    const highlightedRowIds = JSON.parse(localStorage.getItem('highlightedRowIds')) || []; 
+
+    if (savedScrollPosition) {
+        scrollableElement.scrollTop = parseInt(savedScrollPosition, 10);
+        localStorage.removeItem('scrollableElementScrollPosition'); 
+    }
+
+    highlightedRowIds.forEach(rowId => {
+        const row = document.querySelector(`tr[data-row-id="${rowId}"]`);
+        if (row) {
+            row.style.backgroundColor = '#f0f4ff'; 
+        }
+    });
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault(); 
+
+            const row = button.closest('tr'); 
+            row.style.backgroundColor = '#f0f4ff'; 
+
+            const rowId = row.getAttribute('data-row-id');
+            if (!highlightedRowIds.includes(rowId)) {
+                highlightedRowIds.push(rowId); 
+                localStorage.setItem('highlightedRowIds', JSON.stringify(highlightedRowIds)); 
+            }
+
+            localStorage.setItem('scrollableElementScrollPosition', scrollableElement.scrollTop); 
+
+            setTimeout(() => {
+                window.location.href = button.href;
+            }, 200);
+        });
+    });
+});
+
+    </script>
+    <style>
+                                .scrollbar-hidden {
+                            scrollbar-width: none; 
+                            -ms-overflow-style: none; 
+                        }
+                        .scrollbar-hidden::-webkit-scrollbar {
+                            display: none; 
+                        }
+                        .custom-scrollbar::-webkit-scrollbar {
+                            width: 6px;
+                            height: 6px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-track {
+                            background: #f1f1f1;
+                            border-radius: 10px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-thumb {
+                            background: #c1c1c1;
+                            border-radius: 10px;
+                        }
+                        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                            background: #a8a8a8;
+                        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="relative flex min-h-screen">
+
+        <div id="sidebar" class="w-56 bg-white text-gray-800 flex flex-col p-4 fixed h-full z-40 shadow-lg border-r border-gray-200">
+
+            <button onclick="toggleSidebar()" class="absolute top-4 right-4 text-gray-800 text-xl lg:hidden">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="flex items-center justify-center mb-8">
+                <img src="https://www.lintasarta.net/storage/2024/06/Logo-Lintasarta-new.png" alt="Logo" class="h-auto object-contain max-w-[150px]">
+            </div>
+
+           <nav class="space-y-6">
+                <ul class="space-y-2">
+                
+                    <li>
+                        <a href="/" class="group flex items-center p-3 rounded-xl hover:bg-blue-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Absen</span>
+                        </a>
+                    </li>
+            
+                  
+                    <li>
+                        <a href="/upload_excel" class="group flex items-center p-3 rounded-xl hover:bg-green-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-alt mr-4 text-green-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Upload Jadwal Shift</span>
+                        </a>
+                    </li>
+            
+                   
+                    <li>
+                        <a href="/upload" class="group flex items-center p-3 rounded-xl hover:bg-yellow-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-history mr-4 text-yellow-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen (Mesin Lama)</span>
+                        </a>
+                    </li>
+            
+              
+                    <li>
+                        <a href="/att_log" class="group flex items-center p-3 rounded-xl hover:bg-purple-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-fingerprint mr-4 text-purple-600 text-lg"></i>
+                            <span class="font-semibold text-sm">Load Data Absen Fingerspot</span>
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <a href="/daftar-cuti" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-clipboard-list mr-4 text-pink-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Data Cuti Pegawai</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="/cek_jadwal"  class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300">
+                            <i class="fas fa-calendar-check mr-4 text-blue-500 text-lg"></i>
+                            <span class="font-semibold text-sm">Cek Jadwal Pegawai</span>
+                        </a>
+                    </li>
+            
+                 
+                    <li>
+                        <div>
+                            <button onclick="toggleDropdown()" class="group flex items-center p-3 rounded-xl hover:bg-pink-100 text-gray-800 shadow-md transition duration-300 w-full text-left">
+                                <i class="fas fa-ellipsis-h mr-4 text-pink-500 text-lg"></i>
+                                <span class="font-semibold text-sm">Lainnya</span>
+                                <i class="fas fa-chevron-down ml-auto text-gray-400 group-hover:text-pink-500"></i>
+                            </button>
+                            <ul id="settings-dropdown" class="pl-8 mt-3 space-y-2 hidden">
+                                <li>
+                                    <a href="/pegawai" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-users mr-2 text-blue-500"></i> Pegawai
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/upload-lembur" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-business-time mr-2 text-green-600"></i> Lemburan
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/ito_load" class="block text-sm font-medium text-gray-700 hover:text-blue-500">
+                                        <i class="fas fa-mobile-alt mr-2 text-indigo-500"></i>&nbsp;&nbsp; Absen ITO
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="mt-auto text-center text-sm text-gray-500 border-t border-gray-300 pt-4">
+                <a href="/logout">
+                    <i class="fas fa-sign-out text-lg"></i>
+                    <span class="hidden md:inline font-medium text-sm">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="content" class="flex-1 flex flex-col lg:ml-56">
+
+<div class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-30 border-b border-gray-200">
+
+    <button onclick="toggleSidebar()" class="text-gray-600 bg-gray-100 px-4 py-2 rounded-full hover:bg-gray-200 transition-all flex items-center space-x-2">
+        <i class="fas fa-bars text-lg"></i>
+        <span class="hidden md:inline font-medium text-sm">Menu</span>
+    </button>
+
+    <div class="flex items-center space-x-3">
+
+    </div>
+</div>
+
+<div class="flex-grow p-4 md:p-6 flex flex-col bg-gray-50">
+    <div class="flex-grow flex flex-col">
+        <!-- Upload Section -->
+        <div class="bg-white rounded-xl shadow-md p-4 md:p-5 mb-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="text-center md:text-left">
+                    <h1 class="text-lg md:text-xl font-bold text-gray-800">Upload Data Absen ITO</h1>
+                    <p class="text-gray-500 mt-1 text-sm">Upload file Excel dari aplikasi ITO untuk diupdate.</p>
+                </div>
+                <form method="POST" enctype="multipart/form-data" class="flex items-center gap-3 w-full md:w-auto">
+                    <input type="file" name="file" id="file" required
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition cursor-pointer">
+                    <button type="submit" class="flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center text-sm">
+                        <i class="fas fa-upload mr-2"></i>Upload
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        {% if records %}
+        <form method="POST" action="/update_ito" class="flex-grow flex flex-col bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:p-6 border-b border-gray-200">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">Data Hasil Upload</h2>
+                    <p class="text-sm text-gray-500 mt-1">Pilih data yang akan diupdate ke 'Data Absen'.</p>
+                </div>
+                <div class="flex items-center space-x-4 mt-4 md:mt-0 w-full md:w-auto">
+                    <div class="relative w-full md:w-64">
+                        <select id="divisionFilter" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <option value="all">Semua Divisi</option>
+                            {% for division in divisions %}
+                                <option value="{{ division }}">{{ division }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-building text-gray-400"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-gradient-to-r from-green-600 to-green-500 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg hover:from-green-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i> Update
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex-grow overflow-hidden relative">
+                <div class="absolute inset-0 overflow-auto custom-scrollbar">
+                <table class="w-full table-auto min-w-max text-sm text-left text-gray-700">
+                    <thead class="text-xs text-white uppercase bg-gradient-to-r from-blue-600 to-blue-500 sticky top-0 z-10">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-center">
+                                <input type="checkbox" id="select-all" class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                            </th>
+                            <th scope="col" class="px-4 py-3">Name</th>
+                            <th scope="col" class="px-4 py-3">NIK</th>
+                            <th scope="col" class="px-4 py-3">Divisi</th>
+                            <th scope="col" class="px-4 py-3">Date</th>
+                            <th scope="col" class="px-4 py-3">Time In</th>
+                            <th scope="col" class="px-4 py-3">Time Out</th>
+                            <th scope="col" class="px-4 py-3">Schedule In</th>
+                            <th scope="col" class="px-4 py-3">Schedule Out</th>
+                            <th scope="col" class="px-4 py-3">Total Time</th>
+                            <th scope="col" class="px-4 py-3">Longitude In</th>
+                            <th scope="col" class="px-4 py-3">Latitude In</th>
+                            <th scope="col" class="px-4 py-3">Longitude Out</th>
+                            <th scope="col" class="px-4 py-3">Latitude Out</th>
+                            <th scope="col" class="px-4 py-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for record in records %}
+                        <tr class="hover:bg-blue-50 transition" data-division="{{ record['Divisi'] }}">
+                            <td class="px-4 py-3 text-center">
+                                <input type="checkbox" name="selected_records" value="{{ record['NIK'] }}|{{ record['Date'] }}" class="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 cursor-pointer">
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-800">{{ record['Name'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ record['NIK'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ record['Divisi'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ record['Date'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap font-semibold text-blue-700">{{ record['Time In'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap font-semibold text-purple-700">{{ record['Time Out'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ record['Schedule In'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ record['Schedule Out'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">{{ record['Total Time'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ record['Longitude In'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ record['Latitude In'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ record['Longitude Out'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ record['Latitude Out'] }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                    {% if record['Status'] == 'Late' %} bg-yellow-100 text-yellow-800 
+                                    {% elif record['Status'] == 'Leave Early' %} bg-orange-100 text-orange-800 
+                                    {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                                    {{ record['Status'] }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="text-center py-12 text-gray-500">
+            <i class="fas fa-cloud-upload-alt text-4xl mb-4 text-gray-400"></i>
+            <p>Belum ada data yang diupload.</p>
+            <p class="text-sm">Silakan upload file Excel untuk melihat datanya di sini.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+
+    const selectAllCheckbox = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('input[name="selected_records"]');
+
+    selectAllCheckbox.addEventListener('change', function() {
+        const isChecked = this.checked;
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+    });
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (!this.checked) {
+                selectAllCheckbox.checked = false;
+            } else if ([...checkboxes].every(cb => cb.checked)) {
+                selectAllCheckbox.checked = true;
+            }
+        });
+    });
+
+    // JavaScript untuk filter divisi
+    const divisionFilter = document.getElementById('divisionFilter');
+    if (divisionFilter) {
+        divisionFilter.addEventListener('change', function() {
+            const selectedDivision = this.value;
+            const tableRows = document.querySelectorAll('tbody tr');
+
+            tableRows.forEach(row => {
+                const rowDivision = row.getAttribute('data-division');
+                if (selectedDivision === 'all' || rowDivision === selectedDivision) {
+                    row.style.display = ''; // Tampilkan baris
+                } else {
+                    row.style.display = 'none'; // Sembunyikan baris
+                }
+            });
+        });
+    }
+
+</script>
+
+</body>
+</html>
